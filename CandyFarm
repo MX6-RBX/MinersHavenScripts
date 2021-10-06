@@ -9,7 +9,13 @@ local Cap = 0
 local MinePrompt 
 local AutoCandy
 local DroppedParts = game.Workspace.DroppedParts:FindFirstChild(Tycoon.Name)
-local PopupGui = game:GetService("Players").LocalPlayer.PlayerGui.GUI.InputPrompt.InputPrompt
+local PopupGui = Player.PlayerGui.GUI.InputPrompt.InputPrompt
+local CandyCount = Player.PlayerGui.GUI.HalloweenEvent.CurrencyTacker.Candy:Clone()
+local MoneyLib = require(game:GetService("ReplicatedStorage").MoneyLib)
+local CandyCount = Player.PlayerGui.GUI.HalloweenEvent.CurrencyTacker.Candy:Clone()
+CandyCount.Parent = Player.PlayerGui.GUI
+CandyCount.Position = UDim2.new(.7,0,0,0)
+CandyCount.Size = UDim2.new(0,150,0,30)
 function MoveUpgraders()
     for i,v in pairs(Tycoon:GetDescendants()) do
         if string.match(string.lower(v.Name ),"upgrade") and v:IsA("BasePart") then
@@ -59,6 +65,9 @@ DroppedParts.ChildAdded:Connect(function()
         end
     end
 end)
+Player.Candy.Changed:Connect(function()
+    CandyCount.Amount.Text = MoneyLib.DealWithPoints(Player.Candy.Value)
+end)
 
 
 while wait(0.05) do
@@ -69,10 +78,10 @@ while wait(0.05) do
         local Number = tonumber(FurnaceCount.Text)
         if Number >= Cap then
             fireproximityprompt(FurnacePrompt)
+            wait(0.1)
             PopupGui.Yes.Position = UDim2.new(0.2,-6,0.7,0)
             PopupGui.No.Position = UDim2.new(0.5,6,0.7,0)
-            wait(0.2)
-            
+            wait(0.1)
             mouse1click()
         end
     end
