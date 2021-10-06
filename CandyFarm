@@ -1,0 +1,79 @@
+local UIS = game:GetService("UserInputService")
+
+local Player = game.Players.LocalPlayer
+local Tycoon = Player.PlayerTycoon.Value
+local FurnacePart
+local FurnacePrompt
+local FurnaceCount
+local Cap = 0 
+local MinePrompt 
+local AutoCandy
+local DroppedParts = game.Workspace.DroppedParts:FindFirstChild(Tycoon.Name)
+local PopupGui = game:GetService("Players").LocalPlayer.PlayerGui.GUI.InputPrompt.InputPrompt
+function MoveUpgraders()
+    for i,v in pairs(Tycoon:GetDescendants()) do
+        if string.match(string.lower(v.Name ),"upgrade") and v:IsA("BasePart") then
+            if FurnacePart then 
+                v.CFrame = FurnacePart.CFrame + Vector3.new(0,4,0)
+                v.Size = Vector3.new(6,2,6)
+                v.Transparency = 0
+            end
+        end
+    end
+end
+
+function GetStuff()
+    for i,v in pairs(Tycoon:GetDescendants()) do
+        if v.Name == "Drop" and v.Parent:FindFirstChild("Internal") then
+            MinePrompt = v.Parent:FindFirstChild("Internal").ProximityPrompt
+        elseif v.Name == "Lava" and  v.Parent:FindFirstChild("Internal")  and v.Parent:FindFirstChild("CounterPart") then 
+            FurnacePart = v
+            FurnacePrompt  = v.Parent:FindFirstChild("Internal").ProximityPrompt
+            FurnaceCount = v.Parent.CounterPart.CandyTracker.Background.Amount
+            if v.Parent.Parent.Name == "Candy Metropolis" then 
+                Cap = 10000
+            elseif v.Parent.Parent.Name == "Candy Factory" then
+                Cap = 3000
+            else
+                Cap = 500
+            end
+        end
+    end
+    MoveUpgraders()
+end
+
+UIS.InputBegan:Connect(function(Input)
+    if UIS:GetFocusedTextBox() == nil and Input.KeyCode == Enum.KeyCode.B then
+        GetStuff()
+        AutoCandy = not AutoCandy
+    end
+end)
+DroppedParts.ChildAdded:Connect(function()
+    if AutoCandy then
+        for i,v in pairs(DroppedParts:getChildren()) do
+            if v.Name == "Swintite Mine" or v.Name == "Super Swintite Mine" or v.Name == "Goliath Gumball Machine" or v.Name == "Pumpkinite Mine" then 
+                if FurnacePart then 
+                    v.CFrame = FurnacePart.CFrame + Vector3.new(0,9,0)
+                end
+            end
+        end
+    end
+end)
+
+
+while wait(0.05) do
+    if AutoCandy then 
+        if MinePrompt then 
+           fireproximityprompt(MinePrompt)
+        end
+        local Number = tonumber(FurnaceCount.Text)
+        if Number >= Cap then
+            fireproximityprompt(FurnacePrompt)
+            PopupGui.Yes.Position = UDim2.new(0.2,-6,0.7,0)
+            PopupGui.No.Position = UDim2.new(0.5,6,0.7,0)
+            wait(0.2)
+            
+            mouse1click()
+        end
+    end
+end
