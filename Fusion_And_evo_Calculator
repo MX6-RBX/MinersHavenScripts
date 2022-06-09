@@ -1,0 +1,470 @@
+local CraftCost = Instance.new("ScreenGui")
+local Main = Instance.new("Frame")
+local UICorner = Instance.new("UICorner")
+local ItemList = Instance.new("Frame")
+local Items = Instance.new("ScrollingFrame")
+local UIPadding = Instance.new("UIPadding")
+local UIGridLayout = Instance.new("UIGridLayout")
+local Template = Instance.new("ImageButton")
+local UICorner_2 = Instance.new("UICorner")
+local Selected = Instance.new("Frame")
+local Item = Instance.new("ImageLabel")
+local UICorner_4 = Instance.new("UICorner")
+local Name = Instance.new("TextLabel")
+local UIPadding_2 = Instance.new("UIPadding")
+local Tier = Instance.new("TextLabel")
+local UIPadding_3 = Instance.new("UIPadding")
+local ItemOne = Instance.new("ImageLabel")
+local UICorner_5 = Instance.new("UICorner")
+local Name_2 = Instance.new("TextLabel")
+local UIPadding_4 = Instance.new("UIPadding")
+local Needed = Instance.new("TextLabel")
+local UIPadding_5 = Instance.new("UIPadding")
+local Split = Instance.new("Frame")
+local Amount = Instance.new("TextBox")
+local UICorner_6 = Instance.new("UICorner")
+local UIPadding_6 = Instance.new("UIPadding")
+local ItemTwo = Instance.new("ImageLabel")
+local UICorner_7 = Instance.new("UICorner")
+local Name_3 = Instance.new("TextLabel")
+local UIPadding_7 = Instance.new("UIPadding")
+local Needed_2 = Instance.new("TextLabel")
+local UIPadding_8 = Instance.new("UIPadding")
+local UIStroke = Instance.new("UIStroke")
+local UIStroke_2 = Instance.new("UIStroke")
+local UIStroke_3 = Instance.new("UIStroke")
+local UIStroke_4 = Instance.new("UIStroke")
+local Back = Instance.new("TextButton")
+local UICorner_8 = Instance.new("UICorner")
+local UIPadding_8 = Instance.new("UIPadding")
+local Top = Instance.new("TextLabel")
+
+CraftCost.Name = "CraftCost"
+CraftCost.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+CraftCost.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+Main.Name = "Main"
+Main.Parent = CraftCost
+Main.AnchorPoint = Vector2.new(0.5, 0.5)
+Main.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+Main.Position = UDim2.new(0.5, 0, 0.5, 0)
+Main.Size = UDim2.new(0, 500, 0, 350)
+
+UICorner.CornerRadius = UDim.new(0, 10)
+UICorner.Parent = Main
+
+ItemList.Name = "ItemList"
+ItemList.Parent = Main
+ItemList.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+ItemList.BackgroundTransparency = 1.000
+ItemList.Size = UDim2.new(1, 0, 1, 0)
+ItemList.Visible = true
+
+Items.Name = "Items"
+Items.Parent = ItemList
+Items.Active = true
+Items.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Items.BackgroundTransparency = 1.000
+Items.BorderSizePixel = 0
+Items.Position = UDim2.new(0, 0, 0, 50)
+Items.Size = UDim2.new(1, 0, 1, -50)
+
+UIPadding.Parent = Items
+UIPadding.PaddingBottom = UDim.new(0, 8)
+UIPadding.PaddingLeft = UDim.new(0, 8)
+UIPadding.PaddingRight = UDim.new(0, 8)
+UIPadding.PaddingTop = UDim.new(0, 8)
+
+UIGridLayout.Parent = Items
+UIGridLayout.SortOrder = Enum.SortOrder.LayoutOrder
+UIGridLayout.CellPadding = UDim2.new(0,12,0,12)
+UIGridLayout.CellSize = UDim2.new(0,70,0,70)
+
+Template.Name = "Template"
+Template.Parent = Items
+Template.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Template.Size = UDim2.new(0, 100, 0, 100)
+Template.Image = "rbxassetid://205328631"
+Template.Visible = false
+
+UICorner_2.CornerRadius = UDim.new(0, 10)
+UICorner_2.Parent = Template
+
+
+
+Selected.Name = "Selected"
+Selected.Parent = Main
+Selected.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Selected.BackgroundTransparency = 1.000
+Selected.Size = UDim2.new(1, 0, 1, 0)
+Selected.Visible = false
+
+Item.Name = "ItemItem"
+Item.Parent = Selected
+Item.AnchorPoint = Vector2.new(0.5, 0)
+Item.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Item.Position = UDim2.new(0.5, 0, 0, 10)
+Item.Size = UDim2.new(0, 100, 0, 100)
+Item.Image = "rbxassetid://647385984"
+
+UICorner_4.CornerRadius = UDim.new(0, 10)
+UICorner_4.Parent = Item
+
+Name.Name = "Name"
+Name.Parent = Selected
+Name.AnchorPoint = Vector2.new(0.5, 0)
+Name.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Name.BackgroundTransparency = 1.000
+Name.Position = UDim2.new(0.5, 0, 0, 125)
+Name.Size = UDim2.new(0.5, 0, 0, 30)
+Name.Font = Enum.Font.SourceSansSemibold
+Name.Text = "Quantum Clockwork"
+Name.TextColor3 = Color3.fromRGB(255, 255, 255)
+Name.TextScaled = true
+Name.TextSize = 14.000
+Name.TextTransparency = 0.500
+Name.TextWrapped = true
+
+UIPadding_2.Parent = Name
+UIPadding_2.PaddingLeft = UDim.new(0, 2)
+UIPadding_2.PaddingRight = UDim.new(0, 2)
+
+Tier.Name = "Tier"
+Tier.Parent = Selected
+Tier.AnchorPoint = Vector2.new(0.5, 0)
+Tier.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Tier.BackgroundTransparency = 1.000
+Tier.Position = UDim2.new(0.5, 0, 0, 155)
+Tier.Size = UDim2.new(0.5, 0, 0, 30)
+Tier.Font = Enum.Font.SourceSansSemibold
+Tier.Text = "Reborn Fusion"
+Tier.TextColor3 = Color3.fromRGB(255, 255, 255)
+Tier.TextScaled = true
+Tier.TextSize = 14.000
+Tier.TextTransparency = 0.500
+Tier.TextWrapped = true
+
+UIPadding_3.Parent = Tier
+UIPadding_3.PaddingLeft = UDim.new(0, 2)
+UIPadding_3.PaddingRight = UDim.new(0, 2)
+
+ItemOne.Name = "ItemOne"
+ItemOne.Parent = Selected
+ItemOne.AnchorPoint = Vector2.new(0.5, 0)
+ItemOne.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+ItemOne.Position = UDim2.new(0.25, 0, 0, 210)
+ItemOne.Size = UDim2.new(0, 60, 0, 60)
+ItemOne.Image = "rbxassetid://257890625"
+ItemOne.Visible = false
+
+UICorner_5.CornerRadius = UDim.new(0, 10)
+UICorner_5.Parent = ItemOne
+
+Name_2.Name = "ItemName"
+Name_2.Parent = ItemOne
+Name_2.AnchorPoint = Vector2.new(0.5, 0)
+Name_2.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Name_2.BackgroundTransparency = 1.000
+Name_2.Position = UDim2.new(0.5, 0, 1, 10)
+Name_2.Size = UDim2.new(0, 200, 0, 30)
+Name_2.Font = Enum.Font.SourceSansSemibold
+Name_2.Text = "Quantum Ore Cleaner"
+Name_2.TextColor3 = Color3.fromRGB(255, 255, 255)
+Name_2.TextScaled = true
+Name_2.TextSize = 14.000
+Name_2.TextTransparency = 0.500
+Name_2.TextWrapped = true
+
+UIPadding_4.Parent = Name_2
+UIPadding_4.PaddingLeft = UDim.new(0, 2)
+UIPadding_4.PaddingRight = UDim.new(0, 2)
+
+Needed.Name = "Needed"
+Needed.Parent = ItemOne
+Needed.AnchorPoint = Vector2.new(0.5, 0)
+Needed.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Needed.BackgroundTransparency = 1.000
+Needed.Position = UDim2.new(0.5, 0, 1, 40)
+Needed.Size = UDim2.new(0, 200, 0, 30)
+Needed.Font = Enum.Font.SourceSansSemibold
+Needed.Text = "Need 20 (you have 78)"
+Needed.TextColor3 = Color3.fromRGB(255, 255, 255)
+Needed.TextScaled = true
+Needed.TextSize = 14.000
+Needed.TextTransparency = 0.500
+Needed.TextWrapped = true
+Top.Name = "Top"
+Top.Parent = ItemList
+Top.AnchorPoint = Vector2.new(0.5, 0)
+Top.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Top.BackgroundTransparency = 1.000
+Top.Position = UDim2.new(0.5, 0, 0, 10)
+Top.Size = UDim2.new(1, -14, 0, 30)
+Top.Font = Enum.Font.SourceSansBold
+Top.Text = "Wait for game to load ..."
+Top.TextColor3 = Color3.fromRGB(255, 255, 255)
+Top.TextScaled = true
+Top.TextSize = 14.000
+Top.TextTransparency = 0.500
+Top.TextWrapped = true
+
+UIPadding_5.Parent = Needed
+UIPadding_5.PaddingLeft = UDim.new(0, 2)
+UIPadding_5.PaddingRight = UDim.new(0, 2)
+
+Split.Name = "Split"
+Split.Parent = Selected
+Split.AnchorPoint = Vector2.new(0.5, 0)
+Split.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+Split.BorderSizePixel = 0
+Split.Position = UDim2.new(0.5, 0, 0, 190)
+Split.Size = UDim2.new(1, -20, 0, 1)
+
+Amount.Name = "Amount"
+Amount.Parent = Selected
+Amount.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+Amount.Position = UDim2.new(0, 10, 0, 150)
+Amount.Size = UDim2.new(0, 70, 0, 30)
+Amount.Font = Enum.Font.SourceSansSemibold
+Amount.Text = "Amount"
+Amount.TextColor3 = Color3.fromRGB(255, 255, 255)
+Amount.TextScaled = true
+Amount.TextSize = 14.000
+Amount.TextTransparency = 0.500
+Amount.TextWrapped = true
+
+UICorner_6.CornerRadius = UDim.new(0, 10)
+UICorner_6.Parent = Amount
+
+UIPadding_6.Parent = Amount
+UIPadding_6.PaddingLeft = UDim.new(0, 2)
+UIPadding_6.PaddingRight = UDim.new(0, 2)
+
+ItemTwo.Name = "ItemTwo"
+ItemTwo.Parent = Selected
+ItemTwo.AnchorPoint = Vector2.new(0.5, 0)
+ItemTwo.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+ItemTwo.Position = UDim2.new(0.75, 0, 0, 210)
+ItemTwo.Size = UDim2.new(0, 60, 0, 60)
+ItemTwo.Image = "rbxassetid://402169085"
+ItemTwo.Visible = false
+
+UICorner_7.CornerRadius = UDim.new(0, 10)
+UICorner_7.Parent = ItemTwo
+
+Name_3.Name = "ItemName"
+Name_3.Parent = ItemTwo
+Name_3.AnchorPoint = Vector2.new(0.5, 0)
+Name_3.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Name_3.BackgroundTransparency = 1.000
+Name_3.Position = UDim2.new(0.5, 0, 1, 10)
+Name_3.Size = UDim2.new(0, 200, 0, 30)
+Name_3.Font = Enum.Font.SourceSansSemibold
+Name_3.Text = "Clockwork"
+Name_3.TextColor3 = Color3.fromRGB(255, 255, 255)
+Name_3.TextScaled = true
+Name_3.TextSize = 14.000
+Name_3.TextTransparency = 0.500
+Name_3.TextWrapped = true
+
+UIPadding_7.Parent = Name_3
+UIPadding_7.PaddingLeft = UDim.new(0, 2)
+UIPadding_7.PaddingRight = UDim.new(0, 2)
+
+Needed_2.Name = "Needed"
+Needed_2.Parent = ItemTwo
+Needed_2.AnchorPoint = Vector2.new(0.5, 0)
+Needed_2.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Needed_2.BackgroundTransparency = 1.000
+Needed_2.Position = UDim2.new(0.5, 0, 1, 40)
+Needed_2.Size = UDim2.new(0, 200, 0, 30)
+Needed_2.Font = Enum.Font.SourceSansSemibold
+Needed_2.Text = "Need 25 (you have 54)"
+Needed_2.TextColor3 = Color3.fromRGB(255, 255, 255)
+Needed_2.TextScaled = true
+Needed_2.TextSize = 14.000
+Needed_2.TextTransparency = 0.500
+Needed_2.TextWrapped = true
+
+UIPadding_8.Parent = Needed_2
+UIPadding_8.PaddingLeft = UDim.new(0, 2)
+UIPadding_8.PaddingRight = UDim.new(0, 2)
+
+UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+UIStroke.Parent = Template
+UIStroke.Thickness = 3
+
+UIStroke_2.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+UIStroke_2.Parent = Item
+UIStroke_2.Thickness = 3
+
+UIStroke_3.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+UIStroke_3.Parent = ItemOne
+UIStroke_3.Thickness = 3
+
+UIStroke_4.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+UIStroke_4.Parent = ItemTwo
+UIStroke_4.Thickness = 3
+
+Back.Name = "Back"
+Back.Parent = Selected
+Back.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+Back.Position = UDim2.new(0, 7, 0, 7)
+Back.Size = UDim2.new(0, 50, 0, 25)
+Back.Font = Enum.Font.SourceSansSemibold
+Back.Text = "Back"
+Back.TextColor3 = Color3.fromRGB(255, 255, 255)
+Back.TextScaled = true
+Back.TextSize = 14.000
+Back.TextTransparency = 0.500
+Back.TextWrapped = true
+
+UICorner_8.CornerRadius = UDim.new(0, 10)
+UICorner_8.Parent = Back
+
+UIPadding_8.Parent = Back
+UIPadding_8.PaddingLeft = UDim.new(0, 2)
+UIPadding_8.PaddingRight = UDim.new(0, 2)
+
+local Player = game.Players.LocalPlayer
+local GUI = Player.PlayerGui:WaitForChild("GUI")
+local Check = game.ReplicatedStorage.HasItem
+local FindItem = require(game:GetService("ReplicatedStorage").FetchItem)
+local SelectedItem = nil
+local ItemOneModel = nil
+local ItemTwoModel = nil
+local NeedItem = 1
+Top.Text = "Crafting calculator"
+function ItemSelected(ItemObj)
+	ItemObj = game.ReplicatedStorage.Items:FindFirstChild(ItemObj)
+	SelectedItem =ItemObj
+	Item.Image = "rbxassetid://"..SelectedItem.ThumbnailId.Value
+	Item.UIStroke.Color = game.ReplicatedStorage.Tiers:FindFirstChild(SelectedItem.Tier.Value).TierColor.Value
+	Name.Text = SelectedItem.Name
+	Tier.Text = game.ReplicatedStorage.Tiers:FindFirstChild(SelectedItem.Tier.Value).TierName.Value
+	if SelectedItem:FindFirstChild("FusionReq") then 
+		ItemOne.Visible = true
+		ItemTwo.Visible = true
+		ItemOne.Position = UDim2.new(0.25,0,0,210)
+		ItemTwo.Position = UDim2.new(0.75,0,0,210)
+		for i,v in pairs(SelectedItem.FusionReq:GetChildren()) do
+			if i == 1 then
+			    
+			    local HasCount = Check:InvokeServer(tonumber(v.Name)) or 0
+				local NeededAmount = v.Value*NeedItem
+				ItemOne.Needed.Text = NeededAmount.." Needed (You have "..HasCount..")"
+				ItemOneModel = FindItem.Get(0,tonumber(v.Name))
+				ItemOne.Image = "rbxassetid://"..ItemOneModel.ThumbnailId.Value
+				ItemOne.UIStroke.Color = game.ReplicatedStorage.Tiers:FindFirstChild(ItemOneModel.Tier.Value).TierColor.Value
+				ItemOne.ItemName.Text = ItemOneModel.Name
+				
+				if NeededAmount > HasCount then 
+				    ItemOne.Needed.TextColor3 = Color3.fromRGB(255,100,100)
+			    else
+				    ItemOne.Needed.TextColor3 = Color3.fromRGB(100,255,100)
+			    end
+			elseif i == 2 then 
+				local HasCount = Check:InvokeServer(tonumber(v.Name)) or 0
+				local NeededAmount = v.Value*NeedItem
+				ItemTwo.Needed.Text = NeededAmount.." Needed (You have "..HasCount..")"
+				ItemTwoModel = FindItem.Get(0,tonumber(v.Name))
+				ItemTwo.Image = "rbxassetid://"..ItemTwoModel.ThumbnailId.Value
+				ItemTwo.UIStroke.Color = game.ReplicatedStorage.Tiers:FindFirstChild(ItemTwoModel.Tier.Value).TierColor.Value
+				ItemTwo.ItemName.Text = ItemTwoModel.Name
+				if NeededAmount > HasCount then 
+				    ItemTwo.Needed.TextColor3 = Color3.fromRGB(255,100,100)
+			    else
+				    ItemTwo.Needed.TextColor3 = Color3.fromRGB(100,255,100)
+			    end
+			end
+		end
+	elseif SelectedItem:FindFirstChild("RebornCount") then 
+		ItemOne.Visible = true
+		ItemTwo.Visible = false
+		ItemOne.Position = UDim2.new(0.5,0,0,210)
+		ItemOneModel = FindItem.Get(0,SelectedItem.RebornId.Value)
+		
+		local HasCount = Check:InvokeServer(tonumber(SelectedItem.RebornId.Value)) or 0
+		local NeededAmount = SelectedItem.RebornCount.Value*NeedItem
+		ItemOne.Needed.Text = NeededAmount.." Needed (You have "..HasCount..")"
+		ItemOne.Image = "rbxassetid://"..ItemOneModel.ThumbnailId.Value
+		ItemOne.UIStroke.Color = game.ReplicatedStorage.Tiers:FindFirstChild(ItemOneModel.Tier.Value).TierColor.Value
+		ItemOne.ItemName.Text = ItemOneModel.Name
+		
+		    if NeededAmount > HasCount then 
+				ItemOne.Needed.TextColor3 = Color3.fromRGB(255,100,100)
+			else
+				ItemOne.Needed.TextColor3 = Color3.fromRGB(100,255,100)
+			end
+		
+	end	
+	ItemList.Visible = false
+	Selected.Visible = true
+end
+
+function AddToGui(GuiItem)
+	local Clone = Template:Clone()
+	Clone.Name = GuiItem.Name
+	Clone.Image = "rbxassetid://"..GuiItem.ThumbnailId.Value
+	Clone.UIStroke.Color = game.ReplicatedStorage.Tiers:FindFirstChild(GuiItem.Tier.Value).TierColor.Value
+	Clone.Visible = true
+	Clone.Parent = Items
+	Items.CanvasSize = UDim2.new(0,0,0,UIGridLayout.AbsoluteContentSize.Y)
+end
+	
+for i,v in pairs(game.ReplicatedStorage.Items:GetChildren()) do
+	if v.Tier.Value == 31 or v.Tier.Value == 32 or v.Tier.Value == 34 or v.Tier.Value == 35 then  
+		AddToGui(v)
+	end 
+end
+
+for i,Btn in pairs(Items:GetChildren()) do
+	if Btn:IsA("GuiButton") and Btn.Name ~= "Template" then 
+		Btn.MouseButton1Click:Connect(function()
+			ItemSelected(Btn.Name)
+		end)
+	end
+end
+
+Back.MouseButton1Click:Connect(function()
+	ItemList.Visible = true
+	Selected.Visible = false
+end)
+
+Amount:GetPropertyChangedSignal("Text"):Connect(function()
+	local NeedAmt = 1
+	if tonumber(Amount.Text) then
+		NeedAmt = tonumber(Amount.Text) or 1
+	else
+		NeedAmt = 1
+	end
+	if SelectedItem then 
+		if SelectedItem:FindFirstChild("FusionReq") then
+			local NeededAmountOne = SelectedItem.FusionReq:FindFirstChild(ItemOneModel.ItemId.Value).Value* NeedAmt
+			local NeededAmountTwo  = SelectedItem.FusionReq:FindFirstChild(ItemTwoModel.ItemId.Value).Value* NeedAmt
+			local HasCountOne = Check:InvokeServer(tonumber(ItemOneModel.ItemId.Value)) or 0
+			local HasCountTwo = Check:InvokeServer(tonumber(ItemTwoModel.ItemId.Value)) or 0
+			ItemOne.Needed.Text = NeededAmountOne.." Needed (You have "..HasCountOne..")"
+			ItemTwo.Needed.Text = NeededAmountTwo.." Needed (You have "..HasCountTwo..")"
+			if NeededAmountOne > HasCountOne then 
+				ItemOne.Needed.TextColor3 = Color3.fromRGB(255,100,100)
+			else
+				ItemOne.Needed.TextColor3 = Color3.fromRGB(100,255,100)
+			end
+			if NeededAmountTwo > HasCountTwo then 
+				ItemTwo.Needed.TextColor3 = Color3.fromRGB(255,100,100)
+			else
+				ItemTwo.Needed.TextColor3 = Color3.fromRGB(100,255,100)
+			end
+		elseif SelectedItem:FindFirstChild("RebornCount") then 
+			local NeededAmountOne = SelectedItem.RebornCount.Value*NeedAmt
+			local HasCountOne = Check:InvokeServer(tonumber(ItemOneModel.ItemId.Value)) or 0
+			ItemOne.Needed.Text = NeededAmountOne.." Needed (You have "..HasCountOne..")"
+			if NeededAmountOne > HasCountOne then 
+				ItemOne.Needed.TextColor3 = Color3.fromRGB(255,100,100)
+			else
+				ItemOne.Needed.TextColor3 = Color3.fromRGB(100,255,100)
+			end
+		end
+	end
+end)
