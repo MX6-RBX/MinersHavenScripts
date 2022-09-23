@@ -17,6 +17,7 @@ local Ore = nil
 local Furnace = nil
 local BoostOres = false
 local AutoRB = false
+local DisableManual = false
 _G.Layout = "Layout1"--Chosen layout
 --local SaveOreLimit = tonumber(math.ceil(GUI.Settings.Menu.PrimaryUtil.AdjustOreLimit.Progress.Slider.Slider.Position.X.Scale*250))
 local Tween = require(game:GetService("ReplicatedFirst").Tween);
@@ -122,8 +123,10 @@ UIS.InputBegan:Connect(function(Input)
 	if Input.KeyCode == Enum.KeyCode.G then 
 		if BoostOres then 
 			BoostOres = false
+			DisableManual = true
 			Notify("Ore Boosting: Off",Color3.fromRGB(255,255,255),Color3.fromRGB(30,30,30),"http://www.roblox.com/asset/?id=7265270534")
 		else
+			DisableManual = false
 			BoostOres = true
 			Notify("Ore Boosting: On",Color3.fromRGB(255,255,255),Color3.fromRGB(30,30,30),"http://www.roblox.com/asset/?id=7265270534")
 		end
@@ -147,6 +150,8 @@ Cash.Changed:Connect(function()--(!)  detects change to money and then if there 
 		GUI.FocusWindow.Value = GUI.Layouts
 		game.ReplicatedStorage.Layouts:InvokeServer("Load",_G.Layout)
 		wait(0.1)
-		BoostOres = true
+		if DisableManual == false
+			BoostOres = true
+		end
 	end
 end)
