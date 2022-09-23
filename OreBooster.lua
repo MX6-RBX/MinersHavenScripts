@@ -119,7 +119,7 @@ Ores.ChildAdded:Connect(function(Child)--(!)  detects when a ore is added to the
 end)
 
 UIS.InputBegan:Connect(function(Input)
-	if Input.KeyCode == Enum.KeyCode.Z then 
+	if Input.KeyCode == Enum.KeyCode.G then 
 		if BoostOres then 
 			BoostOres = false
 			Notify("Ore Boosting: Off",Color3.fromRGB(255,255,255),Color3.fromRGB(30,30,30),"http://www.roblox.com/asset/?id=7265270534")
@@ -127,7 +127,7 @@ UIS.InputBegan:Connect(function(Input)
 			BoostOres = true
 			Notify("Ore Boosting: On",Color3.fromRGB(255,255,255),Color3.fromRGB(30,30,30),"http://www.roblox.com/asset/?id=7265270534")
 		end
-	elseif Input.KeyCode == Enum.KeyCode.X then 
+	elseif Input.KeyCode == Enum.KeyCode.H then 
 		--AutoRB = not AutoRB
 		if AutoRB then  
 			AutoRB = false
