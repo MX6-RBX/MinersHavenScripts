@@ -27,13 +27,15 @@ local Upgraders = {
 	"The Rock",
 }
 local Collectors = {
-	["Candy Metropolis"] = 10000,
+	["Candy Center"] = 500,
 	["Candy Factory"] = 3000,
-	["Candy Center"] = 500,	
+	["Candy Metropolis"] = 10000
 }
-local Mine = Tycoon:FindFirstChild("Pumpkinite Mine") or Tycoon:FindFirstChild("Super Swintite Mine") or Tycoon:FindFirstChild("Swintite Mine")
+local Mine = Tycoon:FindFirstChild("Swintite Mine") or  Tycoon:FindFirstChild("Super Swintite Mine") or Tycoon:FindFirstChild("Pumpkinite Mine") 
 local Collect = nil
 local Count = 0
+
+
 
 for i,v in pairs(Collectors) do
 	if Tycoon:FindFirstChild(i)then 
@@ -43,6 +45,19 @@ end
 if Collect then 
 	Count = Collect.Model.CounterPart.CandyTracker.Background.Amount
 end
+
+
+function GetItems()
+     Mine = Tycoon:FindFirstChild("Swintite Mine") or  Tycoon:FindFirstChild("Super Swintite Mine") or Tycoon:FindFirstChild("Pumpkinite Mine") 
+    for i,v in pairs(Collectors) do
+	if Tycoon:FindFirstChild(i)then 
+		Collect = Tycoon:FindFirstChild(i)
+		Count = Collect.Model.CounterPart.CandyTracker.Background.Amount
+		
+	end
+end 
+end
+
 function Boost(Ore)
 	Ore.Anchored = true
 	for i,v in pairs(Upgraders) do
@@ -74,6 +89,7 @@ end)
 
 Run.Stepped:Connect(function()
 	if Autofarm then 
+	    if Mine == nil or Mine:FindFirstChild("Model") == nil or Collect == nil or Collect:FindFirstChild("Model") == nil then GetItems() end 
 		if tonumber(Count.Text)>= Collectors[Collect.Name] then
 			local Prompt = Collect.Model.Internal.ProximityPrompt
 			Player.Character.HumanoidRootPart.CFrame = Prompt.Parent.CFrame + Vector3.new(0,5,0)
@@ -82,12 +98,11 @@ Run.Stepped:Connect(function()
 			local Prompt = Mine.Model.Internal.ProximityPrompt
 			local Mag = (Prompt.Parent.Position-Player.Character.HumanoidRootPart.Position).Magnitude
 			if Mag > 10 then 
-			    Player.Character.HumanoidRootPart.Anchored = true
+			-- Player.Character.HumanoidRootPart.Anchored = true
 				Player.Character.HumanoidRootPart.CFrame = Prompt.Parent.CFrame + Vector3.new(0,5,0)
-				Player.Character.HumanoidRootPart.Anchored = false
+			--Player.Character.HumanoidRootPart.Anchored = false
 			end
 			fireproximityprompt(Prompt, 10)
-
 		end
 	end
 end)
@@ -101,3 +116,4 @@ game.Players.LocalPlayer.PlayerGui.GUI.InputPrompt.Absorb.Changed:connect(functi
 		end
 	end
 end)
+
