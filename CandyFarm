@@ -31,7 +31,7 @@ local Collectors = {
 	["Candy Factory"] = 3000,
 	["Candy Metropolis"] = 10000
 }
-local Mine =Tycoon:FindFirstChild("Pumpkinite Mine")  or  Tycoon:FindFirstChild("Super Swintite Mine") or  Tycoon:FindFirstChild("Swintite Mine")
+local Mine = Tycoon:FindFirstChild("Pumpkinite Mine") or Tycoon:FindFirstChild("Super Swintite Mine") or Tycoon:FindFirstChild("Swintite Mine")
 local Collect = nil
 local Count = 0
 
