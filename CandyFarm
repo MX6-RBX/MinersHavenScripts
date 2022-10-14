@@ -1,88 +1,103 @@
 local UIS = game:GetService("UserInputService")
-
+local Run = game:GetService("RunService")
 local Player = game.Players.LocalPlayer
 local Tycoon = Player.PlayerTycoon.Value
-local FurnacePart
-local FurnacePrompt
-local FurnaceCount
-local Cap = 0 
-local MinePrompt 
-local AutoCandy
-local DroppedParts = game.Workspace.DroppedParts:FindFirstChild(Tycoon.Name)
-local PopupGui = Player.PlayerGui.GUI.InputPrompt.InputPrompt
-local CandyCount = Player.PlayerGui.GUI.HalloweenEvent.CurrencyTacker.Candy:Clone()
-local MoneyLib = require(game:GetService("ReplicatedStorage").MoneyLib)
-local CandyCount = Player.PlayerGui.GUI.HalloweenEvent.CurrencyTacker.Candy:Clone()
-CandyCount.Parent = Player.PlayerGui.GUI
-CandyCount.Position = UDim2.new(.7,0,0,0)
-CandyCount.Size = UDim2.new(0,150,0,30)
-function MoveUpgraders()
-    for i,v in pairs(Tycoon:GetDescendants()) do
-        if string.match(string.lower(v.Name ),"upgrade") and v:IsA("BasePart") then
-            if FurnacePart then 
-                v.CFrame = FurnacePart.CFrame + Vector3.new(0,4,0)
-                v.Size = Vector3.new(6,2,6)
-                v.Transparency = 0
-            end
-        end
-    end
+local Popup = Player.PlayerGui.GUI.InputPrompt.InputPrompt
+local Ores = game.Workspace.DroppedParts:FindFirstChild(Tycoon.Name)
+local Autofarm = nil
+local Upgraders = {
+	"Candy Castle",
+	"Candy Core",
+	"Candy Corn Real Estate",
+	"Candy Refiner",
+	"Candycorn Refiner",
+	"Chocolate Coater",
+	"Chocolate Forest",
+	"Frank'n'Cupcake",
+	"Giant Pretzel",
+	"Grand Wafer",
+	"Gummy Refiner",
+	"Hellish Bat Cookie",
+	"Lollipop-inator",
+	"Ore Caramelizer",
+	"Pumpkin Pie Refiner",
+	"Pumpkin Spice Refiner",
+	"Sugar Corroder",
+	"The Cookinator",
+	"The Rock",
+}
+local Collectors = {
+	["Candy Center"] = 500,
+	["Candy Factory"] = 3000,
+	["Candy Metropolis"] = 10000
+}
+local Mine = Tycoon:FindFirstChild("Swintite Mine") or  Tycoon:FindFirstChild("Super Swintite Mine") or Tycoon:FindFirstChild("Pumpkinite Mine") 
+local Collect = nil
+local Count = 0
+
+for i,v in pairs(Collectors) do
+	if Tycoon:FindFirstChild(i)then 
+		Collect = Tycoon:FindFirstChild(i)
+	end
+end
+if Collect then 
+	Count = Collect.Model.CounterPart.CandyTracker.Background.Amount
+end
+function Boost(Ore)
+	Ore.Anchored = true
+	for i,v in pairs(Upgraders) do
+		local Item = Tycoon:FindFirstChild(v)
+		if Item then 
+			firetouchinterest(Item.Model.Upgrade,Ore,0)
+			wait(0.01)
+			firetouchinterest(Item.Model.Upgrade,Ore,1)
+		end
+	end
+	wait(.5)
+	Ore.Anchored = false
+	firetouchinterest(Collect.Model.Lava,Ore,0)
+	firetouchinterest(Collect.Model.MiniLava,Ore,0)
 end
 
-function GetStuff()
-    for i,v in pairs(Tycoon:GetDescendants()) do
-        if v.Name == "Drop" and v.Parent:FindFirstChild("Internal") then
-            MinePrompt = v.Parent:FindFirstChild("Internal").ProximityPrompt
-        elseif v.Name == "Lava" and  v.Parent:FindFirstChild("Internal")  and v.Parent:FindFirstChild("CounterPart") then 
-            FurnacePart = v
-            FurnacePrompt  = v.Parent:FindFirstChild("Internal").ProximityPrompt
-            FurnaceCount = v.Parent.CounterPart.CandyTracker.Background.Amount
-            if v.Parent.Parent.Name == "Candy Metropolis" then 
-                Cap = 10000
-            elseif v.Parent.Parent.Name == "Candy Factory" then
-                Cap = 3000
-            else
-                Cap = 500
-            end
-        end
-    end
-    MoveUpgraders()
-end
+Ores.ChildAdded:Connect(function(Ore)
+	print(Ore:GetChildren())
+	if Ore.Name == Mine.Name then 
+		Boost(Ore)
+	end
+end)
 
 UIS.InputBegan:Connect(function(Input)
-    if UIS:GetFocusedTextBox() == nil and Input.KeyCode == Enum.KeyCode.B then
-        GetStuff()
-        AutoCandy = not AutoCandy
-    end
-end)
-DroppedParts.ChildAdded:Connect(function()
-    if AutoCandy then
-        for i,v in pairs(DroppedParts:getChildren()) do
-            if v.Name == "Swintite Mine" or v.Name == "Super Swintite Mine" or v.Name == "Goliath Gumball Machine" or v.Name == "Pumpkinite Mine" then 
-                if FurnacePart then 
-                    v.CFrame = FurnacePart.CFrame + Vector3.new(0,9,0)
-                end
-            end
-        end
-    end
-end)
-Player.Candy.Changed:Connect(function()
-    CandyCount.Amount.Text = MoneyLib.DealWithPoints(Player.Candy.Value)
+	if Input.KeyCode == Enum.KeyCode.H then 
+		Autofarm = not Autofarm 
+	end
 end)
 
+Run.Stepped:Connect(function()
+	if Autofarm then 
+		if tonumber(Count.Text)>= Collectors[Collect.Name] then
+			local Prompt = Collect.Model.Internal.ProximityPrompt
+			Player.Character.HumanoidRootPart.CFrame = Prompt.Parent.CFrame + Vector3.new(0,5,0)
+			fireproximityprompt(Prompt, 10)
+		else
+			local Prompt = Mine.Model.Internal.ProximityPrompt
+			local Mag = (Prompt.Parent.Position-Player.Character.HumanoidRootPart.Position).Magnitude
+			if Mag > 10 then 
+			    Player.Character.HumanoidRootPart.Anchored = true
+				Player.Character.HumanoidRootPart.CFrame = Prompt.Parent.CFrame + Vector3.new(0,5,0)
+				Player.Character.HumanoidRootPart.Anchored = false
+			end
+			fireproximityprompt(Prompt, 10)
 
-while wait(0.05) do
-    if AutoCandy then 
-        if MinePrompt then 
-           fireproximityprompt(MinePrompt)
-        end
-        local Number = tonumber(FurnaceCount.Text)
-        if Number >= Cap then
-            fireproximityprompt(FurnacePrompt)
-            wait(0.1)
-            PopupGui.Yes.Position = UDim2.new(0.2,-6,0.7,0)
-            PopupGui.No.Position = UDim2.new(0.5,6,0.7,0)
-            wait(0.1)
-            mouse1click()
-        end
-    end
-end
+		end
+	end
+end)
+
+game.Players.LocalPlayer.PlayerGui.GUI.InputPrompt.Absorb.Changed:connect(function(property)
+	if property == "Visible" then
+		if string.match(string.lower(Popup.Title.Text),"would you like to collect") then
+			for i,v in pairs(getconnections(game.Players.LocalPlayer.PlayerGui.GUI.InputPrompt.InputPrompt.Yes.MouseButton1Click)) do
+				v:Fire()
+			end
+		end
+	end
+end)
