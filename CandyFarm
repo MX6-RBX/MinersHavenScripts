@@ -27,9 +27,9 @@ local Upgraders = {
 	"The Rock",
 }
 local Collectors = {
-	["Candy Center"] = 500,
+	["Candy Metropolis"] = 10000,
 	["Candy Factory"] = 3000,
-	["Candy Metropolis"] = 10000
+	["Candy Center"] = 500,	
 }
 local Mine = Tycoon:FindFirstChild("Pumpkinite Mine") or Tycoon:FindFirstChild("Super Swintite Mine") or Tycoon:FindFirstChild("Swintite Mine")
 local Collect = nil
