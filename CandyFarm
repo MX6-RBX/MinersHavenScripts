@@ -103,8 +103,12 @@ function Boost(Ore)
 		end
 	end
 	wait(.5)
+	if AutoCollect then
+	Ore.Anchored = false
+	else
 	firetouchinterest(Collect.Model.Lava,Ore,0)
 	firetouchinterest(Collect.Model.MiniLava,Ore,0)
+	end
 end
 
 local SectionMainTab = MainTab:NewSection("Auto Candy")
