@@ -103,7 +103,7 @@ function Boost(Ore)
 		end
 	end
 	wait(.5)
-	if AutoCollect then
+	if AutoCollect == true then
 	firetouchinterest(Collect.Model.Lava,Ore,0)
 	firetouchinterest(Collect.Model.MiniLava,Ore,0)
 	else
