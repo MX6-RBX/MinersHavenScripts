@@ -104,10 +104,10 @@ function Boost(Ore)
 	end
 	wait(.5)
 	if AutoCollect then
-	Ore.Anchored = false
-	else
 	firetouchinterest(Collect.Model.Lava,Ore,0)
 	firetouchinterest(Collect.Model.MiniLava,Ore,0)
+	else
+	Ore.Anchored = false
 	end
 end
 
