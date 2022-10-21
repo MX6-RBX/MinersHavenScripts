@@ -49,9 +49,9 @@ local Mines  = {"Swintite Mine",
 }
 
 local Collectors = {
-	["Candy Center"] = 500,
-	["Candy Factory"] = 3000,
-	["Candy Metropolis"] = 10000
+	["Candy Center"] = 450,
+	["Candy Factory"] = 3800,
+	["Candy Metropolis"] = 9500
 }
 
 function GetItems()
