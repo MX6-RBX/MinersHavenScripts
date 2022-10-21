@@ -24,7 +24,6 @@ local Mine
 
 local Upgraders = {
 	"Candy Castle",
-	"Candy Core",
 	"Candy Corn Real Estate",
 	"Candy Refiner",
 	"Candycorn Refiner",
@@ -97,10 +96,23 @@ function Boost(Ore)
 	for i,v in pairs(Upgraders) do
 		local Item = Tycoon:FindFirstChild(v)
 		if Item then 
+		    if Item:FindFirstChild("Upgrade") then 
 			firetouchinterest(Item.Model.Upgrade,Ore,0)
 			wait(0.01)
-			firetouchinterest(Item.Model.Upgrade,Ore,1)
+			firetouchinterest(Item.Model.Upgrade,Ore,1) 
+		    else
+		    for _,Part in pairs(Item.Model:GetDescendants()) do
+		        if Part.Name == "Upgrade" then 
+		            firetouchinterest(Part,Ore,0)
+			        wait(0.01)
+			        firetouchinterest(Part,Ore,1)
+		        end
+		    end
+		    end
 		end
+	end
+	if Tycoon:FindFirstChild("Candy Core") then 
+		game:GetService("ReplicatedStorage").Pulse:FireServer()
 	end
 	wait(.5)
 	if AutoCollect == true then
