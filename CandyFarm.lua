@@ -192,8 +192,8 @@ Run.Stepped:Connect(function()
         	local Mag = (Prompt.Parent.Position-Player.Character.HumanoidRootPart.Position).Magnitude
         	if Mag > 20 then 
         	    Player.Character.HumanoidRootPart.CFrame = Prompt.Parent.CFrame + Vector3.new(0,5,0)
-            end
-		    fireproximityprompt(Prompt, 10)
+            	end
+		fireproximityprompt(Prompt, 10)
     	end
     end
 end)
