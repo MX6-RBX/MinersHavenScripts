@@ -183,16 +183,16 @@ end)
 
 Run.Stepped:Connect(function()
 	if AutoMine then 
-		if Mine == nil or Mine:FindFirstChild("Model") == nil or Collect == nil or Collect:FindFirstChild("Model") == nil then GetItems() end 
-		if tonumber(Count.Text)>= Collectors[Collect.Name] and AutoCollect then
-		local Prompt = Collect.Model.Internal.ProximityPrompt
-		fireproximityprompt(Prompt, 10)
-    	else
-    		local Prompt = Mine.Model.Internal.ProximityPrompt
-    		local Mag = (Prompt.Parent.Position-Player.Character.HumanoidRootPart.Position).Magnitude
-    		if Mag > 20 then 
-    		Player.Character.HumanoidRootPart.CFrame = Prompt.Parent.CFrame + Vector3.new(0,5,0)
-    		end
+		if Mine == nil or Mine:FindFirstChild("Model") == nil or Collect == nil or Collect:FindFirstChild("Model") == nil then GetItems() return end 
+    	if tonumber(Count.Text)>= Collectors[Collect.Name] and AutoCollect then
+        	local Prompt = Collect.Model.Internal.ProximityPrompt
+        	fireproximityprompt(Prompt, 10)
+        else
+        	local Prompt = Mine.Model.Internal.ProximityPrompt
+        	local Mag = (Prompt.Parent.Position-Player.Character.HumanoidRootPart.Position).Magnitude
+        	if Mag > 20 then 
+        	    Player.Character.HumanoidRootPart.CFrame = Prompt.Parent.CFrame + Vector3.new(0,5,0)
+            end
 		    fireproximityprompt(Prompt, 10)
     	end
     end
