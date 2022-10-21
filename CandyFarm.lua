@@ -134,7 +134,7 @@ end)
 local AutoCollectToggle = SectionMainTab:NewToggle("Auto Collect", "Collects Candy from a candy center for you", function(state)
   AutoCollect = state
   print(AutoCollect)
-  GetItems()
+  
 end)
 
 local AutoUpgradeToggle = SectionMainTab:NewToggle("Auto Upgrade", "Upgardes the candy ores with placed candy upgarders", function(state)
@@ -180,7 +180,7 @@ Ores.ChildAdded:Connect(function(Ore)
 		Boost(Ore)
 	end
 end)
-
+GetItems()
 Run.Stepped:Connect(function()
 	if AutoMine then 
 		if Mine == nil or Mine:FindFirstChild("Model") == nil or Collect == nil or Collect:FindFirstChild("Model") == nil then GetItems() return end 
