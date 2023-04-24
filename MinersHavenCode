@@ -1,0 +1,38 @@
+--This is a file that will hold some of the usfull bit of code you might want for making Miners Haven Scripts
+
+--MoneyLib   
+local MoneyLib = require(game.ReplicatedStorage.MoneyLib)--Grabs the module script
+local ConvertToMon = MoneyLib.HandleMoney(3000000000)-- This will convert a number into the readable suffix system while also adding the $ symbol at the start
+local ConvertToSufix = MoneyLib.DealWithPoints(3000000000)-- Same as HandleMoney just without the $ symbol at tne start
+local RebirthPrice = MoneyLib.RebornPrice(Player)-- Gets the rebirth price for the player that was passed. This also works for other players
+local Commas = MoneyLib.FormatWithComma(3000000000)-- Formarts the value into a full lenth version with commas like this 3,000,000,000
+
+--Remote functions/Events
+local RemoteDrop  = game:GetService("ReplicatedStorage").RemoteDrop-- RemoteEvent to activate all remote Droppers(Use :FireServer() to fire  )
+local WithdrawAll = game:GetService("ReplicatedStorage").DestroyAll-- RemoteFunction for clearing all items on the players base( Use :InvokeServer() to Fire )
+local Rebirth = game:GetService("ReplicatedStorage").Rebirth-- Remote Function for rebirthing( Use :InvokeServer() to Fire )
+local BuyItem = game:GetService("ReplicatedStorage").BuyItem-- Remote Function for buying items from the shop( Use :InvokeServer(ItemName,Amount(Max of 99)) to Fire)
+local Layouts = game:GetService("ReplicatedStorage").Layouts-- Remote Function for Loading/Saving/Clearing layouts (Use :InvokeServer(Action(Load,Save,Clear),LayoutName) to Fire)
+local RedeemFreeDailyBox = game:GetService("ReplicatedStorage").RedeemFreeBox-- Remot Event for claiming the free box you can get from the Box man(Use :FireServer() to fire)
+local OreLimit = game:GetService("ReplicatedStorage").UpdateLimit-- Remote Function for setting the base ore limit(user :InvokeServer((1/250)*Limit)to Fire
+
+
+--values 
+local PlayerTycoon = game.Players.LocalPlayer.PlayerTycoon.Value
+local Rebirths = game.Players.LocalPlayer.Rebirths
+local Cash = game.ReplicatedStorage.MoneyMirror:FindFirstChild(game.Players.LocalPlayer.Name)
+local 
+
+--UseFull code
+
+--This will loop throught every item in the games Items object
+for _,Item in pairs(game.ReplicatedStorage.Items:GetChildren()) do
+
+end
+
+--This will grab every item on the players base(Note im using the Playertycoon Variable from Above)
+for _,Item in pairs(PlayerTycoon:getChildren()) do
+  if Item:FindFirstChild("ItemId") then
+    
+  end
+end
