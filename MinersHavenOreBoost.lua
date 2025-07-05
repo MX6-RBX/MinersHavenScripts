@@ -78,12 +78,15 @@ local MoneyLoopables = {
 	["⭐ Hypergiant Blue Supergiant ⭐"]={ Cap = 1e+90,Effect = "Fire",MinVal = nil,MinWait = 1.5},
 }
 
+local EffectRemovers = {"Wild Spore", "Deadly Spore", "Azure Spore", "The Death Cap"}
+
 local ResettersNames = {"Resetter","Tesla Refuter","Black Dwarf","Void Star","The Ultimate Sacrifice","The Final Upgrader","Daestrophe"}
-local Resetters = {{Item = "Tesla Resetter", Evo = "Tesla Refuter",IPosition = Vector3.new(12,2,0)},
+local Resetters = {
+	{Item = "Tesla Resetter", Evo = "Tesla Refuter",IPosition = Vector3.new(12,2,0)},
 	{Item = "Black Dwarf",Evo = "Void Star",IPosition =  Vector3.new(24,2,0)},
 	{Item = "The Ultimate Sacrifice", Evo = "The Final Upgrader",IPosition = Vector3.new(36,2,0)},
-	{Item = "Daestrophe",Evo = nil, IPosition =  Vector3.new(48,2,0)}}	
-
+	{Item = "Daestrophe",Evo = nil, IPosition =  Vector3.new(48,2,0)}
+}	
 
 local UILib = loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX/UiLib/refs/heads/main/UiLib.lua"))()
 local MainUi = UILib.new("Miners Haven Hub")
@@ -229,18 +232,11 @@ end
 
 function BoostOre(Ore)
 	for i,v in Tycoon:GetChildren() do
-		if OreBoostActive == false then
-			break
-		end
-		if not Ore then
-			break
-		end
-		if not v  then
-			break
-		end
-		if MoneyLoopables[v.Name] or table.find(ResettersNames,v.Name) then
-			continue
-		end
+		if OreBoostActive == false then break end--Oreboost not active
+		if not Ore then break end--Ore missing
+		if not v  then break end--ItemMissing
+		if MoneyLoopables[v.Name] or table.find(ResettersNames,v.Name) then continue end--Passes money loops and resetters
+		
 		if v and v:FindFirstChild("ItemId") and v:FindFirstChild("Plane")  then
 			if v and v:FindFirstChild("Model") and v.Model:FindFirstChild("Upgrade") then
 				for i=1,2 do
@@ -321,14 +317,22 @@ function StartOreBoost(Ore)
 
 	local SavePos = Ore.CFrame
 	local MoneyLoop = nil
+	local LooperStats 
+	local Protect
 	Ore.Anchored = false
 	if UsingMoneyLoop then
 		for i,v in MoneyLoopables do
 			if Tycoon:FindFirstChild(i) then 
 				MoneyLoop = Tycoon:FindFirstChild(i)
+				LooperStats = i
+			end
+			
+		end
+		for i,v in EffectRemovers do
+			if Tycoon:FindFirstChild(i) then 
+				Protect = Tycoon:FindFirstChild(i)
 			end
 		end
-
 		if MoneyLoop then
 			local Info = MoneyLoopables[MoneyLoop.Name]
 			repeat 
@@ -337,6 +341,11 @@ function StartOreBoost(Ore)
 				end
 				if OreBoost == false or OreBoostActive == false then break end 
 				Ore.CFrame = MoneyLoop.Model.Upgrade.CFrame
+				if LooperStats.Effect ~= nil and Protect ~= nil then
+					Ore.CFrame = Protect.Model.Upgrade.CFrame
+				else
+					print("No effect or missing removing device")
+				end
 				wait(0.1)
 			until Ore == nil or MoneyLoop == nil or MoneyLoop:FindFirstChild("Model") == nil or Ore:FindFirstChild("Cash") == nil or Ore.Cash.Value >= Info.Cap
 		end
