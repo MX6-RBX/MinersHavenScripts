@@ -134,6 +134,7 @@ end)
 local MooneyLoopToggle = BoostSection:addToggle("Use Money Loopables",false,function(Val)
 	UsingMoneyLoop = Val
 end)
+
 local MinWaitBox = BoostSection:addTextbox("Minimum Rebirth Wait","20",function(text)
 	MinWait = tonumber(text) or 20
 end)
@@ -230,24 +231,26 @@ local function RebornPrice(Player)
 	return cost
 end
 
-function BoostOre(Ore)
+function BoostOre(Ore,Single)
 	for i,v in Tycoon:GetChildren() do
-		if OreBoostActive == false then break end--Oreboost not active
+		if OreBoostActive == false and Single == false then break end--Oreboost not active
 		if not Ore then break end--Ore missing
 		if not v  then break end--ItemMissing
 		if MoneyLoopables[v.Name] or table.find(ResettersNames,v.Name) then continue end--Passes money loops and resetters
-		
+
 		if v and v:FindFirstChild("ItemId") and v:FindFirstChild("Plane")  then
 			if v and v:FindFirstChild("Model") and v.Model:FindFirstChild("Upgrade") then
-				for i=1,2 do
+				local SavePos = v.Model.Upgrade.CFrame
+				v.Model.Upgrade.CFrame = v.Model.Upgrade.CFrame + Vector3.new(0,20,0)
+				for i=1,3 do
 					Ore.CFrame =v.Model.Upgrade.CFrame
 					wait(0.05)
 				end
+				v.Model.Upgrade.CFrame = SavePos
 			elseif v and v:FindFirstChild("Model") and v.Model:FindFirstChild("Lava") and not v.Model:FindFirstChild("Lava"):FindFirstChild("TeleportSend") then
 				if Furnace == nil or Furnace:FindFirstChild("Model") == nil or Furnace.Model:FindFirstChild("Lava")then 
 					Furnace = v	
-				end 
-
+				end
 			end
 		end
 	end
@@ -255,59 +258,35 @@ function BoostOre(Ore)
 end
 
 function Reset(Ore)
+	local Dae = Tycoon:FindFirstChild("Daestrophe") 
+	local Sac =  Tycoon:FindFirstChild("The Final Upgrader") or Tycoon:FindFirstChild("The Ultimate Sacrifice")  
+	local Star = Tycoon:FindFirstChild("Void Star") or Tycoon:FindFirstChild("Black Dwarf")
+	local Tes = Tycoon:FindFirstChild("Resetter") or Tycoon:FindFirstChild("Tesla Refuter")
+	
 	BoostOre(Ore)
-	for i,v in pairs(Resetters) do
-		local Reset = false
-		if v.Evo ~= nil then
-			if Tycoon:FindFirstChild(v.Evo) then
-				local Item = Tycoon:FindFirstChild(v.Evo)
-				if OreBoostActive == false then
-					break
-				end
-				if not Ore then
-					break
-				end
-				if Item == nil  or Item:FindFirstChild("Model") == nil then continue end
-				Ore.CFrame = Item.Model.Upgrade.CFrame
-				wait(0.2)
-				Reset = true
-			elseif Tycoon:FindFirstChild(v.Item) then
-				local Item = Tycoon:FindFirstChild(v.Item)
-				if OreBoostActive == false then
-					break
-				end
-				if not Ore then
-					break
-				end
-				if Item == nil  or Item:FindFirstChild("Model") == nil then continue end
-				Ore.CFrame = Item.Model.Upgrade.CFrame
-				wait(0.2)
-				Reset = true
-			else
-			end
-		else
-			if Tycoon:FindFirstChild(v.Item)then
-				local Item = Tycoon:FindFirstChild(v.Item)
-				if OreBoostActive == false then
-					break
-				end
-				if not Ore then
-					break
-				end
-				if Item == nil  or Item:FindFirstChild("Model") == nil then continue end
-
-				Ore.CFrame = Item.Model.Upgrade.CFrame
-				wait(0.2)
-				Reset = true
-			else
-
-			end
+	if Dae and Ore and OreBoostActive then 
+		for i=1,3 do 
+			Ore.CFrame = Dae.Model.Upgrade.CFrame
 		end
-		if Reset then
-			BoostOre(Ore)
-		else
-			continue
+		BoostOre(Ore)
+	end
+	if Sac and Ore and OreBoostActive then 
+		for i=1,3 do 
+			Ore.CFrame = Sac.Model.Upgrade.CFrame
 		end
+		BoostOre(Ore)
+	end
+	if Star and Ore and OreBoostActive then 
+		for i=1,3 do 
+			Ore.CFrame = Star.Model.Upgrade.CFrame
+		end
+		BoostOre(Ore)
+	end
+	if Tes and Ore and OreBoostActive then 
+		for i=1,3 do 
+			Ore.CFrame = Tes.Model.Upgrade.CFrame
+		end
+		BoostOre(Ore)
 	end
 end
 
@@ -326,7 +305,7 @@ function StartOreBoost(Ore)
 				MoneyLoop = Tycoon:FindFirstChild(i)
 				LooperStats = i
 			end
-			
+
 		end
 		for i,v in EffectRemovers do
 			if Tycoon:FindFirstChild(i) then 
@@ -389,12 +368,15 @@ end
 
 if Ores then
 	Ores.ChildAdded:Connect(function(Child)
-
 		if OreBoost then
 			StartOreBoost(Child)
 		end
 	end)
 end
+
+local SingleBoost = BoostSection:addButton("Single Boost", function()
+	StartOreBoost()
+end)
 
 local rebirthing  = false
 local LastRebirth = os.time()
@@ -413,6 +395,7 @@ Money.Changed:Connect(function()
 		end
 	end
 end)
+
 
 game.Workspace.Boxes.ChildAdded:Connect(function(Box)
 	AddBoxTrack(Box)
