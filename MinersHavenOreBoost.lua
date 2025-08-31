@@ -269,24 +269,32 @@ function Reset(Ore)
 			Ore.CFrame = Dae.Model.Upgrade.CFrame
 		end
 		BoostOre(Ore)
+		else
+		print("Daestrophe Not found")
 	end
 	if Sac and Ore and OreBoostActive then 
 		for i=1,3 do 
 			Ore.CFrame = Sac.Model.Upgrade.CFrame
 		end
 		BoostOre(Ore)
+		else
+		print("Sacrifice resetter Not found")
 	end
 	if Star and Ore and OreBoostActive then 
 		for i=1,3 do 
 			Ore.CFrame = Star.Model.Upgrade.CFrame
 		end
 		BoostOre(Ore)
+		else
+		print("Void star/black dwarf Not found")
 	end
 	if Tes and Ore and OreBoostActive then 
 		for i=1,3 do 
 			Ore.CFrame = Tes.Model.Upgrade.CFrame
 		end
 		BoostOre(Ore)
+		else
+		print("Tesla Not found")
 	end
 end
 
