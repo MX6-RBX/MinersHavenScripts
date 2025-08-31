@@ -240,13 +240,10 @@ function BoostOre(Ore,Single)
 
 		if v and v:FindFirstChild("ItemId") and v:FindFirstChild("Plane")  then
 			if v and v:FindFirstChild("Model") and v.Model:FindFirstChild("Upgrade") then
-				local SavePos = v.Model.Upgrade.CFrame
-				v.Model.Upgrade.CFrame = v.Model.Upgrade.CFrame + Vector3.new(0,20,0)
 				for i=1,3 do
-					Ore.CFrame =v.Model.Upgrade.CFrame
+					Ore.CFrame =v.Model.Upgrade.CFrame 
 					wait(0.05)
 				end
-				v.Model.Upgrade.CFrame = SavePos
 			elseif v and v:FindFirstChild("Model") and v.Model:FindFirstChild("Lava") and not v.Model:FindFirstChild("Lava"):FindFirstChild("TeleportSend") then
 				if Furnace == nil or Furnace:FindFirstChild("Model") == nil or Furnace.Model:FindFirstChild("Lava")then 
 					Furnace = v	
