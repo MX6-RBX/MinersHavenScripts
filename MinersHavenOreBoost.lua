@@ -267,6 +267,7 @@ function Reset(Ore)
 	if Dae and Ore and OreBoostActive then 
 		for i=1,3 do 
 			Ore.CFrame = Dae.Model.Upgrade.CFrame
+			wait(0.05)
 		end
 		BoostOre(Ore)
 		else
@@ -275,6 +276,7 @@ function Reset(Ore)
 	if Sac and Ore and OreBoostActive then 
 		for i=1,3 do 
 			Ore.CFrame = Sac.Model.Upgrade.CFrame
+			wait(0.05)
 		end
 		BoostOre(Ore)
 		else
@@ -283,6 +285,7 @@ function Reset(Ore)
 	if Star and Ore and OreBoostActive then 
 		for i=1,3 do 
 			Ore.CFrame = Star.Model.Upgrade.CFrame
+			wait(0.05)
 		end
 		BoostOre(Ore)
 		else
@@ -291,6 +294,7 @@ function Reset(Ore)
 	if Tes and Ore and OreBoostActive then 
 		for i=1,3 do 
 			Ore.CFrame = Tes.Model.Upgrade.CFrame
+			wait(0.05)
 		end
 		BoostOre(Ore)
 		else
