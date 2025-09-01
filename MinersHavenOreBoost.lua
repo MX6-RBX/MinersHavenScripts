@@ -127,31 +127,55 @@ end
 
 local AutoRebirthToggle = BoostSection:addToggle("Auto Rebirth",false,function(Val)
 	AutoRebirth = Val
+	if TestingMode then
+		print("Auto Rebirth: ",Val)
+	end 
 end)
 local OreBoostToggle = BoostSection:addToggle("Ore Boost",false,function(Val)
 	OreBoost = Val
 	OreBoostActive = Val
+	if TestingMode then
+		print("Ore Boost: ",Val)
+	end 
 end)
 local MooneyLoopToggle = BoostSection:addToggle("Use Money Loopables",false,function(Val)
 	UsingMoneyLoop = Val
+	if TestingMode then
+		print("Money Loopables: ",Val)
+	end 
 end)
 
 local MinWaitBox = BoostSection:addTextbox("Minimum Rebirth Wait","20",function(text)
 	MinWait = tonumber(text) or 20
+	if TestingMode then
+		print("Minimum rebirth wait: ",text)
+	end 
 end)
 local LayoutSelect = BoostSection:addDropdown("First Layout ",{"Layout1","Layout2","Layout3"}, function(Selected)
 	Layout1 = Selected
+	if TestingMode then
+		print("First Layout: ",Selected)
+	end 
 end)
 local LayoutWaitBox = BoostSection:addTextbox("Layout 2 load Wait","5",function(text)
 	LayoutWaitTime = tonumber(text) or 5
+	if TestingMode then
+		print("Layout Spit wait: ",text)
+	end 
 end)
 
 local LayoutSelect2 = BoostSection:addDropdown("Second Layout ",{"None","Layout1","Layout2","Layout3"}, function(Selected)
 	Layout2 = Selected
+	if TestingMode then
+		print("Second Layout: ",Selected)
+	end 
 end)
 
 local OreTrackToggle = AutoSection:addToggle("Track Ore Value",false,function(Val)
 	OreTracking = Val
+	if TestingMode then
+		print("Ore Value Tracking: ",Val)
+	end 
 end)
 
 local Testing = AutoSection:addToggle("Testing Mode(set ore limit to 1)",false,function(Val)
@@ -160,14 +184,23 @@ end)
 
 local NightTime = VisualSection:addButton("Set Night Time", function()
 	game.ReplicatedStorage.NightTime.Value = true
+	if TestingMode then
+		print("Set Time to Night")
+	end 
 end)
 
 local DayTime = VisualSection:addButton("Set Day Time", function()
 	game.ReplicatedStorage.NightTime.Value = false
+	if TestingMode then
+		print("Set Time To Day")
+	end 
 end)
 
 local BoxTrack = VisualSection:addToggle("Track Dropped Boxes",false,function(Val)
 	ToggleBoxTrack(Val)
+	if TestingMode then
+		print("Dropped Crate ESP: ",Val)
+	end 
 end)
 
 local CharSpeed = CharSection:addSlider("Player Speed",16,1,200,function(val)
@@ -398,20 +431,33 @@ function StartOreBoost(Ore)
 end
 
 function Load()
+	if TestingMode then
+		print("Start Layout Loading")
+	end 
 	if OreBoost then
 		OreBoostActive = true
 	end
 	game.ReplicatedStorage.DestroyAll:InvokeServer()
 	wait(0.1)
+	if TestingMode then
+		print("Load First Layout")
+	end 
 	game.ReplicatedStorage.Layouts:InvokeServer("Load",Layout1)
+	
 	if Layout2 ~= "None" then
+		if TestingMode then
+			print("Using Second Layout")
+		end 
 		wait(LayoutWaitTime)
 		OreBoostActive = false
 		if OreBoost then
 			wait(0.3)
 			game.ReplicatedStorage.DestroyAll:InvokeServer()
 			wait(0.1)
-			game.ReplicatedStorage.Layouts:InvokeServer("Load","Layout3")
+			if TestingMode then
+				print("Load Second Layout")
+			end 
+			game.ReplicatedStorage.Layouts:InvokeServer("Load",Layout2)
 			wait(0.1)
 			OreBoostActive = true
 		end
@@ -433,8 +479,14 @@ end)
 local rebirthing  = false
 local LastRebirth = os.time()
 Money.Changed:Connect(function()
+	if TestingMode then
+		print("Money Updfated")
+	end 
 	local RB = RebornPrice(Player)
 	if AutoRebirth and not rebirthing and  Money.Value > RB and os.time()-LastRebirth >= MinWait then
+		if TestingMode then
+			print("Auto Rebirth")
+		end 
 		rebirthing = true
 		OreBoostActive = false
 		wait(.5)
@@ -443,6 +495,9 @@ Money.Changed:Connect(function()
 		rebirthing = false
 		LastRebirth = os.time()
 		if AutoRebirth then
+			if TestingMode then
+				print("Rebirthed.")
+			end 
 			Load()
 		end
 	end
