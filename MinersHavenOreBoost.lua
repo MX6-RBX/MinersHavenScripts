@@ -353,7 +353,7 @@ function StartOreBoost(Ore)
 		end
 		if MoneyLoop then
 			if TestingMode then
-				print("Found Money Loop item: ",Money Loop)
+				print("Found Money Loop item: ",MoneyLoop)
 			end 
 			local Info = MoneyLoopables[MoneyLoop.Name]
 			repeat 
