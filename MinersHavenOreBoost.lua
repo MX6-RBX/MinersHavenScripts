@@ -178,7 +178,7 @@ local OreTrackToggle = AutoSection:addToggle("Track Ore Value",false,function(Va
 	end 
 end)
 
-local Testing = AutoSection:addToggle("Testing Mode(set ore limit to 1)",false,function(Val)
+local Testing = AutoSection:addToggle("Testing Mode(set ore limit to 1 and check F9)",false,function(Val)
 	TestingMode = Val
 end)
 
