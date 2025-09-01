@@ -18,6 +18,7 @@ local Furnace = nil
 local OreTracking = false
 local FarmRp = false
 local TrackBoxes = false
+local TestingMode = false
 
 local GUi = Instance.new("BillboardGui")
 local Box = Instance.new("TextLabel")
@@ -153,6 +154,10 @@ local OreTrackToggle = AutoSection:addToggle("Track Ore Value",false,function(Va
 	OreTracking = Val
 end)
 
+local Testing = AutoSection:addToggle("Testing Mode(set ore limit to 1)",false,function(Val)
+	TestingMode = Val
+end)
+
 local NightTime = VisualSection:addButton("Set Night Time", function()
 	game.ReplicatedStorage.NightTime.Value = true
 end)
@@ -231,11 +236,14 @@ local function RebornPrice(Player)
 	return cost
 end
 
-function BoostOre(Ore,Single)
+function BoostOre(Ore) 
+	if TestingMode then
+		print("Ore boost Start")
+	end 
 	for i,v in Tycoon:GetChildren() do
 		if OreBoostActive == false and Single == false then break end--Oreboost not active
-		if not Ore then break end--Ore missing
-		if not v  then break end--ItemMissing
+		if not Ore then break end 
+		if not v  then break end 
 		if MoneyLoopables[v.Name] or table.find(ResettersNames,v.Name) then continue end--Passes money loops and resetters
 
 		if v and v:FindFirstChild("ItemId") and v:FindFirstChild("Plane")  then
@@ -251,7 +259,9 @@ function BoostOre(Ore,Single)
 			end
 		end
 	end
-
+	if TestingMode then
+		print("Ore boost End")
+	end 
 end
 
 function Reset(Ore)
@@ -261,16 +271,22 @@ function Reset(Ore)
 	local Tes = Tycoon:FindFirstChild("Resetter") or Tycoon:FindFirstChild("Tesla Refuter")
 	
 	BoostOre(Ore)
-	if Dae and Ore and OreBoostActive then 
+	if Dae and Ore and OreBoostActive then --checks if Daestrophe is on the base
+		if TestingMode then
+			print("Found Daestrophe")
+		end 
 		for i=1,3 do 
 			Ore.CFrame = Dae.Model.Upgrade.CFrame
 			wait(0.05)
 		end
 		BoostOre(Ore)
-		else
+	else
 		print("Daestrophe Not found")
 	end
-	if Sac and Ore and OreBoostActive then 
+	if Sac and Ore and OreBoostActive then  --Checks if either of the sacrifice resetters are on the base 
+		if TestingMode then
+			print("Found ", Sac.Name)
+		end 
 		for i=1,3 do 
 			Ore.CFrame = Sac.Model.Upgrade.CFrame
 			wait(0.05)
@@ -279,7 +295,10 @@ function Reset(Ore)
 		else
 		print("Sacrifice resetter Not found")
 	end
-	if Star and Ore and OreBoostActive then 
+	if Star and Ore and OreBoostActive then --Checks if black dwarf or void star is on the base 
+		if TestingMode then
+			print("Found ", Star.Name)
+		end 
 		for i=1,3 do 
 			Ore.CFrame = Star.Model.Upgrade.CFrame
 			wait(0.05)
@@ -288,7 +307,10 @@ function Reset(Ore)
 		else
 		print("Void star/black dwarf Not found")
 	end
-	if Tes and Ore and OreBoostActive then 
+	if Tes and Ore and OreBoostActive then --Checks if either tesla is on the base
+		if TestingMode then
+			print("Found ", Tes.Name)
+		end 
 		for i=1,3 do 
 			Ore.CFrame = Tes.Model.Upgrade.CFrame
 			wait(0.05)
@@ -300,21 +322,29 @@ function Reset(Ore)
 end
 
 function StartOreBoost(Ore)
+	if TestingMode then
+		print("Ore Boost Setting up")
+	end 
 	Ore.Anchored = true
 	repeat wait() until Ore:FindFirstChild("Cash")
-
+	
 	local SavePos = Ore.CFrame
 	local MoneyLoop = nil
 	local LooperStats 
 	local Protect
 	Ore.Anchored = false
+	if TestingMode then
+		print("Ore Boost finished setting up")
+	end 
 	if UsingMoneyLoop then
+		if TestingMode then
+			print("Using Money cap Items ")
+		end 
 		for i,v in MoneyLoopables do
 			if Tycoon:FindFirstChild(i) then 
 				MoneyLoop = Tycoon:FindFirstChild(i)
 				LooperStats = i
 			end
-
 		end
 		for i,v in EffectRemovers do
 			if Tycoon:FindFirstChild(i) then 
@@ -322,6 +352,9 @@ function StartOreBoost(Ore)
 			end
 		end
 		if MoneyLoop then
+			if TestingMode then
+				print("Found Money Loop item: ",Money Loop)
+			end 
 			local Info = MoneyLoopables[MoneyLoop.Name]
 			repeat 
 				if not Ore then
@@ -336,18 +369,28 @@ function StartOreBoost(Ore)
 				end
 				wait(0.1)
 			until Ore == nil or MoneyLoop == nil or MoneyLoop:FindFirstChild("Model") == nil or Ore:FindFirstChild("Cash") == nil or Ore.Cash.Value >= Info.Cap
+			if TestingMode then
+				print("Money Loop Finished")
+			end 	
 		end
 	end
+			
 	if OreBoostActive then
 		Reset(Ore)
 	end
 
 	if Ore then
+		if TestingMode then
+			print("Selling Ore")
+		end 
 		Ore.AssemblyAngularVelocity = Vector3.new(0,0,0)
 		Ore.AssemblyLinearVelocity = Vector3.new(0,0,0)
 		if Furnace and Furnace:FindFirstChild("Model") then
 			Ore.CFrame = Furnace.Model.Lava.CFrame + Vector3.new(0,2,0)
 		else
+			if TestingMode then
+				print("No Furnace found, sending ore to spawn location")
+			end 
 			Ore.CFrame = SavePos	
 		end
 	end
