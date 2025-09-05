@@ -503,7 +503,7 @@ Money.Changed:Connect(function()
 		game.ReplicatedStorage.Rebirth:InvokeServer()
 		wait(2)
 		rebirthing = false
-		LastRebirth = os.time() + math.random(1,20) * (AddRandomness And 1 or 0)
+		MinWait= MinWait + math.random(1,20) * (AddRandomness and 1 or 0)
 		if AutoRebirth then
 			if TestingMode then
 				print("Rebirthed.")
