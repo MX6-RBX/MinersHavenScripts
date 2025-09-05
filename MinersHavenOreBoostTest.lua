@@ -204,7 +204,7 @@ local LayoutSelect2 = BoostSection:addDropdown("Second Layout ",{"None","Layout1
 end)
 
 local OreTrackToggle = AutoSection:addToggle("Track Ore Value",false,function(Val)
-	OreTracking = Val
+	ToggleOreTrack(Val)
 	if TestingMode then
 		print("Ore Value Tracking: ",Val)
 	end 
