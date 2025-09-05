@@ -19,6 +19,7 @@ local OreTracking = false
 local FarmRp = false
 local TrackBoxes = false
 local TestingMode = false
+local AddRandomness = false
 
 local GUi = Instance.new("BillboardGui")
 local Box = Instance.new("TextLabel")
@@ -148,7 +149,14 @@ end)
 local MinWaitBox = BoostSection:addTextbox("Minimum Rebirth Wait","20",function(text)
 	MinWait = tonumber(text) or 20
 	if TestingMode then
-		print("Minimum rebirth wait: ",text)
+		print("Minimum rebirth wait : ",text)
+	end 
+end)
+
+local WaitRandom = BoostSection:addToggle("Add Wait Randomness ",false,function(Val)
+	AddRandomness = Val
+	if TestingMode then
+		print("Minimum rebirth wait randomness: ",Val)
 	end 
 end)
 local LayoutSelect = BoostSection:addDropdown("First Layout ",{"Layout1","Layout2","Layout3"}, function(Selected)
@@ -431,6 +439,7 @@ function StartOreBoost(Ore)
 end
 
 function Load()
+	
 	if TestingMode then
 		print("Start Layout Loading")
 	end 
@@ -483,6 +492,7 @@ Money.Changed:Connect(function()
 		print("Money Updfated")
 	end 
 	local RB = RebornPrice(Player)
+	
 	if AutoRebirth and not rebirthing and  Money.Value > RB and os.time()-LastRebirth >= MinWait then
 		if TestingMode then
 			print("Auto Rebirth")
@@ -493,7 +503,7 @@ Money.Changed:Connect(function()
 		game.ReplicatedStorage.Rebirth:InvokeServer()
 		wait(2)
 		rebirthing = false
-		LastRebirth = os.time()
+		LastRebirth = os.time() + math.random(1,20) * (AddRandomness And 1 or 0)
 		if AutoRebirth then
 			if TestingMode then
 				print("Rebirthed.")
