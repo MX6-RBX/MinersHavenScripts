@@ -502,6 +502,7 @@ if Ores then
 		if OreBoost then
 			StartOreBoost(Child)
 		end
+		AddTracker(Child)
 	end)
 end
 
