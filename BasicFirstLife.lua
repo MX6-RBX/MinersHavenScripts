@@ -1,5 +1,4 @@
-
-return {
+local Tab = {
     {
         Name = "Blue Teleporter (Receiver)",
         Pos = "-78, 3.5, 79.5, -1, 0, 0, 0, 1, 0, 0, 0, -1"
@@ -553,3 +552,4 @@ return {
         Pos = "-16.5002441, 8, -79.5, 0, 0, -1, 0, 1, 0, 1, 0, 0"
     }
 }
+return Tab
