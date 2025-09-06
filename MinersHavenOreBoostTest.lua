@@ -515,11 +515,18 @@ function Reset(Ore)
 end
 function GetFurnace()
 	for i,v in Tycoon:GetChildren() do
-		if v and v:FindFirstChild("ItemId") and v:FindFirstChild("Plane")  then
-			if v and v:FindFirstChild("Model") and v.Model:FindFirstChild("Lava") and not v.Model:FindFirstChild("Lava"):FindFirstChild("TeleportSend") then
-				if Furnace == nil or Furnace:FindFirstChild("Model") == nil or Furnace.Model:FindFirstChild("Lava") == nil then 
-					Furnace = v	
+		if v and v:FindFirstChild("Model") and v.Model:FindFirstChild("Lava") and not v.Model:FindFirstChild("Lava"):FindFirstChild("TeleportSend")then
+			if Furnace == nil or Furnace:FindFirstChild("Model") == nil or Furnace.Model:FindFirstChild("Lava") and not v.Model:FindFirstChild("Lava"):FindFirstChild("Drop") then 
+				Furnace = v	
+				if TestingMode then 
+					print("Furnace set to: ",Furnace.Name)
+				end		
+			end
+			if IndMine == nil and v.Model:FindFirstChild("Lava"):FindFirstChild("Drop") then
+				if TestingMode then
+					print("Industrial Mine Set to: ",IndMine.Name)
 				end
+				IndMine = v
 			end
 		end
 	end
