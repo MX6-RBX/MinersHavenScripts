@@ -290,7 +290,7 @@ local LayoutSelect2 = BoostSection:addDropdown("Second Layout ",{"None","Layout1
 		print("Second Layout: ",Selected)
 	end 
 end)
-local FirstLife = BoostSection:addButton("Load Badic First Life Setup(15qd-390qd", function()
+local FirstLife = BoostSection:addButton("Load Badic First Life Setup(15qd-390qd, Warning loud)", function()
 	LoadExternlLayout(ELayout)
 end)
 
