@@ -234,6 +234,8 @@ local function ChangeUi(Name)
 	end
 end
 
+
+
 local AutoRebirthToggle = BoostSection:addToggle("Auto Rebirth",false,function(Val)
 	AutoRebirth = Val
 	if TestingMode then
@@ -299,6 +301,7 @@ local LayoutSelect2 = BoostSection:addDropdown("Second Layout ",{"None","Layout1
 		print("Second Layout: ",Selected)
 	end 
 end)
+
 local FirstLife = BoostSection:addButton("Load Badic First Life Setup(15qd-390qd, Warning loud)", function()
 	if TestingMode then
 		print("Loading Basic First Life Layout.")
