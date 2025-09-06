@@ -622,6 +622,7 @@ function StartOreBoost(Ore)
 		Ore.AssemblyAngularVelocity = Vector3.new(0,0,0)
 		Ore.AssemblyLinearVelocity = Vector3.new(0,0,0)
 		if Furnace and Furnace:FindFirstChild("Model") then
+			print("Selling orer to: ",Furnace.Name)
 			Ore.CFrame = Furnace.Model.Lava.CFrame + Vector3.new(0,2,0)
 		else
 			if TestingMode then
