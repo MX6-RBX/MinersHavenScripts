@@ -642,15 +642,15 @@ function Load()
 		end 
 		wait(LayoutWaitTime)
 		OreBoostActive = false
+		wait(0.3)
+		game.ReplicatedStorage.DestroyAll:InvokeServer()
+		wait(0.1)
+		if TestingMode then
+			print("Load Second Layout")
+		end 
+		game.ReplicatedStorage.Layouts:InvokeServer("Load",Layout2)
+		wait(0.1)
 		if OreBoost then
-			wait(0.3)
-			game.ReplicatedStorage.DestroyAll:InvokeServer()
-			wait(0.1)
-			if TestingMode then
-				print("Load Second Layout")
-			end 
-			game.ReplicatedStorage.Layouts:InvokeServer("Load",Layout2)
-			wait(0.1)
 			OreBoostActive = true
 		end
 	end
