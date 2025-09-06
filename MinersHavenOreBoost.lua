@@ -681,8 +681,8 @@ Money.Changed:Connect(function()
 		print("Money Updated")
 	end 
 	local RB = RebornPrice(Player)
-	MinWait= MinWait + math.random(1,20) * (AddRandomness and 1 or 0)
-	if AutoRebirth and not rebirthing and  Money.Value > RB and os.time()-LastRebirth >= MinWait then
+	local WaitTime= MinWait + math.random(1,20) * (AddRandomness and 1 or 0)
+	if AutoRebirth and not rebirthing and  Money.Value > RB and os.time()-LastRebirth >= WaitTime then
 		if TestingMode then
 			print("Auto Rebirth")
 		end 
