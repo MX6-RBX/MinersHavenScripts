@@ -654,7 +654,7 @@ if Ores then
 	Ores.ChildAdded:Connect(function(Child)
 		
 		AddTracker(Child)
-		if Child:FindFirstChild("Fule") and Fule == false then
+		if Child:FindFirstChild("Fule") and Fule then
 			if IndMine and IndMine:FindFirstChild("Model") then
 				Child.CFrame = IndMine.Model.Lava.CFrame + Vector3.new(0,1,0)
 			end
