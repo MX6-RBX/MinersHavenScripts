@@ -25,7 +25,8 @@ local TrackBoxes = false
 local TestingMode = false
 local AddRandomness = false
 local Fuel = false
-
+local WalkSpeed = 16
+local JumpPower = 50
 local GUi = Instance.new("BillboardGui")
 local Box = Instance.new("TextLabel")
 local UICorner = Instance.new("UICorner")
@@ -351,9 +352,11 @@ end)
 
 local CharSpeed = CharSection:addSlider("Player Speed",16,1,200,function(val)
 	Player.Character.Humanoid.WalkSpeed = val
+	WalkSpeed = val
 end)
 local CharJump = CharSection:addSlider("Player Jump",50,1,300,function(val)
 	Player.Character.Humanoid.JumpPower = val
+	JumpPower = val
 end)
 
 local ToggleKey = OptionsSection:addKeybind("UI Toggle",Enum.KeyCode.K,function(Key)
@@ -708,4 +711,15 @@ for i,v in Boxes:GetChildren(1) do
 end
 game.Workspace.Boxes.ChildAdded:Connect(function(Box)
 	AddBoxTrack(Box)
+end)
+
+Player.Character.Humnaoid:GetPropertyChangedSignal("WalkSpeed"):Connect(function()
+	if Player.Character.Humnaoid.Walkspeed < WalkSpeed then
+		Player.Character.Humnaoid.WalkSpeed = WalkSpeed
+	end
+end)
+Player.Character.Humnaoid:GetPropertyChangedSignal("JumpPower"):Connect(function()
+	if Player.Character.Humnaoid.JumpPower < JumpPower then
+		Player.Character.Humnaoid.JumpPower = JumpPower
+	end
 end)
