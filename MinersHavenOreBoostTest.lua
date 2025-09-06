@@ -1,4 +1,4 @@
-print("test1)
+print("test1")
 local Player = game.Players.LocalPlayer
 local Tycoon = Player.PlayerTycoon.Value
 local Ores = game.Workspace.DroppedParts:FindFirstChild(Tycoon.Name)
