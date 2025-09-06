@@ -18,6 +18,7 @@ local OreBoost = false
 local OreBoostActive = false
 local AutoDrop = false
 local Furnace = nil
+local IndMine = nil
 local OreTracking = false
 local FarmRp = false
 local TrackBoxes = false
@@ -427,9 +428,19 @@ function BoostOre(Ore)
 					Ore.CFrame =v.Model.Upgrade.CFrame 
 					wait(0.01)
 				end
-			elseif v and v:FindFirstChild("Model") and v.Model:FindFirstChild("Lava") and not v.Model:FindFirstChild("Lava"):FindFirstChild("TeleportSend") and not v.Model:FindFirstChild("Lava"):FindFirstChild("Drop") then
-				if Furnace == nil or Furnace:FindFirstChild("Model") == nil or Furnace.Model:FindFirstChild("Lava")then 
+			elseif v and v:FindFirstChild("Model") and v.Model:FindFirstChild("Lava") and not v.Model:FindFirstChild("Lava"):FindFirstChild("TeleportSend")then
+				if Furnace == nil or Furnace:FindFirstChild("Model") == nil or Furnace.Model:FindFirstChild("Lava") and not not v.Model:FindFirstChild("Lava"):FindFirstChild("Drop") then 
 					Furnace = v	
+					if TestingMode then 
+						print("Furnace set to: ",Furnace.Name)
+					end
+				else
+					if IndMine == nil  then
+						if TestingMode then
+							print("Industrial Mine Set to: ",IndMine.Name)
+						end
+						IndMine = v
+					end
 				end
 			end
 		end
@@ -643,7 +654,12 @@ if Ores then
 	Ores.ChildAdded:Connect(function(Child)
 		
 		AddTracker(Child)
-		if Child:FindFirstChild("Fule") and Fule == false then return end 
+		if Child:FindFirstChild("Fule") and Fule == false then
+			if IndMine and IndMine:FindFirstChild("Model") then
+				Child.CFrame = IndMine.Model.Lava.CFrame + Vector3.new(0,1,0)
+			end
+			return 
+		end 
 		if OreBoost then
 			
 			StartOreBoost(Child)
