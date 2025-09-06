@@ -580,14 +580,9 @@ function StartOreBoost(Ore)
 				if OreBoost == false or OreBoostActive == false then break end
 				for i=1,3 do
 					Ore.CFrame = MoneyLoop.Model.Upgrade.CFrame
-					wait()
-				end
-
-				if LooperStats.Effect ~= nil and Protect ~= nil then
-					Ore.CFrame = Protect.Model.Upgrade.CFrame
-				else
-					if TestingMode then
-						print("No effect or missing removing device")
+					wait(Info.MinWait or 0.01)
+					if LooperStats.Effect ~= nil and Protect ~= nil then
+						Ore.CFrame = Protect.Model.Upgrade.CFrame
 					end
 				end
 				wait(0.1)
