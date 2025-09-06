@@ -4,6 +4,7 @@ local Ores = game.Workspace.DroppedParts:FindFirstChild(Tycoon.Name)
 local GUI = Player.PlayerGui:WaitForChild("GUI")
 local PlaceItem = game.ReplicatedStorage.PlaceItem 
 local buyItem = game.ReplicatedStorage.BuyItem 
+local ClearBase = game.ReplicatedStorage.DestroyAll
 local Money = GUI:FindFirstChild("Money")
 local Boxes = game.Workspace.Boxes
 local Layout1 = "Layout1"
@@ -291,6 +292,7 @@ local LayoutSelect2 = BoostSection:addDropdown("Second Layout ",{"None","Layout1
 	end 
 end)
 local FirstLife = BoostSection:addButton("Load Badic First Life Setup(15qd-390qd, Warning loud)", function()
+	ClearBase:InvokeServer()
 	LoadExternlLayout(ELayout)
 end)
 
