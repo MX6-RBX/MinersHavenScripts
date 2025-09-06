@@ -192,7 +192,7 @@ end
 
 local function AddTracker(ore)
 	local Ui = GUi:Clone()
-	Ui.Box.Text = ore.Cash.Value
+	Ui.Box.Text = "$"..shorten(ore.Cash.Value)
 	Ui.AlwaysOnTop = true
 	Ui.Parent = ore
 	Ui.Adornee = ore
@@ -681,7 +681,7 @@ Money.Changed:Connect(function()
 		print("Money Updated")
 	end 
 	local RB = RebornPrice(Player)
-
+	MinWait= MinWait + math.random(1,20) * (AddRandomness and 1 or 0)
 	if AutoRebirth and not rebirthing and  Money.Value > RB and os.time()-LastRebirth >= MinWait then
 		if TestingMode then
 			print("Auto Rebirth")
@@ -693,7 +693,7 @@ Money.Changed:Connect(function()
 		wait(2)
 		rebirthing = false
 		LastRebirth = os.time()
-		MinWait= MinWait + math.random(1,20) * (AddRandomness and 1 or 0)
+		
 		if AutoRebirth then
 			if TestingMode then
 				print("Rebirthed.")
