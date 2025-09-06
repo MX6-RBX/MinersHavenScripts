@@ -1,4 +1,3 @@
-print("Test1")
 local Player = game.Players.LocalPlayer
 local Tycoon = Player.PlayerTycoon.Value
 local Ores = game.Workspace.DroppedParts:FindFirstChild(Tycoon.Name)
@@ -25,7 +24,7 @@ local FarmRp = false
 local TrackBoxes = false
 local TestingMode = false
 local AddRandomness = false
-local Fule = false
+local Fuel = false
 
 local GUi = Instance.new("BillboardGui")
 local Box = Instance.new("TextLabel")
@@ -248,10 +247,10 @@ local OreBoostToggle = BoostSection:addToggle("Ore Boost",false,function(Val)
 		print("Ore Boost: ",Val)
 	end 
 end)
-local IgnoreFuleToggle = BoostSection:addToggle("Ignore Fule ore(coal ext)",false,function(Val)
-	Fule = Val
+local IgnoreFuleToggle = BoostSection:addToggle("Using Industrial Mine",false,function(Val)
+	Fuel = Val
 	if TestingMode then
-		print("Ignore Fule: ",Val)
+		print("Industrial Mine: ",Val)
 	end 
 end)
 
@@ -422,45 +421,24 @@ function BoostOre(Ore)
 		if not Ore then break end 
 		if not v  then break end 
 		if MoneyLoopables[v.Name] or table.find(ResettersNames,v.Name) then continue end--Passes money loops and resetters
-		if TestingMode then
-			print("Main Checks done ")
-		end
 		if v:FindFirstChild("ItemId") and v:FindFirstChild("Plane")  then
-			if TestingMode then
-				print("Item Check")
-			end
 			if not v:FindFirstChild("Model") then continue end
 			if v.Model:FindFirstChild("Upgrade") then
-				if TestingMode then
-					print("Is upgrader")
-				end
 				for i=1,3 do
 					Ore.CFrame =v.Model.Upgrade.CFrame 
 					wait(0.01)
 				end
 			elseif v.Model:FindFirstChild("Lava") and not v.Model:FindFirstChild("TeleportSend") then
-				if TestingMode then
-					print("getting furnace")
-				end
 				if v and v:FindFirstChild("Model") and v.Model:FindFirstChild("Lava") and not v.Model.Lava:FindFirstChild("TeleportSend") then
 					if TestingMode then
 						print("Has Lava, not tp")
 					end
 					if not v.Model:FindFirstChild("Drop") and  (Furnace == nil or Furnace:FindFirstChild("Model") == nil or Furnace.Model:FindFirstChild("Lava") == nil) then 
 						Furnace = v	
-						if TestingMode then 
-							print("Furnace set to: ",Furnace.Name)
-						end		
 					end
 					if v.Model:FindFirstChild("Drop") and v.Model:FindFirstChild("Lava") and  (IndMine == nil or IndMine:FindFirstChild("Model") == nil )  then
-						if TestingMode then
-							print("Industrial Mine Set to: ",IndMine.Name)
-						end
 						IndMine = v
 					end
-				end
-				if TestingMode then
-					print(Furnace,IndMine)
 				end
 			end
 		end
@@ -539,14 +517,8 @@ function GetFurnace()
 		if v and v:FindFirstChild("Model") and v.Model:FindFirstChild("Lava") and not v.Model.Lava:FindFirstChild("TeleportSend") then
 			if not v.Model:FindFirstChild("Drop") and  (Furnace == nil or Furnace:FindFirstChild("Model") == nil or Furnace.Model:FindFirstChild("Lava") == nil) then 
 				Furnace = v	
-				if TestingMode then 
-					print("Furnace set to: ",Furnace.Name)
-				end		
 			end
 			if v.Model:FindFirstChild("Drop") and v.Model:FindFirstChild("Lava") and  (IndMine == nil or IndMine:FindFirstChild("Model") == nil )  then
-				if TestingMode then
-					print("Industrial Mine Set to: ",IndMine.Name)
-				end
 				IndMine = v
 			end
 		end
@@ -677,21 +649,20 @@ function Load()
 		end
 	end
 end
-
+GetFurnace()
 if Ores then
 	Ores.ChildAdded:Connect(function(Child)
 
 		AddTracker(Child)
-		if Child:FindFirstChild("Fule") and Fule then
-			print("Ind")
-			if IndMine and IndMine:FindFirstChild("Model") then
-				Child.CFrame = IndMine.Model.Lava.CFrame + Vector3.new(0,1,0)
-			end
-			return 
-		end 
-		print("GO")
 		if OreBoost then
-
+			if Child:FindFirstChild("Fuel") and Fuel then
+				print("Ind")
+				if IndMine and IndMine:FindFirstChild("Model") then
+					Child.CFrame = IndMine.Model.Lava.CFrame + Vector3.new(0,1,0)
+				end
+				return 
+			end 
+			print("GO")
 			StartOreBoost(Child)
 		elseif FarmRp then
 			Sell(Child)
