@@ -2,6 +2,8 @@ local Player = game.Players.LocalPlayer
 local Tycoon = Player.PlayerTycoon.Value
 local Ores = game.Workspace.DroppedParts:FindFirstChild(Tycoon.Name)
 local GUI = Player.PlayerGui:WaitForChild("GUI")
+local PlaceItem = game.ReplicatedStorage.PlaceItem 
+local buyItem = game.ReplicatedStorage.BuyItem 
 local Money = GUI:FindFirstChild("Money")
 local Boxes = game.Workspace.Boxes
 local Layout1 = "Layout1"
@@ -115,8 +117,38 @@ local Resetters = {
 	{Item = "The Ultimate Sacrifice", Evo = "The Final Upgrader",IPosition = Vector3.new(36,2,0)},
 	{Item = "Daestrophe",Evo = nil, IPosition =  Vector3.new(48,2,0)}
 }	
+
+local function LoadExternlLayout(Layout)--Converts a shared layout string to a placeable layout
+	
+	----printLayout)
+	if Layout then 
+		local PlaceTable = {}
+		for i,v in pairs(Layout) do
+			spawn(function()
+				local Item = game.ReplicatedStorage.Items:FindFirstChild(v["Name"])
+				local P = string.split(v["Pos"],",")
+				local Pos = CFrame.new(P[1],P[2],P[3],P[4],P[5],P[6],P[7],P[8],P[9],P[10],P[11],P[12])
+				if Item.ItemType.Value >=1 and Item.ItemType.Value <5  then
+					if Player.PlayerGui.GUI.Money.Value >= Item.Cost.Value then
+						buyItem:InvokeServer(Item.Name,1)
+						PlaceItem:InvokeServer(v.Name,  Pos+Player.PlayerTycoon.Value.Base.Position, {Player.PlayerTycoon.Value.Base}) 
+					else
+						print("Cant buy item :(")
+					end
+				else
+					PlaceItem:InvokeServer(Item.Name,  Pos, {Player.PlayerTycoon.Value.Base}) 
+				end
+			end)
+		end
+		return 
+	else
+		return nil
+	end 
+end
+
 local OreTrackers = {}
 local BoxTrackers = {}
+local ELayout = loadstring(game:HttpGet('https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/BasicFirstLife.lua'))()
 local UILib = loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX/UiLib/refs/heads/main/UiLib.lua"))()
 local MainUi = UILib.new("Miners Haven Hub")
 local BoostPage = MainUi:addPage("Boost Options","130772689610761")
@@ -128,7 +160,6 @@ local OtherOptionsPage = MainUi:addPage("Other Options","6023426938")
 local TestSecrion = OtherOptionsPage:addSection("Testing")
 local VisualSection = OtherOptionsPage:addSection("Visual Options")
 local CharSection = OtherOptionsPage:addSection("Character")
-
 
 local Options = MainUi:addPage("UI Options","6031280882")
 local OptionsSection = Options:addSection("Main")
@@ -258,6 +289,9 @@ local LayoutSelect2 = BoostSection:addDropdown("Second Layout ",{"None","Layout1
 	if TestingMode then
 		print("Second Layout: ",Selected)
 	end 
+end)
+local FirstLife = BoostSection:addButton("Load Badic First Life Setup(15qd-390qd, Warning loud)", function()
+	LoadExternlLayout(ELayout)
 end)
 
 local OreTrackToggle = AutoSection:addToggle("Track Ore Value",false,function(Val)
