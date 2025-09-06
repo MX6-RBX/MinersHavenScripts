@@ -234,7 +234,7 @@ local function ChangeUi(Name)
 	end
 end
 
-function Load()
+function LoadLayout()
 	if TestingMode then
 		print("Start Layout Loading")
 	end 
@@ -324,9 +324,9 @@ local LayoutSelect2 = BoostSection:addDropdown("Second Layout ",{"None","Layout1
 		print("Second Layout: ",Selected)
 	end 
 end)
-local LoadLaouts = BoostSection:addButton("Load Badic First Life Setup(15qd-390qd, Warning loud)", function()
+local LoadLaouts = BoostSection:addButton("Test Layout Loading", function()
 	if TestingMode then
-		print("Loading Basic First Life Layout.")
+		print("Layout loading test")
 	end
 	ClearBase:InvokeServer()
 	LoadLayout()
