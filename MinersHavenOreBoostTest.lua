@@ -122,7 +122,7 @@ local Resetters = {
 }	
 
 local function LoadExternlLayout(Layout)--Converts a shared layout string to a placeable layout
-	
+
 	----printLayout)
 	if Layout then 
 		local PlaceTable = {}
@@ -305,7 +305,7 @@ local FirstLife = BoostSection:addButton("Load Badic First Life Setup(15qd-390qd
 	end
 	ClearBase:InvokeServer()
 	LoadExternlLayout(ELayout)
-	
+
 end)
 
 local OreTrackToggle = AutoSection:addToggle("Track Ore Value",false,function(Val)
@@ -441,17 +441,22 @@ function BoostOre(Ore)
 				if TestingMode then
 					print("getting furnace")
 				end
-				if not v.Model:FindFirstChild("Drop") and  (Furnace == nil or Furnace:FindFirstChild("Model") == nil or Furnace.Model:FindFirstChild("Lava") == nil) then 
-					Furnace = v	
-					if TestingMode then 
-						print("Furnace set to: ",Furnace.Name)
-					end		
-				end
-				if v.Model:FindFirstChild("Drop") and v.Model:FindFirstChild("Lava") and  (IndMine == nil or IndMine:FindFirstChild("Model") == nil )  then
+				if v and v:FindFirstChild("Model") and v.Model:FindFirstChild("Lava") and not v.Model.Lava:FindFirstChild("TeleportSend") then
 					if TestingMode then
-						print("Industrial Mine Set to: ",IndMine.Name)
+						print("Has Lava, not tp")
 					end
-					IndMine = v
+					if not v.Model:FindFirstChild("Drop") and  (Furnace == nil or Furnace:FindFirstChild("Model") == nil or Furnace.Model:FindFirstChild("Lava") == nil) then 
+						Furnace = v	
+						if TestingMode then 
+							print("Furnace set to: ",Furnace.Name)
+						end		
+					end
+					if v.Model:FindFirstChild("Drop") and v.Model:FindFirstChild("Lava") and  (IndMine == nil or IndMine:FindFirstChild("Model") == nil )  then
+						if TestingMode then
+							print("Industrial Mine Set to: ",IndMine.Name)
+						end
+						IndMine = v
+					end
 				end
 				if TestingMode then
 					print(Furnace,IndMine)
@@ -530,7 +535,7 @@ function Reset(Ore)
 end
 function GetFurnace()
 	for i,v in Tycoon:GetChildren() do
-		if v and v:FindFirstChild("Model") and v.Model:FindFirstChild("Lava") and not v.Model:FindFirstChild("TeleportSend")then
+		if v and v:FindFirstChild("Model") and v.Model:FindFirstChild("Lava") and not v.Model.Lava:FindFirstChild("TeleportSend") then
 			if not v.Model:FindFirstChild("Drop") and  (Furnace == nil or Furnace:FindFirstChild("Model") == nil or Furnace.Model:FindFirstChild("Lava") == nil) then 
 				Furnace = v	
 				if TestingMode then 
@@ -674,7 +679,7 @@ end
 
 if Ores then
 	Ores.ChildAdded:Connect(function(Child)
-		
+
 		AddTracker(Child)
 		if Child:FindFirstChild("Fule") and Fule then
 			if IndMine and IndMine:FindFirstChild("Model") then
@@ -683,7 +688,7 @@ if Ores then
 			return 
 		end 
 		if OreBoost then
-			
+
 			StartOreBoost(Child)
 		elseif FarmRp then
 			Sell(Child)
