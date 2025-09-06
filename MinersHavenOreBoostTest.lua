@@ -1,3 +1,4 @@
+print("test1)
 local Player = game.Players.LocalPlayer
 local Tycoon = Player.PlayerTycoon.Value
 local Ores = game.Workspace.DroppedParts:FindFirstChild(Tycoon.Name)
@@ -441,17 +442,20 @@ function BoostOre(Ore)
 				if TestingMode then
 					print("getting furnace")
 				end
-				if Furnace == nil or Furnace:FindFirstChild("Model") == nil or Furnace.Model:FindFirstChild("Lava") == nil and not v.Model:FindFirstChild("Drop") then 
+				if not v.Model:FindFirstChild("Drop") and  (Furnace == nil or Furnace:FindFirstChild("Model") == nil or Furnace.Model:FindFirstChild("Lava") == nil) then 
 					Furnace = v	
 					if TestingMode then 
 						print("Furnace set to: ",Furnace.Name)
-					end	
+					end		
 				end
-				if IndMine == nil or IndMine:FindFirstChild("Model") == nil and v.Model:FindFirstChild("Lava") and v.Model:FindFirstChild("Drop") then
+				if v.Model:FindFirstChild("Drop") and v.Model:FindFirstChild("Lava") and  (IndMine == nil or IndMine:FindFirstChild("Model") == nil )  then
 					if TestingMode then
 						print("Industrial Mine Set to: ",IndMine.Name)
 					end
 					IndMine = v
+				end
+				if TestingMode then
+					print(Furnace,IndMine)
 				end
 			end
 		end
@@ -528,13 +532,13 @@ end
 function GetFurnace()
 	for i,v in Tycoon:GetChildren() do
 		if v and v:FindFirstChild("Model") and v.Model:FindFirstChild("Lava") and not v.Model:FindFirstChild("TeleportSend")then
-			if Furnace == nil or Furnace:FindFirstChild("Model") == nil or Furnace.Model:FindFirstChild("Lava") == nil and not v.Model:FindFirstChild("Drop") then 
+			if not v.Model:FindFirstChild("Drop") and  (Furnace == nil or Furnace:FindFirstChild("Model") == nil or Furnace.Model:FindFirstChild("Lava") == nil) then 
 				Furnace = v	
 				if TestingMode then 
 					print("Furnace set to: ",Furnace.Name)
 				end		
 			end
-			if IndMine == nil or IndMine:FindFirstChild("Model") == nil and v.Model:FindFirstChild("Lava") and v.Model:FindFirstChild("Drop") then
+			if v.Model:FindFirstChild("Drop") and v.Model:FindFirstChild("Lava") and  (IndMine == nil or IndMine:FindFirstChild("Model") == nil )  then
 				if TestingMode then
 					print("Industrial Mine Set to: ",IndMine.Name)
 				end
