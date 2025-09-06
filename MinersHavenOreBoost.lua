@@ -30,6 +30,7 @@ local JumpPower = 50
 local GUi = Instance.new("BillboardGui")
 local Box = Instance.new("TextLabel")
 local UICorner = Instance.new("UICorner")
+local WaitToRebirth = false
 
 GUi.Name = "GUi"
 GUi.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
@@ -691,6 +692,7 @@ Money.Changed:Connect(function()
 		game.ReplicatedStorage.Rebirth:InvokeServer()
 		wait(2)
 		rebirthing = false
+		LastRebirth = os.time()
 		MinWait= MinWait + math.random(1,20) * (AddRandomness and 1 or 0)
 		if AutoRebirth then
 			if TestingMode then
@@ -708,13 +710,13 @@ game.Workspace.Boxes.ChildAdded:Connect(function(Box)
 	AddBoxTrack(Box)
 end)
 
-Player.Character.Humanoid:GetPropertyChangedSignal("WalkSpeed"):Connect(function()
-	if Player.Character.Humanoid.Walkspeed < WalkSpeed then
-		Player.Character.Humanoid.WalkSpeed = WalkSpeed
+Player.Character.Humnaoid:GetPropertyChangedSignal("WalkSpeed"):Connect(function()
+	if Player.Character.Humnaoid.Walkspeed < WalkSpeed then
+		Player.Character.Humnaoid.WalkSpeed = WalkSpeed
 	end
 end)
-Player.Character.Humanoid:GetPropertyChangedSignal("JumpPower"):Connect(function()
-	if Player.Character.Humanoid.JumpPower < JumpPower then
-		Player.Character.Humanoid.JumpPower = JumpPower
+Player.Character.Humnaoid:GetPropertyChangedSignal("JumpPower"):Connect(function()
+	if Player.Character.Humnaoid.JumpPower < JumpPower then
+		Player.Character.Humnaoid.JumpPower = JumpPower
 	end
 end)
