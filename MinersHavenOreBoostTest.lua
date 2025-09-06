@@ -429,18 +429,17 @@ function BoostOre(Ore)
 					wait(0.01)
 				end
 			elseif v and v:FindFirstChild("Model") and v.Model:FindFirstChild("Lava") and not v.Model:FindFirstChild("Lava"):FindFirstChild("TeleportSend")then
-				if Furnace == nil or Furnace:FindFirstChild("Model") == nil or Furnace.Model:FindFirstChild("Lava") and not not v.Model:FindFirstChild("Lava"):FindFirstChild("Drop") then 
+				if Furnace == nil or Furnace:FindFirstChild("Model") == nil or Furnace.Model:FindFirstChild("Lava") and not v.Model:FindFirstChild("Lava"):FindFirstChild("Drop") then 
 					Furnace = v	
 					if TestingMode then 
 						print("Furnace set to: ",Furnace.Name)
+					end		
+				end
+				if IndMine == nil and v.Model:FindFirstChild("Lava"):FindFirstChild("Drop") then
+					if TestingMode then
+						print("Industrial Mine Set to: ",IndMine.Name)
 					end
-				else
-					if IndMine == nil  then
-						if TestingMode then
-							print("Industrial Mine Set to: ",IndMine.Name)
-						end
-						IndMine = v
-					end
+					IndMine = v
 				end
 			end
 		end
