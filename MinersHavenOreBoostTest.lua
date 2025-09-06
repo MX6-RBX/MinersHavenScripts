@@ -23,6 +23,7 @@ local FarmRp = false
 local TrackBoxes = false
 local TestingMode = false
 local AddRandomness = false
+local Fule = false
 
 local GUi = Instance.new("BillboardGui")
 local Box = Instance.new("TextLabel")
@@ -245,6 +246,12 @@ local OreBoostToggle = BoostSection:addToggle("Ore Boost",false,function(Val)
 		print("Ore Boost: ",Val)
 	end 
 end)
+local IgnoreFuleToggle = BoostSection:addToggle("Ignore Fule ore(coal ext)",false,function(Val)
+	Fule = Val
+	if TestingMode then
+		print("Ignore Fule: ",Val)
+	end 
+end)
 
 local FarmRPToggle = BoostSection:addToggle("Farm RP(Disable ore boost)",false,function(Val)
 	FarmRp = Val
@@ -292,8 +299,12 @@ local LayoutSelect2 = BoostSection:addDropdown("Second Layout ",{"None","Layout1
 	end 
 end)
 local FirstLife = BoostSection:addButton("Load Badic First Life Setup(15qd-390qd, Warning loud)", function()
+	if TestingMode then
+		print("Loading Basic First Life Layout.")
+	end
 	ClearBase:InvokeServer()
 	LoadExternlLayout(ELayout)
+	
 end)
 
 local OreTrackToggle = AutoSection:addToggle("Track Ore Value",false,function(Val)
@@ -416,7 +427,7 @@ function BoostOre(Ore)
 					Ore.CFrame =v.Model.Upgrade.CFrame 
 					wait(0.01)
 				end
-			elseif v and v:FindFirstChild("Model") and v.Model:FindFirstChild("Lava") and not v.Model:FindFirstChild("Lava"):FindFirstChild("TeleportSend") then
+			elseif v and v:FindFirstChild("Model") and v.Model:FindFirstChild("Lava") and not v.Model:FindFirstChild("Lava"):FindFirstChild("TeleportSend") and not v.Model:FindFirstChild("Lava"):FindFirstChild("Drop") then
 				if Furnace == nil or Furnace:FindFirstChild("Model") == nil or Furnace.Model:FindFirstChild("Lava")then 
 					Furnace = v	
 				end
@@ -630,8 +641,11 @@ end
 
 if Ores then
 	Ores.ChildAdded:Connect(function(Child)
+		
 		AddTracker(Child)
+		if Child:FindFirstChild("Fule") and Fule == false then return end 
 		if OreBoost then
+			
 			StartOreBoost(Child)
 		elseif FarmRp then
 			Sell(Child)
