@@ -694,7 +694,7 @@ local rebirthing  = false
 local LastRebirth = os.time()
 Money.Changed:Connect(function()
 	if TestingMode then
-		print("Money Updfated")
+		print("Money Updated")
 	end 
 	local RB = RebornPrice(Player)
 
