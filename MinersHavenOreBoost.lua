@@ -708,13 +708,13 @@ game.Workspace.Boxes.ChildAdded:Connect(function(Box)
 	AddBoxTrack(Box)
 end)
 
-Player.Character.Humnaoid:GetPropertyChangedSignal("WalkSpeed"):Connect(function()
-	if Player.Character.Humnaoid.Walkspeed < WalkSpeed then
-		Player.Character.Humnaoid.WalkSpeed = WalkSpeed
+Player.Character.Humanoid:GetPropertyChangedSignal("WalkSpeed"):Connect(function()
+	if Player.Character.Humanoid.Walkspeed < WalkSpeed then
+		Player.Character.Humanoid.WalkSpeed = WalkSpeed
 	end
 end)
-Player.Character.Humnaoid:GetPropertyChangedSignal("JumpPower"):Connect(function()
-	if Player.Character.Humnaoid.JumpPower < JumpPower then
-		Player.Character.Humnaoid.JumpPower = JumpPower
+Player.Character.Humanoid:GetPropertyChangedSignal("JumpPower"):Connect(function()
+	if Player.Character.Humanoid.JumpPower < JumpPower then
+		Player.Character.Humanoid.JumpPower = JumpPower
 	end
 end)
