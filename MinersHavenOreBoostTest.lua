@@ -116,15 +116,19 @@ local Resetters = {
 	{Item = "Daestrophe",Evo = nil, IPosition =  Vector3.new(48,2,0)}
 }	
 local OreTrackers = {}
-
+local BoxTrackers = {}
 local UILib = loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX/UiLib/refs/heads/main/UiLib.lua"))()
 local MainUi = UILib.new("Miners Haven Hub")
 local BoostPage = MainUi:addPage("Boost Options","130772689610761")
 local BoostSection = BoostPage:addSection("Main Options")
 local AutoSection = BoostPage:addSection("Other Options")
+local VendorsPage = MainUi:addPage("Vendors","6031097225")
+local GuiInteractions = VendorsPage:addSection("GUI's")
 local OtherOptionsPage = MainUi:addPage("Other Options","6023426938")
+local TestSecrion = OtherOptionsPage:addSection("Testing")
 local VisualSection = OtherOptionsPage:addSection("Visual Options")
 local CharSection = OtherOptionsPage:addSection("Character")
+
 
 local Options = MainUi:addPage("UI Options","6031280882")
 local OptionsSection = Options:addSection("Main")
@@ -134,12 +138,20 @@ UILib:setTheme("Glow",Color3.fromRGB(240, 234, 81))
 local function AddBoxTrack(Box)
 	local Ui = GUi:Clone()
 	Ui.Box.Text = Box.Name
-	Ui.Box.BackgroundColor3 = Box.Color
 	Ui.AlwaysOnTop = true
-	Ui.Parent = Box
-	Ui.Adornee = Box
 	Ui.Box.BackgroundTransparency = 0
+	if Box:IsA("Model") and Box:FindFirstChild("Crate") then
+		Ui.Box.BackgroundColor3 = Box.Crate.Color
+		Ui.Parent = Box.Crate
+		Ui.Adornee = Box.Crate
+		
+	else
+		Ui.Box.BackgroundColor3 = Box.Color
+		Ui.Parent = Box
+		Ui.Adornee = Box
+	end
 	Ui.Enabled = TrackBoxes
+	table.insert(BoxTrackers,Ui)
 end
 
 local function AddTracker(ore)
@@ -157,12 +169,8 @@ end
 
 local function ToggleBoxTrack(Val)
 	TrackBoxes = Val
-	for i,v in Boxes:GetChildren() do
-		if v:FindFirstChildOfClass("BillboardGui") then
-			v:FindFirstChildOfClass("BillboardGui").Enabled = Val
-		else
-			AddBoxTrack(v)
-		end
+	for i,v in BoxTrackers do 
+		v.Enabled = TrackBoxes
 	end
 end
 
@@ -172,6 +180,22 @@ local function ToggleOreTrack(Val)
 	for i,v in OreTrackers do
 		if v and v.Parent then
 			v.Enabled = OreTracking
+		end
+	end
+end
+
+local function ChangeUi(Name)
+	if GUI.FocusWindow.Value then  
+		GUI.FocusWindow.Value.Visible = false
+		wait(0.01)
+		GUI.FocusWindow.Value = nil
+	end
+	local Ui = GUI:FindFirstChild(Name)
+	if Ui then
+		Ui.Visible = true
+		GUI.FocusWindow.Value = Ui
+		if TestingMode then
+			print("Toggled: "..Name)
 		end
 	end
 end
@@ -187,6 +211,13 @@ local OreBoostToggle = BoostSection:addToggle("Ore Boost",false,function(Val)
 	OreBoostActive = Val
 	if TestingMode then
 		print("Ore Boost: ",Val)
+	end 
+end)
+
+local FarmRPToggle = BoostSection:addToggle("Farm RP(Disable ore boost)",false,function(Val)
+	FarmRp = Val
+	if TestingMode then
+		print("Farm RP: ",Val)
 	end 
 end)
 local MooneyLoopToggle = BoostSection:addToggle("Use Money Loopables",false,function(Val)
@@ -236,7 +267,33 @@ local OreTrackToggle = AutoSection:addToggle("Track Ore Value",false,function(Va
 	end 
 end)
 
-local Testing = AutoSection:addToggle("Testing Mode(set ore limit to 1 and check F9)",false,function(Val)
+local Craftsman = GuiInteractions:addButton("Open Craftsman", function()
+	ChangeUi("Craftsman")
+end)
+local Boxman = GuiInteractions:addButton("Open Box merchant", function()
+	ChangeUi("SpookMcDookShop")
+end)
+local Superstitious = GuiInteractions:addButton("Open Superstitious Crafting", function()
+	ChangeUi("SuperstitiousCrafting")
+end)
+local TBOK = GuiInteractions:addButton("Open True Book Of Knowlage", function()
+	ChangeUi("BOKBook")
+end)
+local Phantasm = GuiInteractions:addButton("Open Phantasm", function()
+	ChangeUi("Phantasm")
+end)
+local Artifacts = GuiInteractions:addButton("Open Artifacts", function()
+	ChangeUi("Artifacts")
+end)
+local Fleabag = GuiInteractions:addButton("Open Fleabag", function()
+	ChangeUi("Fleabag")
+end)
+local Admin = GuiInteractions:addButton("Open Admin", function()
+	ChangeUi("AdminPannel")
+end)
+
+
+local Testing = TestSecrion:addToggle("Testing Mode(set ore limit to 1 and check F9)",false,function(Val)
 	TestingMode = Val
 end)
 
@@ -341,7 +398,7 @@ function BoostOre(Ore)
 			if v and v:FindFirstChild("Model") and v.Model:FindFirstChild("Upgrade") then
 				for i=1,3 do
 					Ore.CFrame =v.Model.Upgrade.CFrame 
-					wait(0.05)
+					wait(0.01)
 				end
 			elseif v and v:FindFirstChild("Model") and v.Model:FindFirstChild("Lava") and not v.Model:FindFirstChild("Lava"):FindFirstChild("TeleportSend") then
 				if Furnace == nil or Furnace:FindFirstChild("Model") == nil or Furnace.Model:FindFirstChild("Lava")then 
@@ -368,11 +425,13 @@ function Reset(Ore)
 		end 
 		for i=1,3 do 
 			Ore.CFrame = Dae.Model.Upgrade.CFrame
-			wait(0.05)
+			wait(0.01)
 		end
 		BoostOre(Ore)
 	else
-		print("Daestrophe Not found")
+		if TestingMode then
+			print("Daestrophe Not found")
+		end
 	end
 	if Sac and Ore and OreBoostActive then  --Checks if either of the sacrifice resetters are on the base 
 		if TestingMode then
@@ -380,11 +439,13 @@ function Reset(Ore)
 		end 
 		for i=1,3 do 
 			Ore.CFrame = Sac.Model.Upgrade.CFrame
-			wait(0.05)
+			wait(0.01)
 		end
 		BoostOre(Ore)
 	else
-		print("Sacrifice resetter Not found")
+		if TestingMode then
+			print("Sacrifice resetter Not found")
+		end				
 	end
 	if Star and Ore and OreBoostActive then --Checks if black dwarf or void star is on the base 
 		if TestingMode then
@@ -392,11 +453,13 @@ function Reset(Ore)
 		end 
 		for i=1,3 do 
 			Ore.CFrame = Star.Model.Upgrade.CFrame
-			wait(0.05)
+			wait(0.01)
 		end
 		BoostOre(Ore)
 	else
-		print("Void star/black dwarf Not found")
+		if TestingMode then
+			print("Void star/black dwarf Not found")
+		end
 	end
 	if Tes and Ore and OreBoostActive then --Checks if either tesla is on the base
 		if TestingMode then
@@ -404,12 +467,32 @@ function Reset(Ore)
 		end 
 		for i=1,3 do 
 			Ore.CFrame = Tes.Model.Upgrade.CFrame
-			wait(0.05)
+			wait(0.01)
 		end
 		BoostOre(Ore)
 	else
-		print("Tesla Not found")
+		if TestingMode then
+			print("Tesla Not found")
+		end
 	end
+end
+function GetFurnace()
+	for i,v in Tycoon:GetChildren() do
+		if v and v:FindFirstChild("ItemId") and v:FindFirstChild("Plane")  then
+			if v and v:FindFirstChild("Model") and v.Model:FindFirstChild("Lava") and not v.Model:FindFirstChild("Lava"):FindFirstChild("TeleportSend") then
+				if Furnace == nil or Furnace:FindFirstChild("Model") == nil or Furnace.Model:FindFirstChild("Lava") == nil then 
+					Furnace = v	
+				end
+			end
+		end
+	end
+end
+
+function Sell(Ore)
+	if Furnace == nil or Furnace:FindFirstChild("Model") == nil or Furnace.Model:FindFirstChild("Lava")then 
+		GetFurnace()
+	end
+	Ore.CFrame = Furnace.Model.Lava.CFrame + Vector3.new(0,1,0)
 end
 
 function StartOreBoost(Ore)
@@ -451,12 +534,18 @@ function StartOreBoost(Ore)
 				if not Ore then
 					break
 				end
-				if OreBoost == false or OreBoostActive == false then break end 
-				Ore.CFrame = MoneyLoop.Model.Upgrade.CFrame
+				if OreBoost == false or OreBoostActive == false then break end
+				for i=1,3 do
+					Ore.CFrame = MoneyLoop.Model.Upgrade.CFrame
+					wait()
+				end
+			
 				if LooperStats.Effect ~= nil and Protect ~= nil then
 					Ore.CFrame = Protect.Model.Upgrade.CFrame
 				else
-					print("No effect or missing removing device")
+					if TestingMode then
+						print("No effect or missing removing device")
+					end
 				end
 				wait(0.1)
 			until Ore == nil or MoneyLoop == nil or MoneyLoop:FindFirstChild("Model") == nil or Ore:FindFirstChild("Cash") == nil or Ore.Cash.Value >= Info.Cap
@@ -528,6 +617,9 @@ if Ores then
 		AddTracker(Child)
 		if OreBoost then
 			StartOreBoost(Child)
+		elseif FarmRp then
+			Sell(Child)
+		
 		end
 		
 	end)
@@ -561,7 +653,9 @@ Money.Changed:Connect(function()
 	end
 end)
 
-
+for i,v in Boxes:GetChildren(1) do
+	AddBoxTrack(v)
+end
 game.Workspace.Boxes.ChildAdded:Connect(function(Box)
 	AddBoxTrack(Box)
 end)
