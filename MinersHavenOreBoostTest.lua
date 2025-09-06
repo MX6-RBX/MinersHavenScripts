@@ -682,11 +682,13 @@ if Ores then
 
 		AddTracker(Child)
 		if Child:FindFirstChild("Fule") and Fule then
+			print("Ind")
 			if IndMine and IndMine:FindFirstChild("Model") then
 				Child.CFrame = IndMine.Model.Lava.CFrame + Vector3.new(0,1,0)
 			end
 			return 
 		end 
+		print("GO")
 		if OreBoost then
 
 			StartOreBoost(Child)
