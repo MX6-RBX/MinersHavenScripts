@@ -421,19 +421,31 @@ function BoostOre(Ore)
 		if not Ore then break end 
 		if not v  then break end 
 		if MoneyLoopables[v.Name] or table.find(ResettersNames,v.Name) then continue end--Passes money loops and resetters
-
-		if v and v:FindFirstChild("ItemId") and v:FindFirstChild("Plane")  then
-			if v and v:FindFirstChild("Model") and v.Model:FindFirstChild("Upgrade") then
+		if TestingMode then
+			print("Main Checks done ")
+		end
+		if v:FindFirstChild("ItemId") and v:FindFirstChild("Plane")  then
+			if TestingMode then
+				print("Item Check")
+			end
+			if not v:FindFirstChild("Model") then continue end
+			if v.Model:FindFirstChild("Upgrade") then
+				if TestingMode then
+					print("Is upgrader")
+				end
 				for i=1,3 do
 					Ore.CFrame =v.Model.Upgrade.CFrame 
 					wait(0.01)
 				end
-			elseif v and v:FindFirstChild("Model") and v.Model:FindFirstChild("Lava") and not v.Model:FindFirstChild("TeleportSend")then
-				if Furnace == nil or Furnace:FindFirstChild("Model") == nil or Furnace.Model:FindFirstChild("Lava") and not v.Model:FindFirstChild("Drop") then 
+			elseif v.Model:FindFirstChild("Lava") and not v.Model:FindFirstChild("TeleportSend") then
+				if TestingMode then
+					print("getting furnace")
+				end
+				if Furnace == nil or Furnace:FindFirstChild("Model") == nil or Furnace.Model:FindFirstChild("Lava") == nil and not v.Model:FindFirstChild("Drop") then 
 					Furnace = v	
 					if TestingMode then 
 						print("Furnace set to: ",Furnace.Name)
-					end		
+					end	
 				end
 				if IndMine == nil or IndMine:FindFirstChild("Model") == nil and v.Model:FindFirstChild("Lava") and v.Model:FindFirstChild("Drop") then
 					if TestingMode then
@@ -516,7 +528,7 @@ end
 function GetFurnace()
 	for i,v in Tycoon:GetChildren() do
 		if v and v:FindFirstChild("Model") and v.Model:FindFirstChild("Lava") and not v.Model:FindFirstChild("TeleportSend")then
-			if Furnace == nil or Furnace:FindFirstChild("Model") == nil or Furnace.Model:FindFirstChild("Lava") and not v.Model:FindFirstChild("Drop") then 
+			if Furnace == nil or Furnace:FindFirstChild("Model") == nil or Furnace.Model:FindFirstChild("Lava") == nil and not v.Model:FindFirstChild("Drop") then 
 				Furnace = v	
 				if TestingMode then 
 					print("Furnace set to: ",Furnace.Name)
