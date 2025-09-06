@@ -234,6 +234,31 @@ local function ChangeUi(Name)
 	end
 end
 
+function Load()
+	if TestingMode then
+		print("Start Layout Loading")
+	end 
+	game.ReplicatedStorage.DestroyAll:InvokeServer()
+	wait(0.1)
+	if TestingMode then
+		print("Load First Layout")
+	end 
+	game.ReplicatedStorage.Layouts:InvokeServer("Load",Layout1)
+
+	if Layout2 ~= "None" then
+		wait(LayoutWaitTime)
+		if TestingMode then
+			print("Using Second Layout")
+		end 
+		game.ReplicatedStorage.DestroyAll:InvokeServer()
+		wait(0.1)
+		if TestingMode then
+			print("Load Second Layout")
+		end 
+		game.ReplicatedStorage.Layouts:InvokeServer("Load",Layout2)
+	end
+end
+
 local AutoRebirthToggle = BoostSection:addToggle("Auto Rebirth",false,function(Val)
 	AutoRebirth = Val
 	if TestingMode then
@@ -298,6 +323,14 @@ local LayoutSelect2 = BoostSection:addDropdown("Second Layout ",{"None","Layout1
 	if TestingMode then
 		print("Second Layout: ",Selected)
 	end 
+end)
+local LoadLaouts = BoostSection:addButton("Load Badic First Life Setup(15qd-390qd, Warning loud)", function()
+	if TestingMode then
+		print("Loading Basic First Life Layout.")
+	end
+	ClearBase:InvokeServer()
+	LoadLayout()
+
 end)
 local FirstLife = BoostSection:addButton("Load Badic First Life Setup(15qd-390qd, Warning loud)", function()
 	if TestingMode then
