@@ -31,6 +31,7 @@ local GUi = Instance.new("BillboardGui")
 local Box = Instance.new("TextLabel")
 local UICorner = Instance.new("UICorner")
 local WaitToRebirth = false
+local Skips = 0
 
 GUi.Name = "GUi"
 GUi.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
@@ -124,8 +125,6 @@ local Resetters = {
 }	
 
 local function LoadExternlLayout(Layout)--Converts a shared layout string to a placeable layout
-
-	----printLayout)
 	if Layout then 
 		local PlaceTable = {}
 		for i,v in pairs(Layout) do
@@ -165,7 +164,6 @@ local OtherOptionsPage = MainUi:addPage("Other Options","6023426938")
 local TestSecrion = OtherOptionsPage:addSection("Testing")
 local VisualSection = OtherOptionsPage:addSection("Visual Options")
 local CharSection = OtherOptionsPage:addSection("Character")
-
 local Options = MainUi:addPage("UI Options","6031280882")
 local OptionsSection = Options:addSection("Main")
 local UIThemeSection = Options:addSection("UI Colors")
@@ -237,7 +235,6 @@ local function ChangeUi(Name)
 end
 
 
-
 local AutoRebirthToggle = BoostSection:addToggle("Auto Rebirth",false,function(Val)
 	AutoRebirth = Val
 	if TestingMode then
@@ -284,12 +281,14 @@ local WaitRandom = BoostSection:addToggle("Add Wait Randomness ",false,function(
 		print("Minimum rebirth wait randomness: ",Val)
 	end 
 end)
+
 local LayoutSelect = BoostSection:addDropdown("First Layout ",{"Layout1","Layout2","Layout3"}, function(Selected)
 	Layout1 = Selected
 	if TestingMode then
 		print("First Layout: ",Selected)
 	end 
 end)
+
 local LayoutWaitBox = BoostSection:addTextbox("Layout 2 load Wait","5",function(text)
 	LayoutWaitTime = tonumber(text) or 5
 	if TestingMode then
@@ -304,13 +303,16 @@ local LayoutSelect2 = BoostSection:addDropdown("Second Layout ",{"None","Layout1
 	end 
 end)
 
+local WaitToSkip = BoostSection:addSlider("Wait for Skips",0,0,20,function(val)
+	Skips = val or 0
+end)
+
 local FirstLife = BoostSection:addButton("Load Badic First Life Setup(15qd-390qd, Warning loud)", function()
 	if TestingMode then
 		print("Loading Basic First Life Layout.")
 	end
 	ClearBase:InvokeServer()
 	LoadExternlLayout(ELayout)
-
 end)
 
 local OreTrackToggle = AutoSection:addToggle("Track Ore Value",false,function(Val)
@@ -323,18 +325,23 @@ end)
 local Craftsman = GuiInteractions:addButton("Open Craftsman", function()
 	ChangeUi("Craftsman")
 end)
+
 local Boxman = GuiInteractions:addButton("Open Box merchant", function()
 	ChangeUi("SpookMcDookShop")
 end)
+
 local Superstitious = GuiInteractions:addButton("Open Superstitious Crafting", function()
 	ChangeUi("SuperstitiousCrafting")
 end)
+
 local TBOK = GuiInteractions:addButton("Open True Book Of Knowlage", function()
 	ChangeUi("BOKBook")
 end)
+
 local Phantasm = GuiInteractions:addButton("Open Phantasm", function()
 	ChangeUi("Phantasm")
 end)
+
 local Fleabag = GuiInteractions:addButton("Open Fleabag", function()
 	ChangeUi("Fleabag")
 end)
@@ -367,28 +374,33 @@ end)
 local Background = UIThemeSection:addColorPicker("Background", Color3.fromRGB(0,0,0),function(Col)
 	UILib:setTheme("Background",Col)
 end)
+
 local Glow = UIThemeSection:addColorPicker("Glow", Color3.fromRGB(170,170,0),function(Col) 
 	UILib:setTheme("Glow",Col)
 end)
+
 local Accent = UIThemeSection:addColorPicker("Accent", Color3.fromRGB(50,50,50),function(Col) 
 	UILib:setTheme("Accent",Col)
 end)
+
 local LightContrast = UIThemeSection:addColorPicker("Light Contrast", Color3.fromRGB(30,30,30),function(Col) 
 	UILib:setTheme("LightContrast",Col)
 end)
+
 local DarkContrast = UIThemeSection:addColorPicker("Dark Contrast", Color3.fromRGB(10,10,10),function(Col) 
 	UILib:setTheme("DarkContrast",Col)
 end)
+
 local TextColor = UIThemeSection:addColorPicker("Text Color", Color3.fromRGB(255,255,255),function(Col) 
 	UILib:setTheme("TextColor",Col)
 end)
+
 local ScrollBarColor = UIThemeSection:addColorPicker("Scroll Bar Color", Color3.fromRGB(200,200,200),function(Col) 
 	UILib:setTheme("ScrollBarColor",Col)
 end)
+
+
 local MaxRebirthPrice = 1e241 -- 10 * 10^240 = 10^241
-
-
-
 local function RebornPrice(Player)
 	local Life = Player.Rebirths.Value
 	local REBIRTH_PRICE_CAP = 1e241 -- 10NVSPTGNTL
@@ -459,7 +471,7 @@ function Reset(Ore)
 	local Dae = Tycoon:FindFirstChild("Daestrophe") 
 	local Sac =  Tycoon:FindFirstChild("The Final Upgrader") or Tycoon:FindFirstChild("The Ultimate Sacrifice")  
 	local Star = Tycoon:FindFirstChild("Void Star") or Tycoon:FindFirstChild("Black Dwarf")
-	local Tes = Tycoon:FindFirstChild("Resetter") or Tycoon:FindFirstChild("Tesla Refuter")
+	local Tes = Tycoon:FindFirstChild("Tesla Resetter") or Tycoon:FindFirstChild("Tesla Refuter")
 
 	BoostOre(Ore)
 	if Dae and Ore and OreBoostActive then --checks if Daestrophe is on the base
@@ -605,7 +617,6 @@ function StartOreBoost(Ore)
 		Ore.AssemblyAngularVelocity = Vector3.new(0,0,0)
 		Ore.AssemblyLinearVelocity = Vector3.new(0,0,0)
 		if Furnace and Furnace:FindFirstChild("Model") then
-			print("Selling orer to: ",Furnace.Name)
 			Ore.CFrame = Furnace.Model.Lava.CFrame + Vector3.new(0,2,0)
 		else
 			if TestingMode then
@@ -614,7 +625,6 @@ function StartOreBoost(Ore)
 			Ore.CFrame = SavePos	
 		end
 	end
-
 end
 
 function Load()
@@ -622,14 +632,18 @@ function Load()
 	if TestingMode then
 		print("Start Layout Loading")
 	end 
+	
 	if OreBoost then
 		OreBoostActive = true
 	end
+	
 	game.ReplicatedStorage.DestroyAll:InvokeServer()
 	wait(0.1)
+	
 	if TestingMode then
 		print("Load First Layout")
 	end 
+
 	game.ReplicatedStorage.Layouts:InvokeServer("Load",Layout1)
 
 	if Layout2 ~= "None" then
@@ -651,26 +665,22 @@ function Load()
 		end
 	end
 end
+
 GetFurnace()
 if Ores then
 	Ores.ChildAdded:Connect(function(Child)
-
 		AddTracker(Child)
 		if OreBoost then
 			if Child:FindFirstChild("Fuel") and Fuel then
-				print("Ind")
 				if IndMine and IndMine:FindFirstChild("Model") then
 					Child.CFrame = IndMine.Model.Lava.CFrame + Vector3.new(0,1,0)
 				end
 				return 
 			end 
-			print("GO")
 			StartOreBoost(Child)
 		elseif FarmRp then
 			Sell(Child)
-
 		end
-
 	end)
 end
 
@@ -680,7 +690,7 @@ Money.Changed:Connect(function()
 	if TestingMode then
 		print("Money Updated")
 	end 
-	local RB = RebornPrice(Player)
+	local RB = RebornPrice(Player) * (1000^Skips)
 	local WaitTime= MinWait + math.random(1,20) * (AddRandomness and 1 or 0)
 	if AutoRebirth and not rebirthing and  Money.Value > RB and os.time()-LastRebirth >= WaitTime then
 		if TestingMode then
@@ -688,9 +698,9 @@ Money.Changed:Connect(function()
 		end 
 		rebirthing = true
 		OreBoostActive = false
-		wait(.5)
+		wait(0.5)
 		game.ReplicatedStorage.Rebirth:InvokeServer()
-		wait(2)
+		wait(0.5)
 		rebirthing = false
 		LastRebirth = os.time()
 		
