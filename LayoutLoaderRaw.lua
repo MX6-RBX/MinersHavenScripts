@@ -353,7 +353,7 @@ Close.TextWrapped = true
 
 UICorner_16.Parent = Close
 
-local findItem = require(game.ReplicatedStorage.FetchItem)
+
 local HasItem = game.ReplicatedStorage.HasItem
 local Withdraw = game.ReplicatedStorage.DestroyAll
 local PlaceItem = game.ReplicatedStorage.PlaceItem 
@@ -377,7 +377,13 @@ Count2.Parent = MissingItems
 
 local Player = game.Players.LocalPlayer
 
-
+function finditem(Id) 
+	for i,v in game.ReplicatedStorage.Items:GetChildren() do
+		if v:FindFirstChild("ItemId") and v.ItemId.Value == tonumber(Id) then
+			return v
+		end 
+	end
+end
 
 function GetPlayerImage(Object)
 	local thumbType = Enum.ThumbnailType.HeadShot
@@ -421,7 +427,7 @@ function FindMissing(Layout)
 	MissingItems.Visible =true
 	for i,Item in pairs(Layout) do
 		spawn(function()
-			local RealItem = findItem:Get(Item.ItemId)
+			local RealItem = findItem(Item.ItemId)
 			if HasItem:InvokeServer(RealItem.ItemId.Value) <=0 then
 				if MissingItems.Items:FindFirstChild(RealItem.Name) then
 					local Item = MissingItems.Items:FindFirstChild(RealItem.Name)
