@@ -32,6 +32,8 @@ local Box = Instance.new("TextLabel")
 local UICorner = Instance.new("UICorner")
 local WaitToRebirth = false
 local Skips = 0
+local CollectingBoxes = false
+local Blur = true
 
 GUi.Name = "GUi"
 GUi.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
@@ -186,6 +188,19 @@ local function AddBoxTrack(Box)
 	end
 	Ui.Enabled = TrackBoxes
 	table.insert(BoxTrackers,Ui)
+end
+
+local function CollectBoxes()
+	if not CollectingBoxes then
+		CollectingBoxes = true
+		for i,v in Boxes:GetChildren() do
+			if v:IsA("Model") and v:FindFirstChild("Crate") then
+				Player.Character.HumanoidRootPart.CFrame = v.Crate.CFrame		
+			else
+				Player.Character.HumanoidRootPart.CFrame = v.CFrame	
+			end
+		end
+	end
 end
 
 local function AddTracker(ore)
@@ -356,12 +371,20 @@ local BoxTrack = VisualSection:addToggle("Track Dropped Boxes",false,function(Va
 		print("Dropped Crate ESP: ",Val)
 	end 
 end)
+local BoxTeleport = VisualSection:addButton("Collect Boxes(High ban chance in public Servers)", function()
+	CollectBoxes()
+end)
 
+local BlurToggle = VisualSection:addToggle("Disable Game Blur",false,function(Val)
+	Blur = not Val
+	game.Lighting.Blur.Enabled = Blur
+end)
 
 local CharSpeed = CharSection:addSlider("Player Speed",16,1,200,function(val)
 	Player.Character.Humanoid.WalkSpeed = val
 	WalkSpeed = val
 end)
+
 local CharJump = CharSection:addSlider("Player Jump",50,1,300,function(val)
 	Player.Character.Humanoid.JumpPower = val
 	JumpPower = val
@@ -557,7 +580,6 @@ function StartOreBoost(Ore)
 	end 
 	Ore.Anchored = true
 	repeat wait() until Ore:FindFirstChild("Cash")
-
 	local SavePos = Ore.CFrame
 	local MoneyLoop = nil
 	local LooperStats 
@@ -632,14 +654,14 @@ function Load()
 	if TestingMode then
 		print("Start Layout Loading")
 	end 
-	
+
 	if OreBoost then
 		OreBoostActive = true
 	end
-	
+
 	game.ReplicatedStorage.DestroyAll:InvokeServer()
 	wait(0.1)
-	
+
 	if TestingMode then
 		print("Load First Layout")
 	end 
@@ -703,7 +725,7 @@ Money.Changed:Connect(function()
 		wait(0.5)
 		rebirthing = false
 		LastRebirth = os.time()
-		
+
 		if AutoRebirth then
 			if TestingMode then
 				print("Rebirthed.")
@@ -729,4 +751,8 @@ Player.Character.Humanoid:GetPropertyChangedSignal("JumpPower"):Connect(function
 	if Player.Character.Humanoid.JumpPower < JumpPower then
 		Player.Character.Humanoid.JumpPower = JumpPower
 	end
+end)
+
+game.Lighting.Blur:GetPropertyChangedSignal("Enabled"):Connect(function()
+	game.Lighting.Blur.Enabled = Blur
 end)
