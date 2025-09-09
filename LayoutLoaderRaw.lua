@@ -376,8 +376,8 @@ Count2.Value = 0
 Count2.Parent = MissingItems
 
 local Player = game.Players.LocalPlayer
-
-function finditem(Id) 
+local PlayerLoaded = nil
+function findItem(Id) 
 	for i,v in game.ReplicatedStorage.Items:GetChildren() do
 		if v:FindFirstChild("ItemId") and v.ItemId.Value == tonumber(Id) then
 			return v
@@ -447,7 +447,35 @@ function FindMissing(Layout)
 			end
 		end)
 	end
+end
 
+function FindBaseMissing(Base)
+	clearMissing()
+	wait(0.01)
+	local ItemCountValue = Count2
+	Count2.Value = 0
+	MissingItems.Visible =true
+	for i,v in Base:GetChildren() do
+		if not v:FindFirstChild("ItemId") then continue end
+		spawn(function()
+			if HasItem:InvokeServer(v.ItemId.Value) <=0 then
+				if MissingItems.Items:FindFirstChild(v.Name) then
+					local Item = MissingItems.Items:FindFirstChild(v.Name)
+					Item.RealAmount.Value =Item.RealAmount.Value +1
+					Item.Amount.Text = "X"..Item.RealAmount.Value
+				else
+					local Clone = ItemTemplate:Clone()
+					Clone.Name = v.Name
+					Clone.Image = "rbxassetid://"..v.ThumbnailId.Value
+					Clone.Parent = MissingItems.Items
+					Clone.RealAmount.Value = 1
+					Clone.Visible = true
+					Clone.Amount.Text = "X"..Clone.RealAmount.Value
+					ItemCountValue.Value = ItemCountValue.Value +1
+				end
+			end
+		end)
+	end
 end
 
 function SaveLayout(Layout)
@@ -455,8 +483,7 @@ function SaveLayout(Layout)
 	print(Player.PlayerTycoon.Value.Base.CFrame)
 	for i,Item in pairs(Layout) do
 		spawn(function()
-			--print(Item.ItemId,Item.Position)
-			local RealItem = findItem:Get(Item.ItemId)
+			local RealItem = findItem(Item.ItemId)
 			local Tycoon = Player.PlayerTycoon.Value
 			local TycoonBase = Tycoon.Base
 			local TycoonTopLeft = TycoonBase.CFrame * CFrame.new(Vector3.new(TycoonBase.Size.x/2, 0, TycoonBase.Size.z/2))		
@@ -492,8 +519,6 @@ function SaveLayout(Layout)
 	end
 	Message("Loading Finnished. Check F9/Dev menu for item that didnt get placed")
 end
-
-
 
 function SaveBase(Base)
 	Withdraw:InvokeServer()
@@ -559,7 +584,7 @@ function LoadPlayersLayouts(SelectedPlayer)
 		for a,Item in pairs(layoutItems) do
 			if Item then
 				--("Yes")
-				local RealItem = findItem:Get(Item.ItemId)
+				local RealItem = findItem(Item.ItemId)
 
 				if RealItem then
 					--print("Found")
@@ -582,12 +607,12 @@ function LoadPlayersLayouts(SelectedPlayer)
 						RealItemCount = RealItemCount +1
 					end
 				end
-				---wait(0.01)
+
 			else
 			end
 		end
 		Frame.Visible = true
-		--Frame.Parent= Layouts
+	
 		Layouts.CanvasSize = UDim2.new(0,0,0,260*x)
 		Frame.ItemCount.Text = "Item Count: ".. RealItemCount
 		Frame.Count.Value  =ItemCountValue
@@ -649,8 +674,11 @@ function LoadPlayersLayouts(SelectedPlayer)
 			end
 
 		end)
+		Frame.Missing.MouseButton1Click:Connect(function()
+			FindBaseMissing(Base)
+		end)
 	end)
-
+	PlayerLoaded = SelectedPlayer
 	Message("Loading is complete enjoy stealing:)")
 end
 
@@ -682,8 +710,13 @@ GetPlayers()
 game.Players.PlayerAdded:Connect(function()
 	GetPlayers()
 end)
-game.Players.PlayerRemoving:Connect(function()
+game.Players.PlayerRemoving:Connect(function(LPlayer)
 	GetPlayers()
+	if PlayerLoaded and  LPlayer.Name == PlayerLoaded.Name then
+		ClearLayoutsFrame()
+		clearMissing()
+		PlayerLoaded = nil
+	end
 end)
 
 UIS.InputBegan:Connect(function(Input)
