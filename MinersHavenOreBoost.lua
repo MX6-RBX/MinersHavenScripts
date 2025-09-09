@@ -721,7 +721,7 @@ game.Workspace.Boxes.ChildAdded:Connect(function(Box)
 end)
 
 Player.Character.Humanoid:GetPropertyChangedSignal("WalkSpeed"):Connect(function()
-	if Player.Character.Humanoid.Walkspeed < WalkSpeed then
+	if Player.Character.Humanoid.WalkSpeed < WalkSpeed then
 		Player.Character.Humanoid.WalkSpeed = WalkSpeed
 	end
 end)
