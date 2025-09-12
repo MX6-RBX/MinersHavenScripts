@@ -34,6 +34,7 @@ local WaitToRebirth = false
 local Skips = 0
 local CollectingBoxes = false
 local Blur = true
+local WithdrawBase = false
 
 GUi.Name = "GUi"
 GUi.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
@@ -308,6 +309,13 @@ local LayoutWaitBox = BoostSection:addTextbox("Layout 2 load Wait","5",function(
 	LayoutWaitTime = tonumber(text) or 5
 	if TestingMode then
 		print("Layout Spit wait: ",text)
+	end 
+end)
+
+local WaitRandom = BoostSection:addToggle("Withdraw between Layouts ",false,function(Val)
+	WithdrawBase = Val
+	if TestingMode then
+		print("Minimum rebirth wait randomness: ",Val)
 	end 
 end)
 
@@ -675,8 +683,11 @@ function Load()
 		wait(LayoutWaitTime)
 		OreBoostActive = false
 		wait(0.3)
+		if WithdrawBase then
 		game.ReplicatedStorage.DestroyAll:InvokeServer()
-		wait(0.1)
+			wait(0.1)
+		end
+		
 		if TestingMode then
 			print("Load Second Layout")
 		end 
