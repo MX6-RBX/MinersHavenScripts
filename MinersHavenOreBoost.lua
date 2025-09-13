@@ -686,10 +686,10 @@ function Load()
 		OreBoostActive = false
 		wait(0.3)
 		if WithdrawBase then
-		game.ReplicatedStorage.DestroyAll:InvokeServer()
+			game.ReplicatedStorage.DestroyAll:InvokeServer()
 			wait(0.1)
 		end
-		
+
 		if TestingMode then
 			print("Load Second Layout")
 		end 
@@ -755,16 +755,27 @@ game.Workspace.Boxes.ChildAdded:Connect(function(Box)
 	AddBoxTrack(Box)
 end)
 
-Player.Character.Humanoid:GetPropertyChangedSignal("WalkSpeed"):Connect(function()
-	if Player.Character.Humanoid.WalkSpeed < WalkSpeed then
-		Player.Character.Humanoid.WalkSpeed = WalkSpeed
-	end
+Player.CharacterAdded:Connect(function(character)
+	local humanoid = character:WaitForChild("Humanoid")
+
+	-- Set initial properties
+	humanoid.WalkSpeed = WalkSpeed
+	humanoid.JumpPower = JumpPower
+
+	-- Re-connect the property change signals
+	humanoid:GetPropertyChangedSignal("WalkSpeed"):Connect(function()
+		if humanoid.WalkSpeed < WalkSpeed then
+			humanoid.WalkSpeed = WalkSpeed
+		end
+	end)
+
+	humanoid:GetPropertyChangedSignal("JumpPower"):Connect(function()
+		if humanoid.JumpPower < JumpPower then
+			humanoid.JumpPower = JumpPower
+		end
+	end)
 end)
-Player.Character.Humanoid:GetPropertyChangedSignal("JumpPower"):Connect(function()
-	if Player.Character.Humanoid.JumpPower < JumpPower then
-		Player.Character.Humanoid.JumpPower = JumpPower
-	end
-end)
+
 
 game.Lighting.Blur:GetPropertyChangedSignal("Enabled"):Connect(function()
 	game.Lighting.Blur.Enabled = Blur
