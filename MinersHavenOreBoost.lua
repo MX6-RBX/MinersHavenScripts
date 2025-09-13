@@ -200,7 +200,9 @@ local function CollectBoxes()
 			else
 				Player.Character.HumanoidRootPart.CFrame = v.CFrame	
 			end
+			wait(0.1)
 		end
+		CollectingBoxes = false
 	end
 end
 
