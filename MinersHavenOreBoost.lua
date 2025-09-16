@@ -35,6 +35,11 @@ local Skips = 0
 local CollectingBoxes = false
 local Blur = true
 local WithdrawBase = false
+local OpenBoxes = false
+local UseClovers = Player:FindFirstChild("UseClover")
+local SelectedBox = "Regular"
+local UpgraderSize = 1
+local SingleItemUpgrade = ""
 
 GUi.Name = "GUi"
 GUi.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
@@ -60,6 +65,11 @@ Box.BackgroundTransparency = 1
 
 UICorner.Parent = Box
 local Suffixes = { "k", "M", "B", "T", "qd", "Qn", "sx", "Sp", "O", "N", "de", "Ud", "DD", "tdD", "qdD", "QnD", "sxD", "SpD", "OcD", "NvD", "Vgn", "UVg", "DVg", "TVg", "qtV", "QnV", "SeV", "SPG", "OVG", "NVG", "TGN", "UTG", "DTG", "tsTG", "qtTG", "QnTG", "ssTG", "SpTG", "OcTG", "NoTG", "QdDR", "uQDR", "dQDR", "tQDR", "qdQDR", "QnQDR", "sxQDR", "SpQDR", "OQDDr", "NQDDr", "qQGNT", "uQGNT", "dQGNT", "tQGNT", "qdQGNT", "QnQGNT", "sxQGNT", "SpQGNT", "OQQGNT", "NQQGNT", "SXGNTL", "USXGNTL", "DSXGNTL", "TSXGNTL", "QTSXGNTL", "QNSXGNTL", "SXSXGNTL", "SPSXGNTL", "OSXGNTL", "NVSXGNTL", "SPTGNTL", "USPTGNTL", "DSPTGNTL", "TSPTGNTL", "QTSPTGNTL", "QNSPTGNTL", "SXSPTGNTL", "SPSPTGNTL", "OSPTGNTL", "NVSPTGNTL", "OTGNTL", "UOTGNTL", "DOTGNTL", "TOTGNTL", "QTOTGNTL", "QNOTGNTL", "SXOTGNTL", "SPOTGNTL", "OTOTGNTL", "NVOTGNTL", "NONGNTL", "UNONGNTL", "DNONGNTL", "TNONGNTL", "QTNONGNTL", "QNNONGNTL", "SXNONGNTL", "SPNONGNTL", "OTNONGNTL", "NONONGNTL", "CENT", "UNCENT","inf" }  
+
+if game:GetService("MarketplaceService"):UserOwnsGamePassAsync(Player.UserId,13046381) then
+	BoxWait = 4
+	print("Box Wait changed")
+end
 
 local function shorten(Input)
 	local Negative = Input < 0
@@ -163,6 +173,7 @@ local BoostSection = BoostPage:addSection("Main Options")
 local AutoSection = BoostPage:addSection("Other Options")
 local VendorsPage = MainUi:addPage("Vendors","6031097225")
 local GuiInteractions = VendorsPage:addSection("GUI's")
+local BoxSection = VendorsPage:addSection("Box Opening")
 local OtherOptionsPage = MainUi:addPage("Other Options","6023426938")
 local TestSecrion = OtherOptionsPage:addSection("Testing")
 local VisualSection = OtherOptionsPage:addSection("Visual Options")
@@ -235,6 +246,44 @@ local function ToggleOreTrack(Val)
 		end
 	end
 end
+
+local function ResizeUpgraders()
+	for i,v in Tycoon:GetChildren() do
+		if v:FindFirstChild("ItemId") and v:FindFirstChild("Plane")  then
+			if not v:FindFirstChild("Model") then continue end
+			if v.Model:FindFirstChild("Upgrade") then
+				if not v.Model.Upgrade:FindFirstChild("BaseSize") then
+					local BS = Instance.new("Vector3Value")
+					BS.Value = v.Model.Upgrade.Size
+					BS.Name = "BaseSize"
+					BS.Parent = v.Model.Upgrade
+					wait(0.1)
+				end
+
+				v.Model.Upgrade.Size = v.Model.Upgrade.BaseSize.Value * UpgraderSize
+			end
+		end
+	end
+end
+local function RezieSingleUpgrader(Name)
+	print("Resizing: ",Name)
+	local Item = Tycoon:FindFirstChild(Name)
+	if Item then
+		print("Found")
+		if Item:FindFirstChild("Model") and Item.Model:FindFirstChild("Upgrade") then
+			print("Is Item and upgrader")
+			if not Item.Model.Upgrade:FindFirstChild("BaseSize") then
+				local BS = Instance.new("Vector3Value")
+				BS.Value = Item.Model.Upgrade.Size
+				BS.Name = "BaseSize"
+				BS.Parent = Item.Model.Upgrade
+				wait(0.1)
+			end
+			Item.Model.Upgrade.Size = Item.Model.Upgrade.BaseSize.Value * UpgraderSize
+		end
+	end
+end
+
 
 local function ChangeUi(Name)
 	if GUI.FocusWindow.Value then  
@@ -340,6 +389,20 @@ local FirstLife = BoostSection:addButton("Load Badic First Life Setup(15qd-390qd
 	LoadExternlLayout(ELayout)
 end)
 
+local UpgSize = UpgraderSection:addSlider("Upgarader Size",1,1,20,function(val)
+	UpgraderSize = val or 1
+end)
+local UpgarderName = UpgraderSection:addTextbox("Item Name (Case Sensitive)","Name",function(text)
+	SingleItemUpgrade = text
+end)
+
+local RezieAll = UpgraderSection:addButton("Resize all placed upgrader beams", function()
+	ResizeUpgraders()
+end)
+local ResizeSingle = UpgraderSection:addButton("Resize Specific Items Upgrade Beam", function()
+	RezieSingleUpgrader(SingleItemUpgrade)
+end)
+
 local OreTrackToggle = AutoSection:addToggle("Track Ore Value",false,function(Val)
 	ToggleOreTrack(Val)
 	if TestingMode then
@@ -369,6 +432,18 @@ end)
 
 local Fleabag = GuiInteractions:addButton("Open Fleabag", function()
 	ChangeUi("Fleabag")
+end)
+
+local BoxSelectDropdown = BoxSection:addDropdown("Select Box ",{"Regular","Unreal","Inferno","Red-Banded", "Luxury","Specular","Festive","Pumpkin","Magnificent"}, function(Selected)
+	SelectedBox = Selected
+end)
+
+local UseCloverToggle = BoxSection:addToggle("Use Clovers",UseClovers,function(Val)
+	game.ReplicatedStorage.ToggleBoxItem:InvokeServer("Clover")
+end)
+
+local OpenBoxToggle = BoxSection:addToggle("Auto Open Selected box",false,function(Val)
+	OpenBoxes = Val
 end)
 
 local Testing = TestSecrion:addToggle("Testing Mode(set ore limit to 1 and check F9)",false,function(Val)
@@ -780,3 +855,14 @@ end)
 game.Lighting.Blur:GetPropertyChangedSignal("Enabled"):Connect(function()
 	game.Lighting.Blur.Enabled = Blur
 end)
+
+--Keep at bottom of script
+while true do
+	wait(BoxWait)
+	local BoxName = SelectedBox or "Regular"
+	local Box = Player.Crates:FindFirstChild(SelectedBox)
+	if OpenBoxes and  Box and Box.Value >0  then
+		game.ReplicatedStorage.MysteryBox:InvokeServer(Box.Name)	
+	end 
+end
+	
