@@ -170,6 +170,7 @@ local UILib = loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX
 local MainUi = UILib.new("Miners Haven Hub")
 local BoostPage = MainUi:addPage("Boost Options","130772689610761")
 local BoostSection = BoostPage:addSection("Main Options")
+local UpgraderSection = BoostPage:addSection("Item Manipulation")
 local AutoSection = BoostPage:addSection("Other Options")
 local VendorsPage = MainUi:addPage("Vendors","6031097225")
 local GuiInteractions = VendorsPage:addSection("GUI's")
