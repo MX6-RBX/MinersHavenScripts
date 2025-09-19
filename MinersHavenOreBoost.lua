@@ -804,6 +804,7 @@ end
 
 local rebirthing  = false
 local LastRebirth = os.time()
+local WaitTime = 0
 Money.Changed:Connect(function()
 	if TestingMode then
 		print("Money Updated")
@@ -821,7 +822,7 @@ Money.Changed:Connect(function()
 		wait(0.5)
 		rebirthing = false
 		LastRebirth = os.time()
-
+		WaitTime = 0
 		if AutoRebirth then
 			if TestingMode then
 				print("Rebirthed.")
