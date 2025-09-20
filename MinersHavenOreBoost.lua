@@ -822,7 +822,7 @@ Money.Changed:Connect(function()
 		OreBoostActive = false
 		wait(0.5)
 		game.ReplicatedStorage.Rebirth:InvokeServer()
-		wait(0.5)
+		wait(1)
 		rebirthing = false
 		LastRebirth = os.time()
 		WaitTime = 0
