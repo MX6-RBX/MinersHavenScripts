@@ -63,6 +63,7 @@ MainFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 MainFrame.BackgroundTransparency = 1.000
 MainFrame.Position = UDim2.new(0.25, 0, 0.25, 0)
 MainFrame.Size = UDim2.new(0.3, 0, 0.3, 0)
+MainFrame.Draggable = true
 
 Players.Name = "Players"
 Players.Parent = MainFrame
