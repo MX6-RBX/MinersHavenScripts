@@ -1,11 +1,9 @@
-wait(20)
-
 local Player = game.Players.LocalPlayer
-local BoxWait = 7.5
 local Tycoon = Player.PlayerTycoon.Value
+local AdjustSpeed = Tycoon.AdjustSpeed
 local Ores = game.Workspace.DroppedParts:FindFirstChild(Tycoon.Name)
 local GUI = Player.PlayerGui:WaitForChild("GUI")
-local PlaceItem = game.ReplicatedStorage.PlaceItem
+local PlaceItem = game.ReplicatedStorage.PlaceItem 
 local buyItem = game.ReplicatedStorage.BuyItem 
 local ClearBase = game.ReplicatedStorage.DestroyAll
 local Money = GUI:FindFirstChild("Money")
@@ -37,11 +35,14 @@ local WaitToRebirth = false
 local Skips = 0
 local CollectingBoxes = false
 local Blur = true
+local WithdrawBase = false
 local OpenBoxes = false
 local UseClovers = Player:FindFirstChild("UseClover")
 local SelectedBox = "Regular"
 local UpgraderSize = 1
 local SingleItemUpgrade = ""
+local Slipstream = ""
+local ConveyorSpeed = 5
 
 GUi.Name = "GUi"
 GUi.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
@@ -66,7 +67,14 @@ Box.TextScaled = true
 Box.BackgroundTransparency = 1
 
 UICorner.Parent = Box
-local Suffixes = { "k", "M", "B", "T", "qd", "Qn", "sx", "Sp", "O", "N", "de", "Ud", "DD", "tdD", "qdD", "QnD", "sxD", "SpD", "OcD", "NvD", "Vgn", "UVg", "DVg", "TVg", "qtV", "QnV", "SeV", "SPG", "OVG", "NVG", "TGN", "UTG", "DTG", "tsTG", "qtTG", "QnTG", "ssTG", "SpTG", "OcTG", "NoTG", "QdDR", "uQDR", "dQDR", "tQDR", "qdQDR", "QnQDR", "sxQDR", "SpQDR", "OQDDr", "NQDDr", "qQGNT", "uQGNT", "dQGNT", "tQGNT", "qdQGNT", "QnQGNT", "sxQGNT", "SpQGNT", "OQQGNT", "NQQGNT", "SXGNTL", "USXGNTL", "DSXGNTL", "TSXGNTL", "QTSXGNTL", "QNSXGNTL", "SXSXGNTL", "SPSXGNTL", "OSXGNTL", "NVSXGNTL", "SPTGNTL", "USPTGNTL", "DSPTGNTL", "TSPTGNTL", "QTSPTGNTL", "QNSPTGNTL", "SXSPTGNTL", "SPSPTGNTL", "OSPTGNTL", "NVSPTGNTL", "OTGNTL", "UOTGNTL", "DOTGNTL", "TOTGNTL", "QTOTGNTL", "QNOTGNTL", "SXOTGNTL", "SPOTGNTL", "OTOTGNTL", "NVOTGNTL", "NONGNTL", "UNONGNTL", "DNONGNTL", "TNONGNTL", "QTNONGNTL", "QNNONGNTL", "SXNONGNTL", "SPNONGNTL", "OTNONGNTL", "NONONGNTL", "CENT", "UNCENT","inf" }  
+local Suffixes = { "k", "M", "B", "T", "qd", "Qn", "sx", "Sp", "O", "N", "de", "Ud", "DD", "tdD", "qdD", "QnD", "sxD", "SpD", "OcD", "NvD", 
+	"Vgn", "UVg", "DVg", "TVg", "qtV", "QnV", "SeV", "SPG", "OVG", "NVG", "TGN", "UTG", "DTG", "tsTG", "qtTG", "QnTG", "ssTG", "SpTG", "OcTG", 
+	"NoTG", "QdDR", "uQDR", "dQDR", "tQDR", "qdQDR", "QnQDR", "sxQDR", "SpQDR", "OQDDr", "NQDDr", "qQGNT", "uQGNT", "dQGNT", "tQGNT", "qdQGNT", 
+	"QnQGNT", "sxQGNT", "SpQGNT", "OQQGNT", "NQQGNT", "SXGNTL", "USXGNTL", "DSXGNTL", "TSXGNTL", "QTSXGNTL", "QNSXGNTL", "SXSXGNTL", "SPSXGNTL", 
+	"OSXGNTL", "NVSXGNTL", "SPTGNTL", "USPTGNTL", "DSPTGNTL", "TSPTGNTL", "QTSPTGNTL", "QNSPTGNTL", "SXSPTGNTL", "SPSPTGNTL", "OSPTGNTL",
+	"NVSPTGNTL", "OTGNTL", "UOTGNTL", "DOTGNTL", "TOTGNTL", "QTOTGNTL","QNOTGNTL", "SXOTGNTL", "SPOTGNTL", "OTOTGNTL", "NVOTGNTL", "NONGNTL", 
+	"UNONGNTL", "DNONGNTL", "TNONGNTL", "QTNONGNTL", "QNNONGNTL", "SXNONGNTL", "SPNONGNTL", "OTNONGNTL", "NONONGNTL", "CENT", "UNCENT","inf" }  
+
 
 if game:GetService("MarketplaceService"):UserOwnsGamePassAsync(Player.UserId,13046381) then
 	BoxWait = 4
@@ -132,12 +140,13 @@ local MoneyLoopables = {
 local EffectRemovers = {"Wild Spore", "Deadly Spore", "Azure Spore", "The Death Cap"}
 
 local ResettersNames = {"Tesla Resetter","Tesla Refuter","Black Dwarf","Void Star","The Ultimate Sacrifice","The Final Upgrader","Daestrophe"}
-local Resetters = {
-	{Item = "Tesla Resetter", Evo = "Tesla Refuter",IPosition = Vector3.new(12,2,0)},
-	{Item = "Black Dwarf",Evo = "Void Star",IPosition =  Vector3.new(24,2,0)},
-	{Item = "The Ultimate Sacrifice", Evo = "The Final Upgrader",IPosition = Vector3.new(36,2,0)},
-	{Item = "Daestrophe",Evo = nil, IPosition =  Vector3.new(48,2,0)}
-}	
+local Slipstreams = {"None"}	
+
+for i,v in  game.ReplicatedStorage.Items:GetChildren() do
+	if v.Tier.Value == 77 then
+		table.insert(Slipstreams,v.Name)
+	end
+end
 
 local function LoadExternlLayout(Layout)--Converts a shared layout string to a placeable layout
 	if Layout then 
@@ -169,9 +178,10 @@ local OreTrackers = {}
 local BoxTrackers = {}
 local ELayout = loadstring(game:HttpGet('https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/BasicFirstLife.lua'))()
 local UILib = loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX/UiLib/refs/heads/main/UiLib.lua"))()
-local MainUi = UILib.new("Miners Haven Hub")
+local MainUi = UILib.new("Miners Haven Hub(Test Version)")
 local BoostPage = MainUi:addPage("Boost Options","130772689610761")
-local BoostSection = BoostPage:addSection("Main Options")
+local AutoRebirthSection = BoostPage:addSection("Auto Rebirth")
+local BoostSection = BoostPage:addSection("Auto Upgrade")
 local UpgraderSection = BoostPage:addSection("Item Manipulation")
 local AutoSection = BoostPage:addSection("Other Options")
 local VendorsPage = MainUi:addPage("Vendors","6031097225")
@@ -214,25 +224,23 @@ local function CollectBoxes()
 			else
 				Player.Character.HumanoidRootPart.CFrame = v.CFrame	
 			end
+			wait(0.1)
 		end
+		CollectingBoxes = false
 	end
 end
 
 local function AddTracker(ore)
-	spawn(function()
-		wait(0.05)
-		local Ui = GUi:Clone()
+	local Ui = GUi:Clone()
+	Ui.Box.Text = "$"..shorten(ore.Cash.Value)
+	Ui.AlwaysOnTop = true
+	Ui.Parent = ore
+	Ui.Adornee = ore
+	Ui.Enabled = OreTracking
+	table.insert(OreTrackers,Ui)
+	ore.Cash.Changed:Connect(function()
 		Ui.Box.Text = "$"..shorten(ore.Cash.Value)
-		Ui.AlwaysOnTop = true
-		Ui.Parent = ore
-		Ui.Adornee = ore
-		Ui.Enabled = OreTracking
-		table.insert(OreTrackers,Ui)
-		ore.Cash.Changed:Connect(function()
-			Ui.Box.Text = "$"..shorten(ore.Cash.Value)
-		end)
 	end)
-	
 end
 
 local function ToggleBoxTrack(Val)
@@ -251,6 +259,7 @@ local function ToggleOreTrack(Val)
 		end
 	end
 end
+
 local function ResizeUpgraders()
 	for i,v in Tycoon:GetChildren() do
 		if v:FindFirstChild("ItemId") and v:FindFirstChild("Plane")  then
@@ -263,7 +272,7 @@ local function ResizeUpgraders()
 					BS.Parent = v.Model.Upgrade
 					wait(0.1)
 				end
-				
+
 				v.Model.Upgrade.Size = v.Model.Upgrade.BaseSize.Value * UpgraderSize
 			end
 		end
@@ -288,6 +297,7 @@ local function RezieSingleUpgrader(Name)
 	end
 end
 
+
 local function ChangeUi(Name)
 	if GUI.FocusWindow.Value then  
 		GUI.FocusWindow.Value.Visible = false
@@ -305,7 +315,7 @@ local function ChangeUi(Name)
 end
 
 
-local AutoRebirthToggle = BoostSection:addToggle("Auto Rebirth",false,function(Val)
+local AutoRebirthToggle = AutoRebirthSection:addToggle("Auto Rebirth",false,function(Val)
 	AutoRebirth = Val
 	if TestingMode then
 		print("Auto Rebirth: ",Val)
@@ -338,66 +348,89 @@ local MooneyLoopToggle = BoostSection:addToggle("Use Money Loopables",false,func
 	end 
 end)
 
-local MinWaitBox = BoostSection:addTextbox("Minimum Rebirth Wait","20",function(text)
+local WaitToSkip = AutoRebirthSection:addSlider("Wait for Skips",0,0,20,function(val)
+	Skips = val or 0
+end)
+
+local MinWaitBox = AutoRebirthSection:addTextbox("Minimum Rebirth Wait","20",function(text)
 	MinWait = tonumber(text) or 20
 	if TestingMode then
 		print("Minimum rebirth wait : ",text)
 	end 
 end)
 
-local WaitRandom = BoostSection:addToggle("Add Wait Randomness ",false,function(Val)
+local WaitRandom = AutoRebirthSection:addToggle("Add Wait Randomness ",false,function(Val)
 	AddRandomness = Val
 	if TestingMode then
 		print("Minimum rebirth wait randomness: ",Val)
 	end 
 end)
+local SlipstreamDropDown = AutoRebirthSection:addDropdown("Stop On Slipstream",Slipstreams, function(Selected)
+	Slipstream = Selected
+	if TestingMode then
+		print("Slipstream: ",Selected)
+	end 
+end)
 
-local LayoutSelect = BoostSection:addDropdown("First Layout ",{"Layout1","Layout2","Layout3"}, function(Selected)
+local LayoutSelect = AutoRebirthSection:addDropdown("First Layout ",{"Layout1","Layout2","Layout3"}, function(Selected)
 	Layout1 = Selected
 	if TestingMode then
 		print("First Layout: ",Selected)
 	end 
 end)
 
-local LayoutWaitBox = BoostSection:addTextbox("Layout 2 load Wait","5",function(text)
+local LayoutWaitBox = AutoRebirthSection:addTextbox("Layout 2 load Wait","5",function(text)
 	LayoutWaitTime = tonumber(text) or 5
 	if TestingMode then
 		print("Layout Spit wait: ",text)
 	end 
 end)
 
-local LayoutSelect2 = BoostSection:addDropdown("Second Layout ",{"None","Layout1","Layout2","Layout3"}, function(Selected)
+local WaitRandom = AutoRebirthSection:addToggle("Withdraw between Layouts ",false,function(Val)
+	WithdrawBase = Val
+	if TestingMode then
+		print("Minimum rebirth wait randomness: ",Val)
+	end 
+end)
+
+local LayoutSelect2 = AutoRebirthSection:addDropdown("Second Layout ",{"None","Layout1","Layout2","Layout3"}, function(Selected)
 	Layout2 = Selected
 	if TestingMode then
 		print("Second Layout: ",Selected)
 	end 
 end)
 
-local WaitToSkip = BoostSection:addSlider("Wait for Skips",0,0,20,function(val)
-	Skips = val or 0
-end)
-local FirstLife = BoostSection:addButton("Load Badic First Life Setup(15qd-390qd, Warning loud)", function()
+
+
+local FirstLife = AutoSection:addButton("Load Badic First Life Setup(15qd-390qd, Warning loud)", function()
 	if TestingMode then
 		print("Loading Basic First Life Layout.")
 	end
 	ClearBase:InvokeServer()
 	LoadExternlLayout(ELayout)
 end)
-local UpgSize = UpgraderSection:addSlider("Upgarader Size",1,1,20,function(val)
+
+local ConveyorSpeedSlider = UpgraderSection:addSlider("Conveyor Speed(Max 30)",1,5,100,function(val)
+	ConveyorSpeed = val or 5
+	AdjustSpeed = ConveyorSpeed/5
+	if TestingMode then
+		print("Resize Size : ",UpgraderSize)
+	end 
+end)
+
+local UpgSizeSlider = UpgraderSection:addSlider("Upgarader Size",1,1,20,function(val)
 	UpgraderSize = val or 1
 end)
-local UpgarderName = UpgraderSection:addTextbox("Item Name (Case Sensitive)","Name",function(text)
+local UpgarderNameTextBox = UpgraderSection:addTextbox("Item Name (Case Sensitive)","Name",function(text)
 	SingleItemUpgrade = text
 end)
 
-local RezieAll = UpgraderSection:addButton("Resize all placed upgrader beams", function()
+local RezieAllButton = UpgraderSection:addButton("Resize all placed upgrader beams", function()
 	ResizeUpgraders()
 end)
-local ResizeSingle = UpgraderSection:addButton("Resize Specific Items Upgrade Beam", function()
+local ResizeSingleButton = UpgraderSection:addButton("Resize Specific Items Upgrade Beam", function()
 	RezieSingleUpgrader(SingleItemUpgrade)
 end)
-
-
 
 local OreTrackToggle = AutoSection:addToggle("Track Ore Value",false,function(Val)
 	ToggleOreTrack(Val)
@@ -756,8 +789,11 @@ function Load()
 		wait(LayoutWaitTime)
 		OreBoostActive = false
 		wait(0.3)
-		game.ReplicatedStorage.DestroyAll:InvokeServer()
-		wait(0.1)
+		if WithdrawBase then
+			game.ReplicatedStorage.DestroyAll:InvokeServer()
+			wait(0.1)
+		end
+
 		if TestingMode then
 			print("Load Second Layout")
 		end 
@@ -789,12 +825,16 @@ end
 
 local rebirthing  = false
 local LastRebirth = os.time()
+local WaitTime = 0
 Money.Changed:Connect(function()
 	if TestingMode then
 		print("Money Updated")
 	end 
 	local RB = RebornPrice(Player) * (1000^Skips)
-	local WaitTime= MinWait + math.random(1,20) * (AddRandomness and 1 or 0)
+	WaitTime= MinWait + math.random(1,20) * (AddRandomness and 1 or 0)
+	if TestingMode then
+		print("Wait Time: ",WaitTime)
+	end 
 	if AutoRebirth and not rebirthing and  Money.Value > RB and os.time()-LastRebirth >= WaitTime then
 		if TestingMode then
 			print("Auto Rebirth")
@@ -803,10 +843,10 @@ Money.Changed:Connect(function()
 		OreBoostActive = false
 		wait(0.5)
 		game.ReplicatedStorage.Rebirth:InvokeServer()
-		wait(0.5)
+		wait(1)
 		rebirthing = false
 		LastRebirth = os.time()
-
+		WaitTime = 0
 		if AutoRebirth then
 			if TestingMode then
 				print("Rebirthed.")
@@ -819,24 +859,45 @@ end)
 for i,v in Boxes:GetChildren(1) do
 	AddBoxTrack(v)
 end
+
+game.ReplicatedStorage.ItemObtained.OnClientEvent:Connect(function(Item,Amount)
+	if Item.Tier.Value == 78 and Item.Name == Slipstream then
+		AutoRebirth = false
+		OreBoostActive = false
+	end
+end)
+
 game.Workspace.Boxes.ChildAdded:Connect(function(Box)
 	AddBoxTrack(Box)
 end)
 
-Player.Character.Humanoid:GetPropertyChangedSignal("WalkSpeed"):Connect(function()
-	if Player.Character.Humanoid.WalkSpeed < WalkSpeed then
-		Player.Character.Humanoid.WalkSpeed = WalkSpeed
-	end
+Player.CharacterAdded:Connect(function(character)
+	local humanoid = character:WaitForChild("Humanoid")
+
+	-- Set initial properties
+	humanoid.WalkSpeed = WalkSpeed
+	humanoid.JumpPower = JumpPower
+
+	-- Re-connect the property change signals
+	humanoid:GetPropertyChangedSignal("WalkSpeed"):Connect(function()
+		if humanoid.WalkSpeed < WalkSpeed then
+			humanoid.WalkSpeed = WalkSpeed
+		end
+	end)
+
+	humanoid:GetPropertyChangedSignal("JumpPower"):Connect(function()
+		if humanoid.JumpPower < JumpPower then
+			humanoid.JumpPower = JumpPower
+		end
+	end)
 end)
-Player.Character.Humanoid:GetPropertyChangedSignal("JumpPower"):Connect(function()
-	if Player.Character.Humanoid.JumpPower < JumpPower then
-		Player.Character.Humanoid.JumpPower = JumpPower
-	end
-end)
+
 
 game.Lighting.Blur:GetPropertyChangedSignal("Enabled"):Connect(function()
 	game.Lighting.Blur.Enabled = Blur
 end)
+
+--Keep at bottom of script
 while true do
 	wait(BoxWait)
 	local BoxName = SelectedBox or "Regular"
