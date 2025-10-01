@@ -214,6 +214,7 @@ local function CollectBoxes()
 	if not CollectingBoxes then
 		CollectingBoxes = true
 		for i,v in Boxes:GetChildren() do
+			if not v or not v.Parent then continue end 
 			if v:IsA("Model") and v:FindFirstChild("Crate") then
 				Player.Character.HumanoidRootPart.CFrame = v.Crate.CFrame		
 			else
