@@ -412,7 +412,7 @@ end)
 
 local ConveyorSpeedSlider = UpgraderSection:addSlider("Conveyor Speed(Max 30)",1,5,100,function(val)
 	ConveyorSpeed = val or 5
-	AdjustSpeed = ConveyorSpeed/5
+	AdjustSpeed.Value = ConveyorSpeed/5
 	if TestingMode then
 		print("Resize Size : ",UpgraderSize)
 	end 
