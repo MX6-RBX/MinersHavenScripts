@@ -231,6 +231,7 @@ local function CollectBoxes()
 end
 
 local function AddTracker(ore)
+	repeat wait() until ore:FindFirstChild("Cash")
 	local Ui = GUi:Clone()
 	Ui.Box.Text = "$"..shorten(ore.Cash.Value)
 	Ui.AlwaysOnTop = true
