@@ -31,7 +31,7 @@ local LastItem = Instance.new("TextLabel")
 local UITextSizeConstraint_3 = Instance.new("UITextSizeConstraint")
 local ElapseTime = Instance.new("TextLabel")
 local UITextSizeConstraint_4 = Instance.new("UITextSizeConstraint")
-local LivesAdvanced = Instance.new("TextLabel")
+local LivesAdvancedText = Instance.new("TextLabel")
 local UITextSizeConstraint_5 = Instance.new("UITextSizeConstraint")
 local UIListLayout = Instance.new("UIListLayout")
 local UIPadding_5 = Instance.new("UIPadding")
@@ -59,7 +59,7 @@ Main.Parent = ItemTracker
 Main.Active = true
 Main.AnchorPoint = Vector2.new(0.5, 0.5)
 Main.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-Main.Draggable = true
+Main.Draggable = true			
 Main.Position = UDim2.new(0.5, 0, 0.5, 0)
 Main.Selectable = true
 Main.Size = UDim2.new(0.25, 0, 0.330000013, 0)
@@ -247,21 +247,21 @@ ElapseTime.TextWrapped = true
 UITextSizeConstraint_4.Parent = ElapseTime
 UITextSizeConstraint_4.MaxTextSize = 30
 
-LivesAdvanced.Name = "LivesAdvanced"
-LivesAdvanced.Parent = Info
-LivesAdvanced.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-LivesAdvanced.BackgroundTransparency = 1.000
-LivesAdvanced.LayoutOrder = 3
-LivesAdvanced.Position = UDim2.new(0, 0, 0.5, 0)
-LivesAdvanced.Size = UDim2.new(1, 0, 0.100000001, 0)
-LivesAdvanced.Font = Enum.Font.ArialBold
-LivesAdvanced.Text = "Lifes Advanced - 10000"
-LivesAdvanced.TextColor3 = Color3.fromRGB(255, 255, 255)
-LivesAdvanced.TextScaled = true
-LivesAdvanced.TextSize = 14.000
-LivesAdvanced.TextWrapped = true
+LivesAdvancedText.Name = "LivesAdvanced"
+LivesAdvancedText.Parent = Info
+LivesAdvancedText.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+LivesAdvancedText.BackgroundTransparency = 1.000
+LivesAdvancedText.LayoutOrder = 3
+LivesAdvancedText.Position = UDim2.new(0, 0, 0.5, 0)
+LivesAdvancedText.Size = UDim2.new(1, 0, 0.100000001, 0)
+LivesAdvancedText.Font = Enum.Font.ArialBold
+LivesAdvancedText.Text = "Lifes Advanced - 10000"
+LivesAdvancedText.TextColor3 = Color3.fromRGB(255, 255, 255)
+LivesAdvancedText.TextScaled = true
+LivesAdvancedText.TextSize = 14.000
+LivesAdvancedText.TextWrapped = true
 
-UITextSizeConstraint_5.Parent = LivesAdvanced
+UITextSizeConstraint_5.Parent = LivesAdvancedText
 UITextSizeConstraint_5.MaxTextSize = 30
 
 UIListLayout.Parent = Info
@@ -436,7 +436,7 @@ end
 Items.ScrollBarThickness = 6
 Start.Text = "Start Life - "..GetSuffix()..StartLife
 Current.Text = "Current Life - "..GetSuffix()..StartLife
-LivesAdvanced.Text = "Lifes Advanced - 0"
+LivesAdvancedText.Text = "Lifes Advanced - 0"
 LastItem.Text = "Last Item - NAN"
 
 function HandleTime(t)--converts the time in seconds into the HH:MM:SS format
