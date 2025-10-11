@@ -463,7 +463,7 @@ local Fleabag = GuiInteractions:addButton("Open Fleabag", function()
 	ChangeUi("Fleabag")
 end)
 
-local BoxSelectDropdown = BoxSection:addDropdown("Select Box ",{"Regular","Unreal","Inferno","Red-Banded", "Luxury","Specular","Festive","Pumpkin","Magnificent"}, function(Selected)
+local BoxSelectDropdown = BoxSection:addDropdown("Select Box ",{"Regular","Unreal","Inferno","Red-Banded","Spectral","Pumpkin","Luxury","Festive","Magnificent","Twitch","Birthday","Heavenly","Easter","Cake Raffle"}, function(Selected)
 	SelectedBox = Selected
 end)
 
