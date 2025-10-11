@@ -422,6 +422,8 @@ for i,v in Tiers:GetChildren() do
 	Ui.Name = v.TierName.Value
 	Ui.Text = Ui.Name
 	Ui.TextColor3 = v.TierColor.Value
+	Ui.TextStrokeTransparency = 0
+	Ui.TextStrokeColor3 = Color3.fromRGB(200,200,200)
 	Ui.UIStroke.Enabled = table.find(SelectedTiers,tonumber(v.Name))
 	Ui.Parent = List
 	Ui.Visible = true
@@ -489,7 +491,7 @@ local function AddNewButton(Item,Amount)
 			UiS.Color = Tier.TierColor.Value		
 		end  
 		ButtonCount.Value  +=1
-		if Item.RebornChance.Value <1 then
+		if Item:FindFirstChild("RebornChance") and Item.RebornChance.Value <1 then
 			local Stroke = Instance.new("UIStroke")
 			Stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 			Stroke.Color = Color3.fromRGB(255, 0, 255)
@@ -514,7 +516,7 @@ local function AddNewButton(Item,Amount)
 end
 
 game.ReplicatedStorage.ItemObtained.OnClientEvent:Connect(function(Item,Amount)
-	if table.find(Tiers,Item.Tier.Value) then
+	if table.find(SelectedTiers,Item.Tier.Value) then
 		AddNewButton(Item,Amount)
 	end
 	local LifeChange = Life.Value - LastLife
@@ -522,7 +524,7 @@ game.ReplicatedStorage.ItemObtained.OnClientEvent:Connect(function(Item,Amount)
 		LivesAdvanced = LivesAdvanced + LifeChange
 		LastLife = Life.Value
 	end
-	LivesAdvancedText.Text ="Lifes Advanced - " ..LivesAdvanced
+	LivesAdvancedText.Text = "Lifes Advanced - " ..tostring(LivesAdvanced)
 	Current.Text = "Current Life - "..GetSuffix()..Life.Value+1
 end)
 
