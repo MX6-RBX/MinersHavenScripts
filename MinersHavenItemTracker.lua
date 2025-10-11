@@ -522,7 +522,7 @@ game.ReplicatedStorage.ItemObtained.OnClientEvent:Connect(function(Item,Amount)
 		LivesAdvanced = LivesAdvanced + LifeChange
 		LastLife = Life.Value
 	end
-	LivesAdvanced.Text ="Lifes Advanced - " ..LivesAdvanced
+	LivesAdvancedText.Text ="Lifes Advanced - " ..LivesAdvanced
 	Current.Text = "Current Life - "..GetSuffix()..Life.Value+1
 end)
 
