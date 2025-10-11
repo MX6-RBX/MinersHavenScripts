@@ -1,19 +1,20 @@
 local Chat = game:GetService("TextChatService")
 local channel = Chat:WaitForChild('TextChannels').RBXGeneral
-local PList = game.CoreGui.PlayerList.Children.OffsetFrame.PlayerScrollList.SizeOffsetFrame.ScrollingFrameContainer.ScrollingFrameClippingFrame.ScollingFrame.OffsetUndoFrame
 local Player = game.Players.LocalPlayer
-local PlayerList = PList:FindFirstChild("p_"..tostring(Player.UserId))
+
 
 
 local FakeName = ""
+local CTag = "[MX6]"
 local RandomRebriths =false
 local SpoofName = false
 local LifeVal = 0 
 
 
-local UILib =require(game.ReplicatedStorage.Old)
+local UILib =loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX/UiLib/refs/heads/main/UiLib.lua"))()
 local MainUi = UILib.new("InfoSpoofer")
 local SpoofPage = MainUi:addPage("Main","130772689610761")
+local InfoSection = SpoofPage:addSection("Info")
 local SpoofSection = SpoofPage:addSection("Spoof Info")
 local Options = MainUi:addPage("UI Options","6031280882")
 local OptionsSection = Options:addSection("Main")
@@ -21,14 +22,7 @@ local UIThemeSection = Options:addSection("UI Colors")
 UILib:setTheme("Glow",Color3.fromRGB(240, 234, 81))
 
 
-local function ToggleNameSpoof()
-	if SpoofName then 
-		PlayerList.ChildrenFrame.NameFrame.BGFrame.OverlayFrame.PlayerName.PlayerName.Text = FakeName
-	else
-		PlayerList.ChildrenFrame.NameFrame.BGFrame.OverlayFrame.PlayerName.PlayerName.Text = Player.Name
-	end
-end
-
+local Warning = InfoSection:addButton("Spoofed Chats are local, Other player will seen tham as your roblox name.", function() end)
 
 local FakeNameText = SpoofSection:addTextbox("Fake Name",Player.Name,function(text)
 	FakeName =text or Player.Name
@@ -36,7 +30,10 @@ end)
 
 local SpoofNameToggle = SpoofSection:addToggle("Spoof Name",false,function(Val)
 	SpoofName = Val
-	ToggleNameSpoof()
+end)
+
+local CutsomTagText = SpoofSection:addTextbox("Custom Chat Tag","[MX6]",function(text)
+	CTag =text
 end)
 
 local LifeRandomness = SpoofSection:addSlider("Additional Lifes",0,0,5000,function(val)
@@ -105,24 +102,30 @@ end
 
 
 Chat.OnIncomingMessage = function(Message)
-	if Message.Text and not Message.TextSource then
-		local Prefix = ""				
-		if Player:FindFirstChild("SecondSacrifice") then
-			Prefix = "S+"
-		elseif Player:FindFirstChild("Sacrificed") then
-			Prefix = "s-"
-		end		
-		if string.find(Message.Text,"was born") and string.find(Message.Text, Player.Name) then
-			local CurrentLifeText = tostring(Player.Rebirths.Value+1).."%a%a"
-			local NewLife = HandleLife(Player.Rebirths.Value+LifeVal)
-			local NewText = Message.Text
-			if SpoofName then
-				NewText = string.gsub(NewText,Player.Name,FakeName)
+	if Message then
+		if Message.Text and not Message.TextSource then
+		
+			if string.find(Message.Text,"was born") and string.find(Message.Text, Player.Name) then
+				local CurrentLifeText = tostring(Player.Rebirths.Value+1).."%a%a"
+				local NewLife = HandleLife(Player.Rebirths.Value+LifeVal)
+				local NewText = Message.Text
+				if SpoofName then
+					NewText = string.gsub(NewText,Player.Name,FakeName)
+				end
+				if RandomRebriths then
+					NewText = string.gsub(NewText,CurrentLifeText,NewLife)
+				end
+				Message.Text = NewText
 			end
-			if RandomRebriths then
-				NewText = string.gsub(NewText,CurrentLifeText,NewLife)
+		elseif Message.TextSource then 
+			if string.find(Message.PrefixText, tostring(Player.Name)) then 
+				if SpoofName then
+				
+					Message.PrefixText = string.gsub(Message.PrefixText,tostring(Player.Name),CTag..FakeName)
+				end
 			end
-			Message.Text = NewText
 		end
 	end
 end
+
+
