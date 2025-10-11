@@ -143,7 +143,7 @@ local ResettersNames = {"Tesla Resetter","Tesla Refuter","Black Dwarf","Void Sta
 local Slipstreams = {"None"}	
 
 for i,v in  game.ReplicatedStorage.Items:GetChildren() do
-	if v.Tier.Value == 77 then
+	if v.Tier.Value == 78 then
 		table.insert(Slipstreams,v.Name)
 	end
 end
