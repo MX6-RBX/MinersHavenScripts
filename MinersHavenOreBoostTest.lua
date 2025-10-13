@@ -1,3 +1,5 @@
+local Chat = game:GetService("TextChatService")
+local channel = Chat:WaitForChild('TextChannels').RBXGeneral
 local Player = game.Players.LocalPlayer
 local Tycoon = Player.PlayerTycoon.Value
 local AdjustSpeed = Tycoon.AdjustSpeed
@@ -43,6 +45,11 @@ local UpgraderSize = 1
 local SingleItemUpgrade = ""
 local Slipstream = ""
 local ConveyorSpeed = 5
+local FakeName = ""
+local CTag = "[MX6]"
+local SpoofLife =false
+local SpoofName = false
+local LifeVal = 0 
 
 GUi.Name = "GUi"
 GUi.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
@@ -188,6 +195,9 @@ local VendorsPage = MainUi:addPage("Vendors","6031097225")
 local GuiInteractions = VendorsPage:addSection("GUI's")
 local BoxSection = VendorsPage:addSection("Box Opening")
 local OtherOptionsPage = MainUi:addPage("Other Options","6023426938")
+local SpoofPage = MainUi:addPage("Main","130772689610761")
+local InfoSection = SpoofPage:addSection("Info")
+local SpoofSection = SpoofPage:addSection("Spoof Info")
 local TestSecrion = OtherOptionsPage:addSection("Testing")
 local VisualSection = OtherOptionsPage:addSection("Visual Options")
 local CharSection = OtherOptionsPage:addSection("Character")
@@ -313,6 +323,29 @@ local function ChangeUi(Name)
 			print("Toggled: "..Name)
 		end
 	end
+end
+
+local function comma(Value)
+	local v3, v4, v5 = string.match(tostring(Value), "^([^%d]*%d)(%d*)(.-)$");
+	return v3 .. v4:reverse():gsub("(%d%d%d)", "%1,"):reverse() .. v5;
+end
+
+local function HandleLife(Life)
+	local Suffix
+	local LastDigit = tonumber(string.sub(tostring(Life),string.len(tostring(Life))))
+	local SendLastDigit = tonumber(string.sub(tostring(Life),string.len(tostring(Life-1))))
+	if Life <= 20 and Life >= 10 then
+		Suffix = "th"
+	elseif LastDigit == 1 then
+		Suffix = "st"
+	elseif LastDigit == 2 and SendLastDigit ~= 1 then
+		Suffix = "nd"
+	elseif LastDigit == 3 then
+		Suffix = "rd"
+	else
+		Suffix = "th"
+	end
+	return tostring(comma(Life))..Suffix
 end
 
 
@@ -475,6 +508,29 @@ end)
 local OpenBoxToggle = BoxSection:addToggle("Auto Open Selected box",false,function(Val)
 	OpenBoxes = Val
 end)
+
+local Warning = InfoSection:addButton("Spoofed Chats are local, Other player will seen tham as your roblox name.", function() end)
+
+local FakeNameText = SpoofSection:addTextbox("Fake Name",Player.Name,function(text)
+	FakeName =text or Player.Name
+end)
+
+local SpoofNameToggle = SpoofSection:addToggle("Spoof Name",false,function(Val)
+	SpoofName = Val
+end)
+
+local CutsomTagText = SpoofSection:addTextbox("Custom Chat Tag","[MX6]",function(text)
+	CTag =text
+end)
+
+local LifeRandomness = SpoofSection:addSlider("Additional Lifes",0,0,5000,function(val)
+	LifeVal = val or 0
+end)
+
+local SpoofLifeToggle = SpoofSection:addToggle("Spoof Rebirtrhs",false,function(Val)
+	SpoofLife = Val
+end)
+
 
 local Testing = TestSecrion:addToggle("Testing Mode(set ore limit to 1 and check F9)",false,function(Val)
 	TestingMode = Val
@@ -897,6 +953,33 @@ end)
 game.Lighting.Blur:GetPropertyChangedSignal("Enabled"):Connect(function()
 	game.Lighting.Blur.Enabled = Blur
 end)
+
+Chat.OnIncomingMessage = function(Message)
+	if Message then
+		if Message.Text and not Message.TextSource then
+			if string.find(Message.Text,"was born") and string.find(Message.Text, Player.Name) then
+				local CurrentLifeText = tostring(Player.Rebirths.Value+1)
+				local NewLife = HandleLife(tonumber(Player.Rebirths.Value+LifeVal))
+				print(NewLife)
+				local NewText = Message.Text
+				if SpoofName then
+					NewText = string.gsub(NewText,Player.Name,FakeName)
+				end
+				if SpoofLife then
+					NewText = string.gsub(NewText,"%%d+(%a)(%a)",NewLife)
+					print(NewText)
+				end
+				Message.Text = NewText
+			end
+		elseif Message.TextSource then 
+			if string.find(Message.PrefixText, tostring(Player.Name)) then 
+				if SpoofName then
+					Message.PrefixText = string.gsub(Message.PrefixText,tostring(Player.Name),CTag..FakeName)
+				end
+			end
+		end
+	end
+end
 
 --Keep at bottom of script
 while true do
