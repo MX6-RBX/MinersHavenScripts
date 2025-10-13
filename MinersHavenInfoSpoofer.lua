@@ -2,14 +2,11 @@ local Chat = game:GetService("TextChatService")
 local channel = Chat:WaitForChild('TextChannels').RBXGeneral
 local Player = game.Players.LocalPlayer
 
-
-
 local FakeName = ""
 local CTag = "[MX6]"
 local RandomRebriths =false
 local SpoofName = false
 local LifeVal = 0 
-
 
 local UILib =loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX/UiLib/refs/heads/main/UiLib.lua"))()
 local MainUi = UILib.new("InfoSpoofer")
@@ -20,7 +17,6 @@ local Options = MainUi:addPage("UI Options","6031280882")
 local OptionsSection = Options:addSection("Main")
 local UIThemeSection = Options:addSection("UI Colors")
 UILib:setTheme("Glow",Color3.fromRGB(240, 234, 81))
-
 
 local Warning = InfoSection:addButton("Spoofed Chats are local, Other player will seen tham as your roblox name.", function() end)
 
@@ -76,7 +72,6 @@ local ScrollBarColor = UIThemeSection:addColorPicker("Scroll Bar Color", Color3.
 	UILib:setTheme("ScrollBarColor",Col)
 end)
 
-
 local function comma(Value)
 	local v3, v4, v5 = string.match(tostring(Value), "^([^%d]*%d)(%d*)(.-)$");
 	return v3 .. v4:reverse():gsub("(%d%d%d)", "%1,"):reverse() .. v5;
@@ -100,19 +95,18 @@ function HandleLife(Life)
 	return tostring(comma(Life))..Suffix
 end
 
-
 Chat.OnIncomingMessage = function(Message)
 	if Message then
 		if Message.Text and not Message.TextSource then
-		
 			if string.find(Message.Text,"was born") and string.find(Message.Text, Player.Name) then
-				local CurrentLifeText = tostring(Player.Rebirths.Value+1).."%a%a"
-				local NewLife = HandleLife(Player.Rebirths.Value+LifeVal)
+				local CurrentLifeText = tostring(41).."%a%a"
+				local NewLife = HandleLife(41+LifeVal)
 				local NewText = Message.Text
+			
 				if SpoofName then
-					NewText = string.gsub(NewText,Player.Name,FakeName)
+					NewText = string.gsub(NewText,"Name",FakeName)
 				end
-				if RandomRebriths then
+				if SpoofLife then
 					NewText = string.gsub(NewText,CurrentLifeText,NewLife)
 				end
 				Message.Text = NewText
@@ -127,5 +121,3 @@ Chat.OnIncomingMessage = function(Message)
 		end
 	end
 end
-
-
