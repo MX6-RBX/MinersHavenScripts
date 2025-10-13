@@ -960,14 +960,12 @@ Chat.OnIncomingMessage = function(Message)
 			if string.find(Message.Text,"was born") and string.find(Message.Text, Player.Name) then
 				local CurrentLifeText = tostring(Player.Rebirths.Value+1)
 				local NewLife = HandleLife(tonumber(Player.Rebirths.Value+LifeVal))
-				print(NewLife)
 				local NewText = Message.Text
 				if SpoofName then
 					NewText = string.gsub(NewText,Player.Name,FakeName)
 				end
 				if SpoofLife then
 					NewText = string.gsub(NewText,CurrentLifeText.."(..)",NewLife)
-					print(NewText)
 				end
 				Message.Text = NewText
 			end
