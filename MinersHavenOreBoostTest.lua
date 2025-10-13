@@ -195,7 +195,7 @@ local VendorsPage = MainUi:addPage("Vendors","6031097225")
 local GuiInteractions = VendorsPage:addSection("GUI's")
 local BoxSection = VendorsPage:addSection("Box Opening")
 local OtherOptionsPage = MainUi:addPage("Other Options","6023426938")
-local SpoofPage = MainUi:addPage("Spoofer","6031215978")
+local SpoofPage = MainUi:addPage("Main","130772689610761")
 local InfoSection = SpoofPage:addSection("Info")
 local SpoofSection = SpoofPage:addSection("Spoof Info")
 local TestSecrion = OtherOptionsPage:addSection("Testing")
@@ -966,7 +966,7 @@ Chat.OnIncomingMessage = function(Message)
 					NewText = string.gsub(NewText,Player.Name,FakeName)
 				end
 				if SpoofLife then
-					NewText = string.gsub(NewText,"%%d+(%a)(%a)",NewLife)
+					NewText = string.gsub(NewText,CurrentLifeText.."(..)",NewLife)
 					print(NewText)
 				end
 				Message.Text = NewText
