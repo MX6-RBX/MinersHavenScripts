@@ -99,8 +99,8 @@ Chat.OnIncomingMessage = function(Message)
 	if Message then
 		if Message.Text and not Message.TextSource then
 			if string.find(Message.Text,"was born") and string.find(Message.Text, Player.Name) then
-				local CurrentLifeText = tostring(41).."%a%a"
-				local NewLife = HandleLife(41+LifeVal)
+				local CurrentLifeText = tostring(Player.Rebirths.Value+1).."%a%a"
+				local NewLife = HandleLife(Player.Rebirths.Value+LifeVal)
 				local NewText = Message.Text
 			
 				if SpoofName then
