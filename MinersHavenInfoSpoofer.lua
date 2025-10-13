@@ -4,7 +4,7 @@ local Player = game.Players.LocalPlayer
 
 local FakeName = ""
 local CTag = "[MX6]"
-local RandomRebriths =false
+local SpoofLife =false
 local SpoofName = false
 local LifeVal = 0 
 
@@ -37,7 +37,7 @@ local LifeRandomness = SpoofSection:addSlider("Additional Lifes",0,0,5000,functi
 end)
 
 local SpoofLifeToggle = SpoofSection:addToggle("Spoof Rebirtrhs",false,function(Val)
-	SpoofName = Val
+	SpoofLife = Val
 end)
 
 local ToggleKey = OptionsSection:addKeybind("UI Toggle",Enum.KeyCode.K,function(Key)
@@ -77,7 +77,7 @@ local function comma(Value)
 	return v3 .. v4:reverse():gsub("(%d%d%d)", "%1,"):reverse() .. v5;
 end
 
-function HandleLife(Life)
+local function HandleLife(Life)
 	local Suffix
 	local LastDigit = tonumber(string.sub(tostring(Life),string.len(tostring(Life))))
 	local SendLastDigit = tonumber(string.sub(tostring(Life),string.len(tostring(Life-1))))
@@ -99,22 +99,22 @@ Chat.OnIncomingMessage = function(Message)
 	if Message then
 		if Message.Text and not Message.TextSource then
 			if string.find(Message.Text,"was born") and string.find(Message.Text, Player.Name) then
-				local CurrentLifeText = tostring(Player.Rebirths.Value+1).."%a%a"
-				local NewLife = HandleLife(Player.Rebirths.Value+LifeVal)
+				local CurrentLifeText = tostring(Player.Rebirths.Value+1)
+				local NewLife = HandleLife(tonumber(Player.Rebirths.Value+LifeVal))
+				print(NewLife)
 				local NewText = Message.Text
-			
 				if SpoofName then
-					NewText = string.gsub(NewText,"Name",FakeName)
+					NewText = string.gsub(NewText,Player.Name,FakeName)
 				end
 				if SpoofLife then
-					NewText = string.gsub(NewText,CurrentLifeText,NewLife)
+					NewText = string.gsub(NewText,CurrentLifeText.."(..)",NewLife)
+					print(NewText)
 				end
 				Message.Text = NewText
 			end
 		elseif Message.TextSource then 
 			if string.find(Message.PrefixText, tostring(Player.Name)) then 
 				if SpoofName then
-				
 					Message.PrefixText = string.gsub(Message.PrefixText,tostring(Player.Name),CTag..FakeName)
 				end
 			end
