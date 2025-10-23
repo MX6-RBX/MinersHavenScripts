@@ -1,5 +1,8 @@
+local Chat = game:GetService("TextChatService")
+local channel = Chat:WaitForChild('TextChannels').RBXGeneral
 local Player = game.Players.LocalPlayer
 local Tycoon = Player.PlayerTycoon.Value
+local AdjustSpeed = Tycoon.AdjustSpeed
 local Ores = game.Workspace.DroppedParts:FindFirstChild(Tycoon.Name)
 local GUI = Player.PlayerGui:WaitForChild("GUI")
 local PlaceItem = game.ReplicatedStorage.PlaceItem 
@@ -40,6 +43,14 @@ local UseClovers = Player:FindFirstChild("UseClover")
 local SelectedBox = "Regular"
 local UpgraderSize = 1
 local SingleItemUpgrade = ""
+local Slipstream = ""
+local ConveyorSpeed = 5
+local FakeName = ""
+local CTag = "[MX6]"
+local SpoofLife =false
+local SpoofName = false
+local LifeVal = 0 
+
 
 GUi.Name = "GUi"
 GUi.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
@@ -137,12 +148,13 @@ local MoneyLoopables = {
 local EffectRemovers = {"Wild Spore", "Deadly Spore", "Azure Spore", "The Death Cap"}
 
 local ResettersNames = {"Tesla Resetter","Tesla Refuter","Black Dwarf","Void Star","The Ultimate Sacrifice","The Final Upgrader","Daestrophe"}
-local Resetters = {
-	{Item = "Tesla Resetter", Evo = "Tesla Refuter",IPosition = Vector3.new(12,2,0)},
-	{Item = "Black Dwarf",Evo = "Void Star",IPosition =  Vector3.new(24,2,0)},
-	{Item = "The Ultimate Sacrifice", Evo = "The Final Upgrader",IPosition = Vector3.new(36,2,0)},
-	{Item = "Daestrophe",Evo = nil, IPosition =  Vector3.new(48,2,0)}
-}	
+local Slipstreams = {"None"}	
+
+for i,v in  game.ReplicatedStorage.Items:GetChildren() do
+	if v.Tier.Value == 78 then
+		table.insert(Slipstreams,v.Name)
+	end
+end
 
 local function LoadExternlLayout(Layout)--Converts a shared layout string to a placeable layout
 	if Layout then 
@@ -174,18 +186,23 @@ local OreTrackers = {}
 local BoxTrackers = {}
 local ELayout = loadstring(game:HttpGet('https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/BasicFirstLife.lua'))()
 local UILib = loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX/UiLib/refs/heads/main/UiLib.lua"))()
-local MainUi = UILib.new("Miners Haven Hub")
+local MainUi = UILib.new("Miners Haven Hub(Test Version)")
 local BoostPage = MainUi:addPage("Boost Options","130772689610761")
-local BoostSection = BoostPage:addSection("Main Options")
+local AutoRebirthSection = BoostPage:addSection("Auto Rebirth")
+local BoostSection = BoostPage:addSection("Auto Upgrade")
 local UpgraderSection = BoostPage:addSection("Item Manipulation")
 local AutoSection = BoostPage:addSection("Other Options")
 local VendorsPage = MainUi:addPage("Vendors","6031097225")
 local GuiInteractions = VendorsPage:addSection("GUI's")
 local BoxSection = VendorsPage:addSection("Box Opening")
 local OtherOptionsPage = MainUi:addPage("Other Options","6023426938")
+local SpoofPage = MainUi:addPage("Spoofer","6031215978")
+local InfoSection = SpoofPage:addSection("Info")
+local SpoofSection = SpoofPage:addSection("Spoof Info")
 local TestSecrion = OtherOptionsPage:addSection("Testing")
 local VisualSection = OtherOptionsPage:addSection("Visual Options")
 local CharSection = OtherOptionsPage:addSection("Character")
+local ExternalSection = OtherOptionsPage:addSection("Useful Scripts")
 local Options = MainUi:addPage("UI Options","6031280882")
 local OptionsSection = Options:addSection("Main")
 local UIThemeSection = Options:addSection("UI Colors")
@@ -214,7 +231,6 @@ local function CollectBoxes()
 	if not CollectingBoxes then
 		CollectingBoxes = true
 		for i,v in Boxes:GetChildren() do
-			if not v or not v.Parent then continue end 
 			if v:IsA("Model") and v:FindFirstChild("Crate") then
 				Player.Character.HumanoidRootPart.CFrame = v.Crate.CFrame		
 			else
@@ -227,6 +243,7 @@ local function CollectBoxes()
 end
 
 local function AddTracker(ore)
+	repeat wait() until ore:FindFirstChild("Cash")
 	local Ui = GUi:Clone()
 	Ui.Box.Text = "$"..shorten(ore.Cash.Value)
 	Ui.AlwaysOnTop = true
@@ -310,8 +327,31 @@ local function ChangeUi(Name)
 	end
 end
 
+local function comma(Value)
+	local v3, v4, v5 = string.match(tostring(Value), "^([^%d]*%d)(%d*)(.-)$");
+	return v3 .. v4:reverse():gsub("(%d%d%d)", "%1,"):reverse() .. v5;
+end
 
-local AutoRebirthToggle = BoostSection:addToggle("Auto Rebirth",false,function(Val)
+local function HandleLife(Life)
+	local Suffix
+	local LastDigit = tonumber(string.sub(tostring(Life),string.len(tostring(Life))))
+	local SendLastDigit = tonumber(string.sub(tostring(Life),string.len(tostring(Life-1))))
+	if Life <= 20 and Life >= 10 then
+		Suffix = "th"
+	elseif LastDigit == 1 then
+		Suffix = "st"
+	elseif LastDigit == 2 and SendLastDigit ~= 1 then
+		Suffix = "nd"
+	elseif LastDigit == 3 then
+		Suffix = "rd"
+	else
+		Suffix = "th"
+	end
+	return tostring(comma(Life))..Suffix
+end
+
+
+local AutoRebirthToggle = AutoRebirthSection:addToggle("Auto Rebirth",false,function(Val)
 	AutoRebirth = Val
 	if TestingMode then
 		print("Auto Rebirth: ",Val)
@@ -344,53 +384,61 @@ local MooneyLoopToggle = BoostSection:addToggle("Use Money Loopables",false,func
 	end 
 end)
 
-local MinWaitBox = BoostSection:addTextbox("Minimum Rebirth Wait","20",function(text)
+local WaitToSkip = AutoRebirthSection:addSlider("Wait for Skips",0,0,20,function(val)
+	Skips = val or 0
+end)
+
+local MinWaitBox = AutoRebirthSection:addTextbox("Minimum Rebirth Wait","20",function(text)
 	MinWait = tonumber(text) or 20
 	if TestingMode then
 		print("Minimum rebirth wait : ",text)
 	end 
 end)
 
-local WaitRandom = BoostSection:addToggle("Add Wait Randomness ",false,function(Val)
+local WaitRandom = AutoRebirthSection:addToggle("Add Wait Randomness ",false,function(Val)
 	AddRandomness = Val
 	if TestingMode then
 		print("Minimum rebirth wait randomness: ",Val)
 	end 
 end)
+local SlipstreamDropDown = AutoRebirthSection:addDropdown("Stop On Slipstream",Slipstreams, function(Selected)
+	Slipstream = Selected
+	if TestingMode then
+		print("Slipstream: ",Selected)
+	end 
+end)
 
-local LayoutSelect = BoostSection:addDropdown("First Layout ",{"Layout1","Layout2","Layout3"}, function(Selected)
+local LayoutSelect = AutoRebirthSection:addDropdown("First Layout ",{"Layout1","Layout2","Layout3"}, function(Selected)
 	Layout1 = Selected
 	if TestingMode then
 		print("First Layout: ",Selected)
 	end 
 end)
 
-local LayoutWaitBox = BoostSection:addTextbox("Layout 2 load Wait","5",function(text)
+local LayoutWaitBox = AutoRebirthSection:addTextbox("Layout 2 load Wait","5",function(text)
 	LayoutWaitTime = tonumber(text) or 5
 	if TestingMode then
 		print("Layout Spit wait: ",text)
 	end 
 end)
 
-local WaitRandom = BoostSection:addToggle("Withdraw between Layouts ",false,function(Val)
+local WaitRandom = AutoRebirthSection:addToggle("Withdraw between Layouts ",false,function(Val)
 	WithdrawBase = Val
 	if TestingMode then
 		print("Minimum rebirth wait randomness: ",Val)
 	end 
 end)
 
-local LayoutSelect2 = BoostSection:addDropdown("Second Layout ",{"None","Layout1","Layout2","Layout3"}, function(Selected)
+local LayoutSelect2 = AutoRebirthSection:addDropdown("Second Layout ",{"None","Layout1","Layout2","Layout3"}, function(Selected)
 	Layout2 = Selected
 	if TestingMode then
 		print("Second Layout: ",Selected)
 	end 
 end)
 
-local WaitToSkip = BoostSection:addSlider("Wait for Skips",0,0,20,function(val)
-	Skips = val or 0
-end)
 
-local FirstLife = BoostSection:addButton("Load Badic First Life Setup(15qd-390qd, Warning loud)", function()
+
+local FirstLife = AutoSection:addButton("Load Badic First Life Setup(15qd-390qd, Warning loud)", function()
 	if TestingMode then
 		print("Loading Basic First Life Layout.")
 	end
@@ -398,17 +446,25 @@ local FirstLife = BoostSection:addButton("Load Badic First Life Setup(15qd-390qd
 	LoadExternlLayout(ELayout)
 end)
 
-local UpgSize = UpgraderSection:addSlider("Upgarader Size",1,1,20,function(val)
+local ConveyorSpeedSlider = UpgraderSection:addSlider("Conveyor Speed(Max 30)",1,5,100,function(val)
+	ConveyorSpeed = val or 5
+	AdjustSpeed.Value = ConveyorSpeed/5
+	if TestingMode then
+		print("Resize Size : ",UpgraderSize)
+	end 
+end)
+
+local UpgSizeSlider = UpgraderSection:addSlider("Upgarader Size",1,1,20,function(val)
 	UpgraderSize = val or 1
 end)
-local UpgarderName = UpgraderSection:addTextbox("Item Name (Case Sensitive)","Name",function(text)
+local UpgarderNameTextBox = UpgraderSection:addTextbox("Item Name (Case Sensitive)","Name",function(text)
 	SingleItemUpgrade = text
 end)
 
-local RezieAll = UpgraderSection:addButton("Resize all placed upgrader beams", function()
+local RezieAllButton = UpgraderSection:addButton("Resize all placed upgrader beams", function()
 	ResizeUpgraders()
 end)
-local ResizeSingle = UpgraderSection:addButton("Resize Specific Items Upgrade Beam", function()
+local ResizeSingleButton = UpgraderSection:addButton("Resize Specific Items Upgrade Beam", function()
 	RezieSingleUpgrader(SingleItemUpgrade)
 end)
 
@@ -443,7 +499,7 @@ local Fleabag = GuiInteractions:addButton("Open Fleabag", function()
 	ChangeUi("Fleabag")
 end)
 
-local BoxSelectDropdown = BoxSection:addDropdown("Select Box ",{"Regular","Unreal","Inferno","Red-Banded", "Luxury","Specular","Festive","Pumpkin","Magnificent"}, function(Selected)
+local BoxSelectDropdown = BoxSection:addDropdown("Select Box ",{"Regular","Unreal","Inferno","Red-Banded","Spectral","Pumpkin","Luxury","Festive","Magnificent","Twitch","Birthday","Heavenly","Easter","Cake Raffle"}, function(Selected)
 	SelectedBox = Selected
 end)
 
@@ -454,6 +510,29 @@ end)
 local OpenBoxToggle = BoxSection:addToggle("Auto Open Selected box",false,function(Val)
 	OpenBoxes = Val
 end)
+
+local Warning = InfoSection:addButton("Spoofed Chats are local, Other player will seen tham as your roblox name.", function() end)
+
+local FakeNameText = SpoofSection:addTextbox("Fake Name",Player.Name,function(text)
+	FakeName =text or Player.Name
+end)
+
+local SpoofNameToggle = SpoofSection:addToggle("Spoof Name",false,function(Val)
+	SpoofName = Val
+end)
+
+local CutsomTagText = SpoofSection:addTextbox("Custom Chat Tag","[MX6]",function(text)
+	CTag =text
+end)
+
+local LifeRandomness = SpoofSection:addSlider("Additional Lifes",0,0,5000,function(val)
+	LifeVal = val or 0
+end)
+
+local SpoofLifeToggle = SpoofSection:addToggle("Spoof Rebirtrhs",false,function(Val)
+	SpoofLife = Val
+end)
+
 
 local Testing = TestSecrion:addToggle("Testing Mode(set ore limit to 1 and check F9)",false,function(Val)
 	TestingMode = Val
@@ -482,6 +561,15 @@ end)
 local CharJump = CharSection:addSlider("Player Jump",50,1,300,function(val)
 	Player.Character.Humanoid.JumpPower = val
 	JumpPower = val
+end)
+
+local LayoutStealer = ExternalSection.addButton("Layout Stealer",function()
+	if not game.CoreGui:FindFirstChild("LayoutsStealer") then return end
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/LayoutLoaderRaw.lua"))()
+end)
+local ItemTracker = ExternalSection.addButton("Item Tracker",function()
+	if not game.CoreGui:FindFirstChild("ItemTracker") then return end
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/MinersHavenItemTracker.lua"))()
 end)
 
 local ToggleKey = OptionsSection:addKeybind("UI Toggle",Enum.KeyCode.K,function(Key)
@@ -839,6 +927,14 @@ end)
 for i,v in Boxes:GetChildren(1) do
 	AddBoxTrack(v)
 end
+
+game.ReplicatedStorage.ItemObtained.OnClientEvent:Connect(function(Item,Amount)
+	if Item.Tier.Value == 78 and Item.Name == Slipstream then
+		AutoRebirth = false
+		OreBoostActive = false
+	end
+end)
+
 game.Workspace.Boxes.ChildAdded:Connect(function(Box)
 	AddBoxTrack(Box)
 end)
@@ -869,6 +965,31 @@ game.Lighting.Blur:GetPropertyChangedSignal("Enabled"):Connect(function()
 	game.Lighting.Blur.Enabled = Blur
 end)
 
+Chat.OnIncomingMessage = function(Message)
+	if Message then
+		if Message.Text and not Message.TextSource then
+			if string.find(Message.Text,"was born") and string.find(Message.Text, Player.Name) then
+				local CurrentLifeText = tostring(Player.Rebirths.Value+1)
+				local NewLife = HandleLife(tonumber(Player.Rebirths.Value+LifeVal))
+				local NewText = Message.Text
+				if SpoofName then
+					NewText = string.gsub(NewText,Player.Name,FakeName)
+				end
+				if SpoofLife then
+					NewText = string.gsub(NewText,CurrentLifeText.."(..)",NewLife)
+				end
+				Message.Text = NewText
+			end
+		elseif Message.TextSource then 
+			if string.find(Message.PrefixText, tostring(Player.Name)) then 
+				if SpoofName then
+					Message.PrefixText = string.gsub(Message.PrefixText,tostring(Player.Name),CTag..FakeName)
+				end
+			end
+		end
+	end
+end
+
 --Keep at bottom of script
 while true do
 	wait(BoxWait)
@@ -878,4 +999,3 @@ while true do
 		game.ReplicatedStorage.MysteryBox:InvokeServer(Box.Name)	
 	end 
 end
-	
