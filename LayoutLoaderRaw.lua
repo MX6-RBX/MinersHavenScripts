@@ -54,7 +54,7 @@ local UICorner_16 = Instance.new("UICorner")
 --Properties:
 
 LayoutsStealer.Name = "LayoutsStealer"
-LayoutsStealer.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+LayoutsStealer.Parent = game.CoreGui
 LayoutsStealer.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
 MainFrame.Name = "MainFrame"
