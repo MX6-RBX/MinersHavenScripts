@@ -51,6 +51,7 @@ local SpoofLife =false
 local SpoofName = false
 local LifeVal = 0 
 
+
 GUi.Name = "GUi"
 GUi.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 GUi.Active = true
@@ -185,7 +186,7 @@ local OreTrackers = {}
 local BoxTrackers = {}
 local ELayout = loadstring(game:HttpGet('https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/BasicFirstLife.lua'))()
 local UILib = loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX/UiLib/refs/heads/main/UiLib.lua"))()
-local MainUi = UILib.new("Miners Haven Hub(Test Version)")
+local MainUi = UILib.new("Miners Haven Hub | MX6")
 local BoostPage = MainUi:addPage("Boost Options","130772689610761")
 local AutoRebirthSection = BoostPage:addSection("Auto Rebirth")
 local BoostSection = BoostPage:addSection("Auto Upgrade")
@@ -201,6 +202,7 @@ local SpoofSection = SpoofPage:addSection("Spoof Info")
 local TestSecrion = OtherOptionsPage:addSection("Testing")
 local VisualSection = OtherOptionsPage:addSection("Visual Options")
 local CharSection = OtherOptionsPage:addSection("Character")
+local ExternalSection = OtherOptionsPage:addSection("Useful Scripts")
 local Options = MainUi:addPage("UI Options","6031280882")
 local OptionsSection = Options:addSection("Main")
 local UIThemeSection = Options:addSection("UI Colors")
@@ -509,7 +511,9 @@ local OpenBoxToggle = BoxSection:addToggle("Auto Open Selected box",false,functi
 	OpenBoxes = Val
 end)
 
-local Warning = InfoSection:addButton("Spoofed Chats are local, Other player will seen tham as your roblox name.", function() end)
+local Warning = InfoSection:addButton("Spoofed Chats are local, Other player will seen tham as your roblox name.", function() 
+	
+end)
 
 local FakeNameText = SpoofSection:addTextbox("Fake Name",Player.Name,function(text)
 	FakeName =text or Player.Name
@@ -530,7 +534,6 @@ end)
 local SpoofLifeToggle = SpoofSection:addToggle("Spoof Rebirtrhs",false,function(Val)
 	SpoofLife = Val
 end)
-
 
 local Testing = TestSecrion:addToggle("Testing Mode(set ore limit to 1 and check F9)",false,function(Val)
 	TestingMode = Val
@@ -559,6 +562,22 @@ end)
 local CharJump = CharSection:addSlider("Player Jump",50,1,300,function(val)
 	Player.Character.Humanoid.JumpPower = val
 	JumpPower = val
+end)
+
+local LayoutStealer = ExternalSection.addButton("Layout Stealer",function()
+	--[[
+	if not game.CoreGui:FindFirstChild("LayoutsStealer") then return end
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/LayoutLoaderRaw.lua"))()
+	]]
+	print("Disabled for testing ")
+end)
+
+local ItemTracker = ExternalSection.addButton("Item Tracker",function()
+	--[[
+	if not game.CoreGui:FindFirstChild("ItemTracker") then return end
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/MinersHavenItemTracker.lua"))()
+	]]
+	print("Disabled for testing")
 end)
 
 local ToggleKey = OptionsSection:addKeybind("UI Toggle",Enum.KeyCode.K,function(Key)
