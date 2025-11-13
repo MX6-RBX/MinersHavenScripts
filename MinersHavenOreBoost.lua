@@ -229,7 +229,9 @@ end
 
 local function CollectBoxes()
 	if not CollectingBoxes then
+		local Pos = Player.Character.HumanoidRootPart.CFrame 
 		CollectingBoxes = true
+		
 		for i,v in Boxes:GetChildren() do
 			if v:IsA("Model") and v:FindFirstChild("Crate") then
 				Player.Character.HumanoidRootPart.CFrame = v.Crate.CFrame		
@@ -239,6 +241,7 @@ local function CollectBoxes()
 			wait(0.1)
 		end
 		CollectingBoxes = false
+		Player.Character.HumanoidRootPart.CFrame = Pos
 	end
 end
 
