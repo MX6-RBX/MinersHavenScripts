@@ -232,7 +232,7 @@ local function CollectBoxes()
 	if not CollectingBoxes then
 		local Pos = Player.Character.HumanoidRootPart.CFrame 
 		CollectingBoxes = true
-		
+
 		for i,v in Boxes:GetChildren() do
 			if v:IsA("Model") and v:FindFirstChild("Crate") then
 				Player.Character.HumanoidRootPart.CFrame = v.Crate.CFrame		
@@ -242,6 +242,8 @@ local function CollectBoxes()
 			wait(0.1)
 		end
 		CollectingBoxes = false
+		Player.Character.HumanoidRootPart.AssemblyLinearVelocity = Vector3.new(0,0,0)
+		Player.Character.HumanoidRootPart.AssemblyAngularVelocity = Vector3.new(0,0,0)
 		Player.Character.HumanoidRootPart.CFrame = Pos
 	end
 end
@@ -289,25 +291,30 @@ local function ResizeUpgraders()
 					BS.Parent = v.Model.Upgrade
 					wait(0.1)
 				end
-
+				if TestingMode then
+					print(v.Name, "Resized to ",UpgraderSize)
+				end
 				v.Model.Upgrade.Size = v.Model.Upgrade.BaseSize.Value * UpgraderSize
 			end
 		end
 	end
 end
 local function RezieSingleUpgrader(Name)
-	print("Resizing: ",Name)
+	--print("Resizing: ",Name)
 	local Item = Tycoon:FindFirstChild(Name)
 	if Item then
-		print("Found")
+		--print("Found")
 		if Item:FindFirstChild("Model") and Item.Model:FindFirstChild("Upgrade") then
-			print("Is Item and upgrader")
+			--print("Is Item and upgrader")
 			if not Item.Model.Upgrade:FindFirstChild("BaseSize") then
 				local BS = Instance.new("Vector3Value")
 				BS.Value = Item.Model.Upgrade.Size
 				BS.Name = "BaseSize"
 				BS.Parent = Item.Model.Upgrade
 				wait(0.1)
+			end
+			if TestingMode then
+				print(Item.Name, "Resized to ",UpgraderSize)
 			end
 			Item.Model.Upgrade.Size = Item.Model.Upgrade.BaseSize.Value * UpgraderSize
 		end
@@ -440,8 +447,6 @@ local LayoutSelect2 = AutoRebirthSection:addDropdown("Second Layout ",{"None","L
 	end 
 end)
 
-
-
 local FirstLife = AutoSection:addButton("Load Badic First Life Setup(15qd-390qd, Warning loud)", function()
 	if TestingMode then
 		print("Loading Basic First Life Layout.")
@@ -466,9 +471,15 @@ local UpgarderNameTextBox = UpgraderSection:addTextbox("Item Name (Case Sensitiv
 end)
 
 local RezieAllButton = UpgraderSection:addButton("Resize all placed upgrader beams", function()
+	if TestingMode then
+		print("Resizing all upgraders")
+	end
 	ResizeUpgraders()
 end)
 local ResizeSingleButton = UpgraderSection:addButton("Resize Specific Items Upgrade Beam", function()
+	if TestingMode then
+		print("Resizing ",SingleItemUpgrade)
+	end
 	RezieSingleUpgrader(SingleItemUpgrade)
 end)
 
@@ -503,42 +514,75 @@ local Fleabag = GuiInteractions:addButton("Open Fleabag", function()
 	ChangeUi("Fleabag")
 end)
 
+local BaseTp = GuiInteractions:addButton("Teleport Back to base", function()
+	if TestingMode then
+		print("Teleporting to base")
+	end
+	Player.Character.HumanoidRootPart.CFrame = Tycoon.Base.CFame + Vector3.new(0,10,0)
+end)
+
 local BoxSelectDropdown = BoxSection:addDropdown("Select Box ",{"Regular","Unreal","Inferno","Red-Banded","Spectral","Pumpkin","Luxury","Festive","Magnificent","Twitch","Birthday","Heavenly","Easter","Cake Raffle"}, function(Selected)
+	if TestingMode then
+		print("Selected",Selected,"Box")
+	end
 	SelectedBox = Selected
 end)
 
 local UseCloverToggle = BoxSection:addToggle("Use Clovers",UseClovers,function(Val)
+	if TestingMode then
+		print("Toggled Clovers:",Val)
+	end
 	game.ReplicatedStorage.ToggleBoxItem:InvokeServer("Clover")
 end)
 
 local OpenBoxToggle = BoxSection:addToggle("Auto Open Selected box",false,function(Val)
+	if TestingMode then
+		print("Toggle auto Box:",Val)
+	end
 	OpenBoxes = Val
 end)
 
 local Warning = InfoSection:addButton("Spoofed Chats are local, Other player will seen tham as your roblox name.", function() end)
 
 local FakeNameText = SpoofSection:addTextbox("Fake Name",Player.Name,function(text)
+	if TestingMode then
+		print("Fake Name set to",text)
+	end
 	FakeName =text or Player.Name
 end)
 
 local SpoofNameToggle = SpoofSection:addToggle("Spoof Name",false,function(Val)
+	if TestingMode then
+		print("Toggled Name Spoofing:",Val)
+	end
 	SpoofName = Val
 end)
 
 local CutsomTagText = SpoofSection:addTextbox("Custom Chat Tag(Rich Text Compatible)",'<font color="#F0F064">[MX6] </font>',function(text)
+	if TestingMode then
+		print("Fake Tag set to",text)
+	end
 	CTag =text
 end)
 
 local LifeRandomness = SpoofSection:addSlider("Additional Lifes",0,0,5000,function(val)
+	if TestingMode then
+		print("Exta Lives set to:",val)
+	end
 	LifeVal = val or 0
 end)
 
 local SpoofLifeToggle = SpoofSection:addToggle("Spoof Rebirtrhs",false,function(Val)
+	if TestingMode then
+		print("Spoof Lives toggle: ",Val)
+	end
 	SpoofLife = Val
 end)
 
 
 local Testing = TestSecrion:addToggle("Testing Mode(set ore limit to 1 and check F9)",false,function(Val)
+	local MessageEnd  = Val and "Enabled" or "Disabled"
+	print("Testing mode",MessageEnd)
 	TestingMode = Val
 end)
 
@@ -549,29 +593,47 @@ local BoxTrack = VisualSection:addToggle("Track Dropped Boxes",false,function(Va
 	end 
 end)
 local BoxTeleport = VisualSection:addButton("Collect Boxes(High ban chance in public Servers)", function()
+	if TestingMode then
+		print("Collecting Boxes")
+	end 
 	CollectBoxes()
 end)
 
 local BlurToggle = VisualSection:addToggle("Disable Game Blur",false,function(Val)
+	if TestingMode then
+		print("game Blur toggle:", Val)
+	end 
 	Blur = not Val
 	game.Lighting.Blur.Enabled = Blur
 end)
 
 local CharSpeed = CharSection:addSlider("Player Speed",16,1,200,function(val)
+	if TestingMode then
+		print("Player Walk Speed set to",val)
+	end
 	Player.Character.Humanoid.WalkSpeed = val
 	WalkSpeed = val
 end)
 
 local CharJump = CharSection:addSlider("Player Jump",50,1,300,function(val)
+	if TestingMode then
+		print("Player Jump set to",val)
+	end
 	Player.Character.Humanoid.JumpPower = val
 	JumpPower = val
 end)
 
 local LayoutStealer = ExternalSection:addButton("Layout Stealer(Keybind N)",function()
+	if TestingMode then
+		print("Loading External Script: Layout Stealer")
+	end
 	if game.CoreGui:FindFirstChild("LayoutsStealer") then return end
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/LayoutLoaderRaw.lua"))()
 end)
 local ItemTracker = ExternalSection:addButton("Item Tracker(Keybnd T)",function()
+	if TestingMode then
+		print("Loading External Script: Item Tracker")
+	end
 	if game.CoreGui:FindFirstChild("ItemTracker") then return end
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/MinersHavenItemTracker.lua"))()
 end)
@@ -659,13 +721,19 @@ function BoostOre(Ore)
 			elseif v.Model:FindFirstChild("Lava") and not v.Model:FindFirstChild("TeleportSend") then
 				if v and v:FindFirstChild("Model") and v.Model:FindFirstChild("Lava") and not v.Model.Lava:FindFirstChild("TeleportSend") then
 					if TestingMode then
-						print("Has Lava, not tp")
+						print("Has Lava, not a tp")
 					end
 					if not v.Model:FindFirstChild("Drop") and  (Furnace == nil or Furnace:FindFirstChild("Model") == nil or Furnace.Model:FindFirstChild("Lava") == nil) then 
 						Furnace = v	
+						if TestingMode then
+							print("Furnace set to",v.Name)
+						end
 					end
 					if v.Model:FindFirstChild("Drop") and v.Model:FindFirstChild("Lava") and  (IndMine == nil or IndMine:FindFirstChild("Model") == nil )  then
 						IndMine = v
+						if TestingMode then
+							print("Industrial Mine set to",v.Name)
+						end
 					end
 				end
 			end
@@ -699,7 +767,7 @@ function Reset(Ore)
 	end
 	if Sac and Ore and OreBoostActive then  --Checks if either of the sacrifice resetters are on the base 
 		if TestingMode then
-			print("Found ", Sac.Name)
+			print("Found", Sac.Name)
 		end 
 		for i=1,3 do 
 			Ore.CFrame = Sac.Model.Upgrade.CFrame
@@ -713,7 +781,7 @@ function Reset(Ore)
 	end
 	if Star and Ore and OreBoostActive then --Checks if black dwarf or void star is on the base 
 		if TestingMode then
-			print("Found ", Star.Name)
+			print("Found", Star.Name)
 		end 
 		for i=1,3 do 
 			Ore.CFrame = Star.Model.Upgrade.CFrame
@@ -727,7 +795,7 @@ function Reset(Ore)
 	end
 	if Tes and Ore and OreBoostActive then --Checks if either tesla is on the base
 		if TestingMode then
-			print("Found ", Tes.Name)
+			print("Found", Tes.Name)
 		end 
 		for i=1,3 do 
 			Ore.CFrame = Tes.Model.Upgrade.CFrame
@@ -776,7 +844,7 @@ function StartOreBoost(Ore)
 	end 
 	if UsingMoneyLoop then
 		if TestingMode then
-			print("Using Money cap Items ")
+			print("Using Money cap Items")
 		end 
 		for i,v in MoneyLoopables do
 			if Tycoon:FindFirstChild(i) then 
@@ -791,7 +859,7 @@ function StartOreBoost(Ore)
 		end
 		if MoneyLoop then
 			if TestingMode then
-				print("Found Money Loop item: ",MoneyLoop)
+				print("Found Money Loop item:",MoneyLoop)
 			end 
 			local Info = MoneyLoopables[MoneyLoop.Name]
 			repeat 
@@ -921,7 +989,7 @@ Money.Changed:Connect(function()
 		WaitTime = 0
 		if AutoRebirth then
 			if TestingMode then
-				print("Rebirthed.")
+				print("Rebirthed")
 			end 
 			Load()
 		end
@@ -972,13 +1040,15 @@ end)
 Chat.OnIncomingMessage = function(Message)
 	if Message then
 		if Message.Text and not Message.TextSource then
-			if string.find(Message.Text,"was born") and string.find(Message.Text, Player.Name) then
-				local CurrentLifeText = tostring(Player.Rebirths.Value+1)
-				local NewLife = HandleLife(tonumber(Player.Rebirths.Value+LifeVal))
-				local NewText = Message.Text
+			local NewText = Message.Text
+			if string.find(Message.Text, Player.Name)  then 
 				if SpoofName then
 					NewText = string.gsub(NewText,Player.Name,FakeName)
 				end
+			end
+			if string.find(Message.Text,"was born")then
+				local CurrentLifeText = tostring(Player.Rebirths.Value+1)
+				local NewLife = HandleLife(tonumber(Player.Rebirths.Value+LifeVal))
 				if SpoofLife then
 					NewText = string.gsub(NewText,CurrentLifeText.."(..)",NewLife)
 				end
@@ -989,6 +1059,12 @@ Chat.OnIncomingMessage = function(Message)
 				if SpoofName then
 					Message.PrefixText = string.gsub(Message.PrefixText,tostring(Player.Name),CTag..FakeName)
 				end
+			elseif not string.find(Message.PrefixText, tostring(Player.Name)) and  string.find(Message.Text, Player.Name) then 
+				local NewText = Message.Text
+				if SpoofName then
+					NewText = string.gsub(NewText,Player.Name,FakeName)
+				end
+				Message.Text = NewText
 			end
 		end
 	end
