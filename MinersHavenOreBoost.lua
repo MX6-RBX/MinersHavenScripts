@@ -524,7 +524,7 @@ local SpoofNameToggle = SpoofSection:addToggle("Spoof Name",false,function(Val)
 	SpoofName = Val
 end)
 
-local CutsomTagText = SpoofSection:addTextbox("Custom Chat Tag","[MX6]",function(text)
+local CutsomTagText = SpoofSection:addTextbox("Custom Chat Tag(Rich Text Compatible)","<font color="#F0F064">[MX6] </font>",function(text)
 	CTag =text
 end)
 
