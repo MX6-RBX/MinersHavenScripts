@@ -429,6 +429,7 @@ function FindMissing(Layout)
 	for i,Item in pairs(Layout) do
 		spawn(function()
 			local RealItem = findItem(Item.ItemId)
+			if not RealItem then continue end 
 			if HasItem:InvokeServer(RealItem.ItemId.Value) <=0 then
 				if MissingItems.Items:FindFirstChild(RealItem.Name) then
 					local Item = MissingItems.Items:FindFirstChild(RealItem.Name)
