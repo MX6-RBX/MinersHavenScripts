@@ -722,7 +722,7 @@ end)
 
 UIS.InputBegan:Connect(function(Input)
 	if UIS:GetFocusedTextBox() == nil then
-		if Input.KeyCode == Enum.KeyCode.K then
+		if Input.KeyCode == Enum.KeyCode.N then
 			MainFrame.Visible = not MainFrame.Visible
 		end
 	end
