@@ -2,6 +2,7 @@ local Chat = game:GetService("TextChatService")
 local channel = Chat:WaitForChild('TextChannels').RBXGeneral
 local Player = game.Players.LocalPlayer
 local Tycoon = Player.PlayerTycoon.Value
+local ActiveTycoon = Player.ActiveTycoon.Value
 local AdjustSpeed = Tycoon.AdjustSpeed
 local Ores = game.Workspace.DroppedParts:FindFirstChild(Tycoon.Name)
 local GUI = Player.PlayerGui:WaitForChild("GUI")
@@ -906,7 +907,7 @@ Money.Changed:Connect(function()
 	if TestingMode then
 		print("Wait Time: ",WaitTime)
 	end 
-	if AutoRebirth and not rebirthing and  Money.Value > RB and os.time()-LastRebirth >= WaitTime then
+	if AutoRebirth and not rebirthing and  Money.Value > RB and os.time()-LastRebirth >= WaitTime and Tycoon == ActiveTycoon then
 		if TestingMode then
 			print("Auto Rebirth")
 		end 
