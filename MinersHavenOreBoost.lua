@@ -563,11 +563,11 @@ local CharJump = CharSection:addSlider("Player Jump",50,1,300,function(val)
 	JumpPower = val
 end)
 
-local LayoutStealer = ExternalSection:addButton("Layout Stealer",function()
+local LayoutStealer = ExternalSection:addButton("Layout Stealer(Keybind N)",function()
 	if game.CoreGui:FindFirstChild("LayoutsStealer") then return end
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/LayoutLoaderRaw.lua"))()
 end)
-local ItemTracker = ExternalSection:addButton("Item Tracker",function()
+local ItemTracker = ExternalSection:addButton("Item Tracker(Keybnd T)",function()
 	if game.CoreGui:FindFirstChild("ItemTracker") then return end
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/MinersHavenItemTracker.lua"))()
 end)
