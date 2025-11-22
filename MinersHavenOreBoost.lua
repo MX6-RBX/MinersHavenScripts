@@ -494,6 +494,10 @@ local Craftsman = GuiInteractions:addButton("Open Craftsman", function()
 	ChangeUi("Craftsman")
 end)
 
+local MaskedMan = GuiInteractions:addButton("Open MaskedMan", function()
+	ChangeUi("EventMenu")
+end)
+
 local Boxman = GuiInteractions:addButton("Open Box merchant", function()
 	ChangeUi("SpookMcDookShop")
 end)
@@ -513,6 +517,11 @@ end)
 local Fleabag = GuiInteractions:addButton("Open Fleabag", function()
 	ChangeUi("Fleabag")
 end)
+
+local EventShop = GuiInteractions:addButton("Open Event ", function()
+	ChangeUi("EventShop")
+end)
+
 
 local BaseTp = GuiInteractions:addButton("Teleport Back to base", function()
 	if TestingMode then
