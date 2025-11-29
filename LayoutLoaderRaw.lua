@@ -1,730 +1,1104 @@
--- Gui to Lua
--- Version: 3.2
-
--- Instances:
-
-local LayoutsStealer = Instance.new("ScreenGui")
-local MainFrame = Instance.new("Frame")
-local Players = Instance.new("Frame")
-local UICorner = Instance.new("UICorner")
-local UIListLayout = Instance.new("UIListLayout")
-local UIPadding = Instance.new("UIPadding")
-local Main = Instance.new("Frame")
-local UICorner_2 = Instance.new("UICorner")
-local Layouts = Instance.new("ScrollingFrame")
-local UIListLayout_2 = Instance.new("UIListLayout")
-local UIPadding_2 = Instance.new("UIPadding")
-local ItemTemplate = Instance.new("ImageLabel")
-local Amount = Instance.new("TextLabel")
-local UICorner_3 = Instance.new("UICorner")
-local LayoutTemplate = Instance.new("Frame")
-local UICorner_4 = Instance.new("UICorner")
-local Items = Instance.new("ScrollingFrame")
-local UIGridLayout = Instance.new("UIGridLayout")
-local UIPadding_3 = Instance.new("UIPadding")
-local LayoutName = Instance.new("TextLabel")
-local UICorner_5 = Instance.new("UICorner")
-local ItemCount = Instance.new("TextLabel")
-local UICorner_6 = Instance.new("UICorner")
-local StealLayout = Instance.new("TextButton")
-local UICorner_7 = Instance.new("UICorner")
-local Frame = Instance.new("Frame")
-local UICorner_8 = Instance.new("UICorner")
-local Missing = Instance.new("TextButton")
-local UICorner_9 = Instance.new("UICorner")
-local LoaddingMessage = Instance.new("TextLabel")
-local UICorner_10 = Instance.new("UICorner")
-local PlayerTemplate = Instance.new("TextButton")
-local UICorner_11 = Instance.new("UICorner")
-local PlayerImage = Instance.new("ImageLabel")
-local UICorner_12 = Instance.new("UICorner")
-local Display = Instance.new("TextLabel")
-local User = Instance.new("TextLabel")
-local UICorner_13 = Instance.new("UICorner")
-local WaterMark = Instance.new("TextLabel")
-local UICorner_14 = Instance.new("UICorner")
-local MissingItems = Instance.new("Frame")
-local UICorner_15 = Instance.new("UICorner")
-local Items_2 = Instance.new("ScrollingFrame")
-local UIGridLayout_2 = Instance.new("UIGridLayout")
-local UIPadding_4 = Instance.new("UIPadding")
-local Close = Instance.new("TextButton")
-local UICorner_16 = Instance.new("UICorner")
-
---Properties:
-
-LayoutsStealer.Name = "LayoutsStealer"
-LayoutsStealer.Parent = game.CoreGui
-LayoutsStealer.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
-MainFrame.Name = "MainFrame"
-MainFrame.Parent = LayoutsStealer
-MainFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-MainFrame.BackgroundTransparency = 1.000
-MainFrame.Position = UDim2.new(0.25, 0, 0.25, 0)
-MainFrame.Size = UDim2.new(0.3, 0, 0.3, 0)
-MainFrame.Draggable = true
-
-Players.Name = "Players"
-Players.Parent = MainFrame
-Players.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-Players.Position = UDim2.new(0, -10, 0, 0)
-Players.Size = UDim2.new(0.224999994, 0, 1, 0)
-
-UICorner.Parent = Players
-
-UIListLayout.Parent = Players
-UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-UIListLayout.Padding = UDim.new(0, 5)
-
-UIPadding.Parent = Players
-UIPadding.PaddingBottom = UDim.new(0, 5)
-UIPadding.PaddingLeft = UDim.new(0, 5)
-UIPadding.PaddingRight = UDim.new(0, 5)
-UIPadding.PaddingTop = UDim.new(0, 5)
-
-Main.Name = "Main"
-Main.Parent = MainFrame
-Main.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-Main.Position = UDim2.new(0.224999994, 0, 0, 0)
-Main.Size = UDim2.new(0.774999976, 0, 1, 0)
-
-UICorner_2.Parent = Main
-
-Layouts.Name = "Layouts"
-Layouts.Parent = Main
-Layouts.Active = true
-Layouts.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Layouts.BackgroundTransparency = 1.000
-Layouts.BorderSizePixel = 0
-Layouts.Size = UDim2.new(1, 0, 1, 0)
-Layouts.CanvasSize = UDim2.new(0, 0, 0, 0)
-Layouts.ScrollBarThickness = 6
-
-UIListLayout_2.Parent = Layouts
-UIListLayout_2.SortOrder = Enum.SortOrder.LayoutOrder
-UIListLayout_2.Padding = UDim.new(0, 5)
-
-UIPadding_2.Parent = Layouts
-UIPadding_2.PaddingBottom = UDim.new(0, 10)
-UIPadding_2.PaddingLeft = UDim.new(0, 10)
-UIPadding_2.PaddingRight = UDim.new(0, 10)
-UIPadding_2.PaddingTop = UDim.new(0, 10)
-
-ItemTemplate.Name = "ItemTemplate"
-ItemTemplate.Parent = MainFrame
-ItemTemplate.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-ItemTemplate.Size = UDim2.new(0, 100, 0, 100)
-ItemTemplate.Visible = false
-ItemTemplate.Image = "rbxasset://textures/ui/GuiImagePlaceholder.png"
-
-Amount.Name = "Amount"
-Amount.Parent = ItemTemplate
-Amount.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Amount.BackgroundTransparency = 1.000
-Amount.Position = UDim2.new(0.649999976, 0, 0.699999988, 0)
-Amount.Size = UDim2.new(0.349999994, 0, 0.300000012, 0)
-Amount.Font = Enum.Font.ArialBold
-Amount.Text = "X400"
-Amount.TextColor3 = Color3.fromRGB(225, 225, 225)
-Amount.TextScaled = true
-Amount.TextSize = 14.000
-Amount.TextStrokeTransparency = 0.000
-Amount.TextWrapped = true
-
-UICorner_3.Parent = ItemTemplate
-
-LayoutTemplate.Name = "LayoutTemplate"
-LayoutTemplate.Parent = MainFrame
-LayoutTemplate.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-LayoutTemplate.Size = UDim2.new(1, -20, 0, 250)
-LayoutTemplate.Visible = false
-
-UICorner_4.Parent = LayoutTemplate
-
-Items.Name = "Items"
-Items.Parent = LayoutTemplate
-Items.Active = true
-Items.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Items.BackgroundTransparency = 1.000
-Items.BorderSizePixel = 0
-Items.Position = UDim2.new(0, 0, 0.150000006, 5)
-Items.Size = UDim2.new(1, 0, 0.850000024, -10)
-Items.ZIndex = 2
-Items.CanvasSize = UDim2.new(0,0,0,0)
-Items.AutomaticCanvasSize = Enum.AutomaticSize.Y
-Items.ScrollBarThickness = 5
-
-UIGridLayout.Parent = Items
-UIGridLayout.SortOrder = Enum.SortOrder.LayoutOrder
-UIGridLayout.CellSize = UDim2.new(0, 50, 0, 50)
-
-UIPadding_3.Parent = Items
-UIPadding_3.PaddingLeft = UDim.new(0, 5)
-UIPadding_3.PaddingRight = UDim.new(0, 5)
-
-LayoutName.Name = "LayoutName"
-LayoutName.Parent = LayoutTemplate
-LayoutName.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-LayoutName.Position = UDim2.new(0, 5, 0.0199999996, 0)
-LayoutName.Size = UDim2.new(0.200000003, 0, 0.125, 0)
-LayoutName.Font = Enum.Font.SourceSansBold
-LayoutName.Text = "Layout X"
-LayoutName.TextColor3 = Color3.fromRGB(255, 255, 255)
-LayoutName.TextScaled = true
-LayoutName.TextSize = 14.000
-LayoutName.TextTransparency = 0.500
-LayoutName.TextWrapped = true
-
-UICorner_5.Parent = LayoutName
-
-ItemCount.Name = "ItemCount"
-ItemCount.Parent = LayoutTemplate
-ItemCount.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-ItemCount.Position = UDim2.new(0.224999994, 5, 0.0199999996, 0)
-ItemCount.Size = UDim2.new(0.224999994, -5, 0.125, 0)
-ItemCount.Font = Enum.Font.SourceSansBold
-ItemCount.Text = "Item Count: 250"
-ItemCount.TextColor3 = Color3.fromRGB(255, 255, 255)
-ItemCount.TextScaled = true
-ItemCount.TextSize = 14.000
-ItemCount.TextTransparency = 0.500
-ItemCount.TextWrapped = true
-
-UICorner_6.Parent = ItemCount
-
-StealLayout.Name = "StealLayout"
-StealLayout.Parent = LayoutTemplate
-StealLayout.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-StealLayout.Position = UDim2.new(0.75, -5, 0.0199999996, 0)
-StealLayout.Size = UDim2.new(0.25, 0, 0.125, 0)
-StealLayout.Font = Enum.Font.SourceSansBold
-StealLayout.Text = "Steal This Layout"
-StealLayout.TextColor3 = Color3.fromRGB(255, 255, 255)
-StealLayout.TextScaled = true
-StealLayout.TextSize = 14.000
-StealLayout.TextTransparency = 0.500
-StealLayout.TextWrapped = true
-
-UICorner_7.Parent = StealLayout
-
-Frame.Parent = LayoutTemplate
-Frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-Frame.Position = UDim2.new(0, 5, 0.150000006, 5)
-Frame.Size = UDim2.new(1, -10, 0.850000024, -10)
-
-UICorner_8.Parent = Frame
-
-Missing.Name = "Missing"
-Missing.Parent = LayoutTemplate
-Missing.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-Missing.Position = UDim2.new(0.474999994, 0, 0.0199999996, 0)
-Missing.Size = UDim2.new(0.25, -5, 0.125, 0)
-Missing.Font = Enum.Font.SourceSansBold
-Missing.Text = "Show Missing Items"
-Missing.TextColor3 = Color3.fromRGB(255, 255, 255)
-Missing.TextScaled = true
-Missing.TextSize = 14.000
-Missing.TextTransparency = 0.500
-Missing.TextWrapped = true
-
-UICorner_9.Parent = Missing
-
-LoaddingMessage.Name = "LoaddingMessage"
-LoaddingMessage.Parent = MainFrame
-LoaddingMessage.BackgroundColor3 = Color3.fromRGB(255, 90, 90)
-LoaddingMessage.Position = UDim2.new(0, -10, 0, -30)
-LoaddingMessage.Size = UDim2.new(1, 0, 0, 25)
-LoaddingMessage.Visible = false
-LoaddingMessage.Font = Enum.Font.SourceSansBold
-LoaddingMessage.Text = "Loading layouts. The game will lag a bit while doing this please be patient."
-LoaddingMessage.TextColor3 = Color3.fromRGB(255, 255, 255)
-LoaddingMessage.TextScaled = true
-LoaddingMessage.TextSize = 14.000
-LoaddingMessage.TextStrokeColor3 = Color3.fromRGB(255, 255, 255)
-LoaddingMessage.TextWrapped = true
-
-UICorner_10.Parent = LoaddingMessage
-
-PlayerTemplate.Name = "PlayerTemplate"
-PlayerTemplate.Parent = MainFrame
-PlayerTemplate.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-PlayerTemplate.Size = UDim2.new(1, 0, 0, 50)
-PlayerTemplate.Visible = false
-PlayerTemplate.Font = Enum.Font.SourceSans
-PlayerTemplate.Text = ""
-PlayerTemplate.TextColor3 = Color3.fromRGB(0, 0, 0)
-PlayerTemplate.TextSize = 14.000
-PlayerTemplate.TextTransparency = 1.000
-
-UICorner_11.Parent = PlayerTemplate
-
-PlayerImage.Name = "PlayerImage"
-PlayerImage.Parent = PlayerTemplate
-PlayerImage.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-PlayerImage.Size = UDim2.new(0, 50, 0, 50)
-PlayerImage.Image = "rbxasset://textures/ui/GuiImagePlaceholder.png"
-
-UICorner_12.Parent = PlayerImage
-
-Display.Name = "Display"
-Display.Parent = PlayerTemplate
-Display.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Display.BackgroundTransparency = 1.000
-Display.Position = UDim2.new(0, 55, 0, 0)
-Display.Size = UDim2.new(1, -55, 0.5, 0)
-Display.Font = Enum.Font.SourceSansBold
-Display.Text = "OnlyTwentyCharacters"
-Display.TextColor3 = Color3.fromRGB(255, 255, 255)
-Display.TextScaled = true
-Display.TextSize = 14.000
-Display.TextWrapped = true
-
-User.Name = "User"
-User.Parent = PlayerTemplate
-User.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-User.BackgroundTransparency = 1.000
-User.Position = UDim2.new(0, 55, 0.5, 0)
-User.Size = UDim2.new(1, -55, 0.5, 0)
-User.Font = Enum.Font.SourceSansBold
-User.Text = "OnlyTwentyCharacters"
-User.TextColor3 = Color3.fromRGB(255, 255, 255)
-User.TextScaled = true
-User.TextSize = 14.000
-User.TextWrapped = true
-
-
-
-WaterMark.Name = "WaterMark"
-WaterMark.Parent = MainFrame
-WaterMark.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-WaterMark.BackgroundTransparency = 2.000
-WaterMark.BorderColor3 = Color3.fromRGB(170, 170, 0)
-WaterMark.Position = UDim2.new(1, -50, 1, -22)
-WaterMark.Size = UDim2.new(0, 50, 0, 20)
-WaterMark.Font = Enum.Font.SourceSansBold
-WaterMark.Text = "MX6"
-WaterMark.TextColor3 = Color3.fromRGB(170, 170, 0)
-WaterMark.TextScaled = true
-WaterMark.TextSize = 14.000
-WaterMark.TextTransparency = 0.500
-WaterMark.TextWrapped = true
-
-UICorner_14.Parent = WaterMark
-
-MissingItems.Name = "MissingItems"
-MissingItems.Parent = LayoutsStealer
-MissingItems.AnchorPoint = Vector2.new(0, 0.5)
-MissingItems.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-MissingItems.Position = UDim2.new(1, -310, 0.5, 0)
-MissingItems.Size = UDim2.new(0, 300, 0, 500)
-MissingItems.Visible = false
-
-UICorner_15.Parent = MissingItems
-
-Items_2.Name = "Items"
-Items_2.Parent = MissingItems
-Items_2.Active = true
-Items_2.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Items_2.BackgroundTransparency = 1.000
-Items_2.BorderSizePixel = 0
-Items_2.Size = UDim2.new(1, 0, 1, 0)
-Items_2.CanvasSize = UDim2.new(0, 0, 0, 0)
-Items_2.AutomaticCanvasSize = Enum.AutomaticSize.Y
-
-UIGridLayout_2.Parent = Items_2
-UIGridLayout_2.SortOrder = Enum.SortOrder.LayoutOrder
-UIGridLayout_2.CellSize = UDim2.new(0, 82, 0, 82)
-
-UIPadding_4.Parent = Items_2
-UIPadding_4.PaddingLeft = UDim.new(0, 5)
-UIPadding_4.PaddingRight = UDim.new(0, 5)
-
-Close.Name = "Close"
-Close.Parent = MissingItems
-Close.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-Close.Position = UDim2.new(0, -30, 0, 10)
-Close.Size = UDim2.new(0, 30, 0, 30)
-Close.Font = Enum.Font.Arcade
-Close.Text = "X"
-Close.TextColor3 = Color3.fromRGB(0, 0, 0)
-Close.TextScaled = true
-Close.TextSize = 14.000
-Close.TextWrapped = true
-
-UICorner_16.Parent = Close
-
-
-local HasItem = game.ReplicatedStorage.HasItem
-local Withdraw = game.ReplicatedStorage.DestroyAll
+local Chat = game:GetService("TextChatService")
+local channel = Chat:WaitForChild('TextChannels').RBXGeneral
+local Player = game.Players.LocalPlayer
+local Tycoon = Player.PlayerTycoon.Value
+local ActiveTycoon = Player.ActiveTycoon.Value
+local AdjustSpeed = Tycoon.AdjustSpeed
+local Ores = game.Workspace.DroppedParts:FindFirstChild(Tycoon.Name)
+local GUI = Player.PlayerGui:WaitForChild("GUI")
 local PlaceItem = game.ReplicatedStorage.PlaceItem 
 local buyItem = game.ReplicatedStorage.BuyItem 
-local UIS = game:GetService("UserInputService")
+local ClearBase = game.ReplicatedStorage.DestroyAll
+local Money = GUI:FindFirstChild("Money")
+local Boxes = game.Workspace.Boxes
+local Layout1 = "Layout1"
+local Layout2 = "None"
+local MinWait = 20
+local LayoutWaitTime = 10
+local AutoRebirth = false
+local Rebirthing = false
+local UsingMoneyLoop = false
+local OreBoost = false
+local OreBoostActive = false
+local AutoDrop = false
+local Furnace = nil
+local IndMine = nil
+local OreTracking = false
+local FarmRp = false
+local TrackBoxes = false
+local TestingMode = false
+local AddRandomness = false
+local Fuel = false
+local WalkSpeed = 16
+local JumpPower = 50
+local GUi = Instance.new("BillboardGui")
+local Box = Instance.new("TextLabel")
+local UICorner = Instance.new("UICorner")
+local WaitToRebirth = false
+local Skips = 0
+local CollectingBoxes = false
+local Blur = true
+local WithdrawBase = false
+local OpenBoxes = false
+local UseClovers = Player:FindFirstChild("UseClover")
+local SelectedBox = "Regular"
+local UpgraderSize = 1
+local SingleItemUpgrade = ""
+local Slipstream = ""
+local ConveyorSpeed = 5
+local FakeName = ""
+local CTag = "[MX6]"
+local SpoofLife =false
+local SpoofName = false
+local LifeVal = 0 
 
-local RealAmount = Instance.new("IntValue")
-RealAmount.Name = "RealAmount"
-RealAmount.Value = 0
-RealAmount.Parent = ItemTemplate
 
-local Count1 =Instance.new("IntValue")
-Count1.Name = "Count"
-Count1.Value = 0
-Count1.Parent = LayoutTemplate
 
-local Count2 =Instance.new("IntValue")
-Count2.Name = "Count"
-Count2.Value = 0
-Count2.Parent = MissingItems
+GUi.Name = "GUi"
+GUi.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+GUi.Active = true
+GUi.ExtentsOffset = Vector3.new(0, 2, 0)
+GUi.LightInfluence = 1.000
+GUi.Size = UDim2.new(0, 200, 0, 50)
 
-local Player = game.Players.LocalPlayer
-local PlayerLoaded = nil
-function findItem(Id) 
-	for i,v in game.ReplicatedStorage.Items:GetChildren() do
-		if v:FindFirstChild("ItemId") and v.ItemId.Value == tonumber(Id) then
-			return v
-		end 
+Box.Name = "Box"
+Box.Parent = GUi
+Box.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Box.BorderColor3 = Color3.fromRGB(0, 0, 0)
+Box.BorderSizePixel = 0
+Box.Size = UDim2.new(0, 200, 0, 50)
+Box.Font = Enum.Font.SourceSans
+Box.TextColor3 = Color3.fromRGB(0, 0, 0)
+Box.TextSize = 14.000
+Box.TextColor3 = Color3.new(1,1,1)
+Box.TextStrokeColor3 = Color3.new(0,0,0)
+Box.TextStrokeTransparency = 0
+Box.TextScaled = true
+Box.BackgroundTransparency = 1
+
+UICorner.Parent = Box
+local Suffixes = { "k", "M", "B", "T", "qd", "Qn", "sx", "Sp", "O", "N", "de", "Ud", "DD", "tdD", "qdD", "QnD", "sxD", "SpD", "OcD", "NvD", 
+	"Vgn", "UVg", "DVg", "TVg", "qtV", "QnV", "SeV", "SPG", "OVG", "NVG", "TGN", "UTG", "DTG", "tsTG", "qtTG", "QnTG", "ssTG", "SpTG", "OcTG", 
+	"NoTG", "QdDR", "uQDR", "dQDR", "tQDR", "qdQDR", "QnQDR", "sxQDR", "SpQDR", "OQDDr", "NQDDr", "qQGNT", "uQGNT", "dQGNT", "tQGNT", "qdQGNT", 
+	"QnQGNT", "sxQGNT", "SpQGNT", "OQQGNT", "NQQGNT", "SXGNTL", "USXGNTL", "DSXGNTL", "TSXGNTL", "QTSXGNTL", "QNSXGNTL", "SXSXGNTL", "SPSXGNTL", 
+	"OSXGNTL", "NVSXGNTL", "SPTGNTL", "USPTGNTL", "DSPTGNTL", "TSPTGNTL", "QTSPTGNTL", "QNSPTGNTL", "SXSPTGNTL", "SPSPTGNTL", "OSPTGNTL",
+	"NVSPTGNTL", "OTGNTL", "UOTGNTL", "DOTGNTL", "TOTGNTL", "QTOTGNTL","QNOTGNTL", "SXOTGNTL", "SPOTGNTL", "OTOTGNTL", "NVOTGNTL", "NONGNTL", 
+	"UNONGNTL", "DNONGNTL", "TNONGNTL", "QTNONGNTL", "QNNONGNTL", "SXNONGNTL", "SPNONGNTL", "OTNONGNTL", "NONONGNTL", "CENT", "UNCENT","inf" }  
+
+
+if game:GetService("MarketplaceService"):UserOwnsGamePassAsync(Player.UserId,13046381) then
+	BoxWait = 4
+	print("Box Wait changed")
+end
+
+local function shorten(Input)
+	local Negative = Input < 0
+	Input = math.abs(Input)
+
+	local Paired = false
+	for i,v in pairs(Suffixes) do
+		if not (Input >= 10^(3*i)) then
+			Input = Input / 10^(3*(i-1))
+			local isComplex = (string.find(tostring(Input),".") and string.sub(tostring(Input),4,4) ~= ".")
+			Input = string.sub(tostring(Input),1,(isComplex and 4) or 3) .. (Suffixes[i-1] or "")
+			Paired = true
+			break;
+		end
+	end
+	if not Paired then
+		local Rounded = math.floor(Input)
+		Input = tostring(Rounded)
+	end
+
+	if Negative then
+		return "-"..Input
+	end
+	return Input
+end
+
+local MoneyLoopables = {
+	["Large Ore Upgarder"] ={Cap = 50e+3,Effect = nil,MinVal = nil},
+	["Solar Large Upgrader"]={Cap = 50e+3,Effect = nil,MinVal = nil},
+	["Precision Refiner"]= {Cap = 1e+8,Effect = "Fire",MinVal = nil},
+	["Rainbow Upgrader"] ={Cap = 1e+8,Effect = nil,MinVal = nil},
+	["Way-Up-High Upgrader"]={Cap =1e+9,Effect = nil,MinVal = nil},
+	["Digital Ore Cleaner"]={Cap = 10e+9,Effect = nil,MinVal = nil},
+	["Freon-Blast Upgrader"]= {Cap = 125e+9,Effect = nil,MinVal = nil},
+	["Radioactive Refiner"]={Cap = 500e+9,Effect = nil,MinVal = nil},
+	["Fire-Blast Upgrader"]={Cap = 64e+9,Effect = "Fire",MinVal = nil},
+	["Serpentine Upgrader"]={Cap = 1e+12,Effect = nil,MinVal = nil,},
+	["Suspended Refiner"]={Cap = 1e+18,Effect = nil,MinVal = nil},
+	["Molten Upgrader"]={ Cap = 50e+18,Effect = nil,MinVal = 1e+12},
+	["Advanced Ore Atomizer"]={ Cap = 1e+21,Effect = nil,MinVal = nil},
+	["Freon Suppressor"]={Cap = 100e+21,Effect = nil,MinVal = nil},
+	["Horizon Centrifuge"]={Cap = 1e+24,Effect = nil,MinVal = 1e+21},
+	["Ore Thermocrusher"]={ Cap = 100e+24,Effect = nil,MinVal = nil},
+	["Suspended Lava Refiner"]={ Cap = 1e+27,Effect = nil,MinVal = nil},
+	["Ore Transistor"]={Cap = 1e+30,Effect = nil,MinVal = 1e+24},
+	["Ore Transponder"]={ Cap = 1e+33,Effect = nil,MinVal = nil},
+	["Morning Star"]={ Cap = 1e+30,Effect = "Fire",MinVal = nil,MinWait = 1.5},
+	["⭐ Celestial Morning Star ⭐"]={Cap = 1e+30,Effect = "Fire",MinVal = nil,MinWait = 1.5},
+	["Red Giant"]={ Cap = 1e+60,Effect = "Fire",MinVal = nil,MinWait = 1.5},
+	["⭐ Wholesome Red Giant ⭐"]={ Cap = 1e+60,Effect = "Fire",MinVal = nil,MinWait = 1.5},
+	["Catalyzed Star"]={ Cap = 1e+60,Effect = "Fire",MinVal = nil,MinWait = 1.5},
+	["Neutron Star"]={ Cap = 1e+72,Effect = "Fire",MinVal = nil,MinWait = 1.5},
+	["⭐ Wholesome Neutron Star ⭐"]={ Cap = 1e+72,Effect = "Fire",MinVal = nil,MinWait = 1.5},
+	["Blue Supergiant"]={ Cap = 1e+90,Effect = "Fire",MinVal = nil,MinWait = 1.5},
+	["⭐ Hypergiant Blue Supergiant ⭐"]={ Cap = 1e+90,Effect = "Fire",MinVal = nil,MinWait = 1.5},
+}
+
+local EffectRemovers = {"Wild Spore", "Deadly Spore", "Azure Spore", "The Death Cap"}
+
+local ResettersNames = {"Tesla Resetter","Tesla Refuter","Black Dwarf","Void Star","The Ultimate Sacrifice","The Final Upgrader","Daestrophe"}
+local Slipstreams = {"None"}	
+
+for i,v in  game.ReplicatedStorage.Items:GetChildren() do
+	if v.Tier.Value == 78 then
+		table.insert(Slipstreams,v.Name)
 	end
 end
 
-function GetPlayerImage(Object)
-	local thumbType = Enum.ThumbnailType.HeadShot
-	local thumbSize = Enum.ThumbnailSize.Size420x420
-	local content, isReady = game.Players:GetUserThumbnailAsync(Object.userId, thumbType, thumbSize)
-	return content
-end
-
-function PositionConvert(Item)
-	local StealBase = Item.Parent.Base
-	local PlayerBase = Player.PlayerTycoon.Value.Base
-	local NewPos = Item.Hitbox.CFrame - StealBase.Position
-	local PlacePos = NewPos+PlayerBase.Position
-	return PlacePos
-end
-
-function Message(Text)
-	local SafeText = LoaddingMessage.Text
-	LoaddingMessage.Text = Text
-	LoaddingMessage.Visible = true
-	wait(3)
-	LoaddingMessage.Visible = false
-	LoaddingMessage.Text = SafeText
-end
-
-function clearMissing()
-	for i,v in pairs(MissingItems.Items:GetChildren()) do
-		spawn(function()
-			if v:IsA("ImageLabel") then
-				v:Destroy()
-			end
-		end)
-
-	end
-end
-function FindMissing(Layout)
-	clearMissing()
-	wait(0.01)
-	local ItemCountValue = Count2
-	Count2.Value = 0
-	MissingItems.Visible =true
-	for i,Item in pairs(Layout) do
-		spawn(function()
-			local RealItem = findItem(Item.ItemId)
-			if not RealItem then return end 
-			if HasItem:InvokeServer(RealItem.ItemId.Value) <=0 then
-				if MissingItems.Items:FindFirstChild(RealItem.Name) then
-					local Item = MissingItems.Items:FindFirstChild(RealItem.Name)
-					Item.RealAmount.Value =Item.RealAmount.Value +1
-					Item.Amount.Text = "X"..Item.RealAmount.Value
-				else
-					local Clone = ItemTemplate:Clone()
-					Clone.Name = RealItem.Name
-					Clone.Image = "rbxassetid://"..RealItem.ThumbnailId.Value
-					Clone.Parent = MissingItems.Items
-					Clone.RealAmount.Value = 1
-					Clone.Visible = true
-					Clone.Amount.Text = "X"..Clone.RealAmount.Value
-					ItemCountValue.Value = ItemCountValue.Value +1
-					--MissingItems.Items.CanvasSize = UDim2.new(0,0,0,UIGridLayout_2.AbsoluteContentSize.Y)
-				end
-			end
-		end)
-	end
-end
-
-function FindBaseMissing(Base)
-	clearMissing()
-	wait(0.01)
-	local ItemCountValue = Count2
-	Count2.Value = 0
-	MissingItems.Visible =true
-	for i,v in Base:GetChildren() do
-		if not v:FindFirstChild("ItemId") then continue end
-		spawn(function()
-			if HasItem:InvokeServer(v.ItemId.Value) <=0 then
-				if MissingItems.Items:FindFirstChild(v.Name) then
-					local Item = MissingItems.Items:FindFirstChild(v.Name)
-					Item.RealAmount.Value =Item.RealAmount.Value +1
-					Item.Amount.Text = "X"..Item.RealAmount.Value
-				else
-					local Clone = ItemTemplate:Clone()
-					Clone.Name = v.Name
-					Clone.Image = "rbxassetid://"..v.ThumbnailId.Value
-					Clone.Parent = MissingItems.Items
-					Clone.RealAmount.Value = 1
-					Clone.Visible = true
-					Clone.Amount.Text = "X"..Clone.RealAmount.Value
-					ItemCountValue.Value = ItemCountValue.Value +1
-				end
-			end
-		end)
-	end
-end
-
-function SaveLayout(Layout)
-	Withdraw:InvokeServer()
-	print(Player.PlayerTycoon.Value.Base.CFrame)
-	for i,Item in pairs(Layout) do
-		spawn(function()
-			local RealItem = findItem(Item.ItemId)
-			local Tycoon = Player.PlayerTycoon.Value
-			local TycoonBase = Tycoon.Base
-			local TycoonTopLeft = TycoonBase.CFrame * CFrame.new(Vector3.new(TycoonBase.Size.x/2, 0, TycoonBase.Size.z/2))		
-			Item.Position[1] = tonumber(Item.Position[1])
-			Item.Position[2] = tonumber(Item.Position[2])
-			Item.Position[3] = tonumber(Item.Position[3])	
-
-			local HitboxDirection = Vector3.new()
-			local DirectionValue = Item.Position[4]
-
-			local Position = TycoonTopLeft * Vector3.new(Item.Position[1], Item.Position[2], Item.Position[3])
-			local lookVector = Vector3.new(Item.Position[4],Item.Position[5],Item.Position[6])
-			local CoordinateFrame = CFrame.new(Position, Position + (lookVector * 5))
-			--print(CoordinateFrame)
-
-			if RealItem.ItemType.Value >=1 and RealItem.ItemType.Value <5  then
-				if Player.PlayerGui.GUI.Money.Value >= RealItem.Cost.Value then
-					buyItem:InvokeServer(RealItem.Name,1)
-					PlaceItem:InvokeServer(RealItem.Name,  CoordinateFrame, {Player.PlayerTycoon.Value.Base}) 
-				else
-					print("Cant buy item :(")
-				end
-
-			else
-				if HasItem:InvokeServer(RealItem.ItemId.Value) >0 then
-					PlaceItem:InvokeServer(RealItem.Name,  CoordinateFrame, {Player.PlayerTycoon.Value.Base}) 
-				else
-					print("You Dont have "..RealItem.Name)
-				end
-
-			end 
-		end)
-	end
-	Message("Loading Finnished. Check F9/Dev menu for item that didnt get placed")
-end
-
-function SaveBase(Base)
-	Withdraw:InvokeServer()
-	for i,v in pairs(Base:GetChildren()) do
-		spawn(function()
-			if v:FindFirstChild("ItemId") then
-				local Pos = v.Hitbox.CFrame - Base.Base.Position
-				local PlacePos = Pos + Player.PlayerTycoon.Value.Base.Position
-				if v.ItemType.Value >=1 and v.ItemType.Value <5  then
-					if Player.PlayerGui.GUI.Money.Value >= v.Cost.Value then
-						buyItem:InvokeServer(v.Name,1)
-						PlaceItem:InvokeServer(v.Name,  PlacePos, {Player.PlayerTycoon.Value.Base}) 
+local function LoadExternlLayout(Layout)--Converts a shared layout string to a placeable layout
+	if Layout then 
+		local PlaceTable = {}
+		for i,v in pairs(Layout) do
+			spawn(function()
+				local Item = game.ReplicatedStorage.Items:FindFirstChild(v["Name"])
+				local P = string.split(v["Pos"],",")
+				local Pos = CFrame.new(P[1],P[2],P[3],P[4],P[5],P[6],P[7],P[8],P[9],P[10],P[11],P[12])
+				if Item.ItemType.Value >=1 and Item.ItemType.Value <5  then
+					if Player.PlayerGui.GUI.Money.Value >= Item.Cost.Value then
+						buyItem:InvokeServer(Item.Name,1)
+						PlaceItem:InvokeServer(v.Name,  Pos+Player.PlayerTycoon.Value.Base.Position, {Player.PlayerTycoon.Value.Base}) 
 					else
 						print("Cant buy item :(")
 					end
-
 				else
-					if HasItem:InvokeServer(v.ItemId.Value) >0 then
-						PlaceItem:InvokeServer(v.Name,  PlacePos, {Player.PlayerTycoon.Value.Base}) 
-					else
-						print("You Dont have "..v.Name)
-					end
-
-				end 
-
-			end
-		end)
-	end
-	Message("Loading Finnished. Check F9/Dev menu for item that didnt get placed")
-end
-
-function ClearLayoutsFrame()
-	for i,v in pairs(Layouts:GetChildren()) do
-		if v and v:IsA("Frame") then
-			v:Destroy()
-		end
-	end
-end
-
-function ClearPlayers()
-	for i,v in pairs(Players:GetChildren()) do
-		if v:IsA("TextButton") then
-			v:Destroy()
-		end
-	end
-end
-
-function LoadPlayersLayouts(SelectedPlayer)
-	LoaddingMessage.Visible = true
-	ClearLayoutsFrame()
-	local PlayerLayouts = SelectedPlayer.Layouts
-	for x,Layout in pairs(PlayerLayouts:GetChildren()) do
-		print(Layout.Name)
-		local Frame = LayoutTemplate:Clone()
-		Frame.LayoutName.Text = Layout.Name 
-		Frame.Visible = true
-		Frame.Parent = Layouts
-		local layoutItems = game.HttpService:JSONDecode(Layout.Value)
-		local LayoutNumber = string.gsub(tostring(Layout.Name), "%D", "")
-		Frame.LayoutOrder = LayoutNumber
-		local RealItemCount = 0
-		local ItemCountValue = 0
-		for a,Item in pairs(layoutItems) do
-			if Item then
-				--("Yes")
-				local RealItem = findItem(Item.ItemId)
-
-				if RealItem then
-					--print("Found")
-					if Frame.Items:FindFirstChild(RealItem.Name) then
-						--print("Already in")
-						local Item = Frame.Items:FindFirstChild(RealItem.Name)
-						Item.RealAmount.Value =Item.RealAmount.Value +1
-						RealItemCount = RealItemCount +1
-						Item.Amount.Text = "X"..Item.RealAmount.Value
-					else
-						--print("Adding")
-						local Clone = ItemTemplate:Clone()
-						Clone.Name = RealItem.Name
-						Clone.Image = "rbxassetid://"..RealItem.ThumbnailId.Value
-						Clone.Parent = Frame.Items
-						Clone.RealAmount.Value = 1
-						Clone.Visible = true
-						Clone.Amount.Text = "X"..Clone.RealAmount.Value
-						ItemCountValue = ItemCountValue +1
-						RealItemCount = RealItemCount +1
-					end
+					PlaceItem:InvokeServer(Item.Name,  Pos, {Player.PlayerTycoon.Value.Base}) 
 				end
-
-			else
-			end
+			end)
 		end
-		Frame.Visible = true
+		return 
+	else
+		return nil
+	end 
+end
 
-		Layouts.CanvasSize = UDim2.new(0,0,0,260*x)
-		Frame.ItemCount.Text = "Item Count: ".. RealItemCount
-		Frame.Count.Value  =ItemCountValue
+local OreTrackers = {}
+local BoxTrackers = {}
+local ELayout = loadstring(game:HttpGet('https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/BasicFirstLife.lua'))()
+local UILib = loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX/UiLib/refs/heads/main/UiLib.lua"))()
+local MainUi = UILib.new("Miners Haven Hub | MX6")
+local BoostPage = MainUi:addPage("Boost Options","130772689610761")
+local AutoRebirthSection = BoostPage:addSection("Auto Rebirth")
+local BoostSection = BoostPage:addSection("Auto Upgrade")
+local UpgraderSection = BoostPage:addSection("Item Manipulation")
+local AutoSection = BoostPage:addSection("Other Options")
+local VendorsPage = MainUi:addPage("Vendors","6031097225")
+local GuiInteractions = VendorsPage:addSection("GUI's")
+local BoxSection = VendorsPage:addSection("Box Opening")
+local OtherOptionsPage = MainUi:addPage("Other Options","6023426938")
+local SpoofPage = MainUi:addPage("Spoofer","6031215978")
+local InfoSection = SpoofPage:addSection("Info")
+local SpoofSection = SpoofPage:addSection("Spoof Info")
+local TestSecrion = OtherOptionsPage:addSection("Testing")
+local VisualSection = OtherOptionsPage:addSection("Visual Options")
+local CharSection = OtherOptionsPage:addSection("Character")
+local ExternalSection = OtherOptionsPage:addSection("Useful Scripts")
+local Options = MainUi:addPage("UI Options","6031280882")
+local OptionsSection = Options:addSection("Main")
+local UIThemeSection = Options:addSection("UI Colors")
+UILib:setTheme("Glow",Color3.fromRGB(240, 234, 81))
 
-		Frame.StealLayout.MouseButton1Click:Connect(function()
-			if Player:FindFirstChild("BaseDataLoaded") then
-				SaveLayout(layoutItems)
-			else
-				Message("You have to load in to the game first.")
-			end
+local function AddBoxTrack(Box)
+	local Ui = GUi:Clone()
+	Ui.Box.Text = Box.Name
+	Ui.AlwaysOnTop = true
+	Ui.Box.BackgroundTransparency = 0
+	if Box:IsA("Model") and Box:FindFirstChild("Crate") then
+		Ui.Box.BackgroundColor3 = Box.Crate.Color
+		Ui.Parent = Box.Crate
+		Ui.Adornee = Box.Crate
 
-		end)
-		Frame.Missing.MouseButton1Click:Connect(function()
-			FindMissing(layoutItems)
-		end)
+	else
+		Ui.Box.BackgroundColor3 = Box.Color
+		Ui.Parent = Box
+		Ui.Adornee = Box
 	end
-	pcall(function()
-		local Frame = LayoutTemplate:Clone()
-		Frame.LayoutName.Text = "Current Base Layout" 
-		Frame.LayoutOrder = 0
-		Frame.Visible = true
-		Frame.Parent = Layouts
-		Frame.StealLayout.Text =  "Steal current Base"
-		local RealItemCount = 0
-		local ItemCountValue = 0
-		local Base = SelectedPlayer.PlayerTycoon.Value
-		for a,BaseItem in pairs(Base:GetChildren()) do 
-			if BaseItem:FindFirstChild("ItemId") then
-				if Frame.Items:FindFirstChild(BaseItem.Name) then
-					--print("Already in")
-					local Item = Frame.Items:FindFirstChild(BaseItem.Name)
-					Item.RealAmount.Value =Item.RealAmount.Value +1
-					RealItemCount = RealItemCount +1
-					Item.Amount.Text = "X"..Item.RealAmount.Value
-				else
-					--print("Adding")
-					local Clone = ItemTemplate:Clone()
-					Clone.Name = BaseItem.Name
-					Clone.Image = "rbxassetid://"..BaseItem.ThumbnailId.Value
-					Clone.Parent = Frame.Items
-					Clone.RealAmount.Value = 1
-					Clone.Visible = true
-					Clone.Amount.Text = "X"..Clone.RealAmount.Value
-					ItemCountValue = ItemCountValue +1
-					RealItemCount = RealItemCount +1
-				end
-			end
-			--wait(0.01)
-		end
+	Ui.Enabled = TrackBoxes
+	table.insert(BoxTrackers,Ui)
+end
 
-		Frame.ItemCount.Text = "Item Count: ".. RealItemCount
-		Frame.Count.Value = ItemCountValue
-		Layouts.CanvasSize = Layouts.CanvasSize + UDim2.new(0,0,0,260)
-		Frame.StealLayout.MouseButton1Click:Connect(function()
-			if Player:FindFirstChild("BaseDataLoaded") then
-				SaveBase(Base)
+local function CollectBoxes()
+	if not CollectingBoxes then
+		local Pos = Player.Character.HumanoidRootPart.CFrame 
+		CollectingBoxes = true
+
+		for i,v in Boxes:GetChildren() do
+			if v:IsA("Model") and v:FindFirstChild("Crate") then
+				Player.Character.HumanoidRootPart.CFrame = v.Crate.CFrame		
 			else
-				Message("You have to load in to the game first.")
+				Player.Character.HumanoidRootPart.CFrame = v.CFrame	
 			end
+			wait(0.5)
+		end
+		CollectingBoxes = false
+		Player.Character.HumanoidRootPart.AssemblyLinearVelocity = Vector3.new(0,0,0)
+		Player.Character.HumanoidRootPart.AssemblyAngularVelocity = Vector3.new(0,0,0)
+		Player.Character.HumanoidRootPart.CFrame = Pos
+	end
+end
 
-		end)
-		Frame.Missing.MouseButton1Click:Connect(function()
-			FindBaseMissing(Base)
-		end)
+local function AddTracker(ore)
+	repeat wait() until ore:FindFirstChild("Cash")
+	local Ui = GUi:Clone()
+	Ui.Box.Text = "$"..shorten(ore.Cash.Value)
+	Ui.AlwaysOnTop = true
+	Ui.Parent = ore
+	Ui.Adornee = ore
+	Ui.Enabled = OreTracking
+	table.insert(OreTrackers,Ui)
+	ore.Cash.Changed:Connect(function()
+		Ui.Box.Text = "$"..shorten(ore.Cash.Value)
 	end)
-	PlayerLoaded = SelectedPlayer
-	Message("Loading is complete enjoy stealing:)")
 end
 
-function GetPlayers()
-	ClearPlayers()
-	for i,v in pairs(game.Players:GetChildren()) do
-		local PlayerClone = PlayerTemplate:Clone()
-		PlayerClone.Name = v.Name
-		PlayerClone.User.Text = v.Name
-		PlayerClone.Display.Text = v.DisplayName
-		PlayerClone.PlayerImage.Image = GetPlayerImage(v)
-		PlayerClone.Parent = Players
-		PlayerClone.Visible = true
+local function ToggleBoxTrack(Val)
+	TrackBoxes = Val
+	for i,v in BoxTrackers do 
+		v.Enabled = TrackBoxes
+	end
+end
 
-		PlayerClone.MouseButton1Click:Connect(function()
-			if v:FindFirstChild("BaseDataLoaded") then
-				LoadPlayersLayouts(v)
-			else
-				Message("Players is not loaded in please select another player")
+local function ToggleOreTrack(Val)
+	OreTracking = Val
 
+	for i,v in OreTrackers do
+		if v and v.Parent then
+			v.Enabled = OreTracking
+		end
+	end
+end
+
+local function ResizeUpgraders()
+	for i,v in Tycoon:GetChildren() do
+		if v:FindFirstChild("ItemId") and v:FindFirstChild("Plane")  then
+			if not v:FindFirstChild("Model") then continue end
+			if v.Model:FindFirstChild("Upgrade") then
+				if not v.Model.Upgrade:FindFirstChild("BaseSize") then
+					local BS = Instance.new("Vector3Value")
+					BS.Value = v.Model.Upgrade.Size
+					BS.Name = "BaseSize"
+					BS.Parent = v.Model.Upgrade
+					wait(0.1)
+				end
+				if TestingMode then
+					print(v.Name, "Resized to ",UpgraderSize)
+				end
+				v.Model.Upgrade.Size = v.Model.Upgrade.BaseSize.Value * UpgraderSize
 			end
-		end)
+		end
 	end
 end
-Close.MouseButton1Click:Connect(function()
-	MissingItems.Visible = false
-end)
-GetPlayers()
-game.Players.PlayerAdded:Connect(function()
-	GetPlayers()
-end)
-game.Players.PlayerRemoving:Connect(function(LPlayer)
-	GetPlayers()
-	if PlayerLoaded and  LPlayer.Name == PlayerLoaded.Name then
-		ClearLayoutsFrame()
-		clearMissing()
-		PlayerLoaded = nil
+local function RezieSingleUpgrader(Name)
+	--print("Resizing: ",Name)
+	local Item = Tycoon:FindFirstChild(Name)
+	if Item then
+		--print("Found")
+		if Item:FindFirstChild("Model") and Item.Model:FindFirstChild("Upgrade") then
+			--print("Is Item and upgrader")
+			if not Item.Model.Upgrade:FindFirstChild("BaseSize") then
+				local BS = Instance.new("Vector3Value")
+				BS.Value = Item.Model.Upgrade.Size
+				BS.Name = "BaseSize"
+				BS.Parent = Item.Model.Upgrade
+				wait(0.1)
+			end
+			if TestingMode then
+				print(Item.Name, "Resized to ",UpgraderSize)
+			end
+			Item.Model.Upgrade.Size = Item.Model.Upgrade.BaseSize.Value * UpgraderSize
+		end
 	end
+end
+
+
+local function ChangeUi(Name)
+	if GUI.FocusWindow.Value then  
+		GUI.FocusWindow.Value.Visible = false
+		wait(0.01)
+		GUI.FocusWindow.Value = nil
+	end
+	local Ui = GUI:FindFirstChild(Name)
+	if Ui then
+		Ui.Visible = true
+		GUI.FocusWindow.Value = Ui
+		if TestingMode then
+			print("Toggled: "..Name)
+		end
+	end
+end
+
+local function comma(Value)
+	local v3, v4, v5 = string.match(tostring(Value), "^([^%d]*%d)(%d*)(.-)$");
+	return v3 .. v4:reverse():gsub("(%d%d%d)", "%1,"):reverse() .. v5;
+end
+
+local function HandleLife(Life)
+	local Suffix
+	local LastDigit = tonumber(string.sub(tostring(Life),string.len(tostring(Life))))
+	local SendLastDigit = tonumber(string.sub(tostring(Life),string.len(tostring(Life-1))))
+	if Life <= 20 and Life >= 10 then
+		Suffix = "th"
+	elseif LastDigit == 1 then
+		Suffix = "st"
+	elseif LastDigit == 2 and SendLastDigit ~= 1 then
+		Suffix = "nd"
+	elseif LastDigit == 3 then
+		Suffix = "rd"
+	else
+		Suffix = "th"
+	end
+	return tostring(comma(Life))..Suffix
+end
+
+
+local AutoRebirthToggle = AutoRebirthSection:addToggle("Auto Rebirth",false,function(Val)
+	AutoRebirth = Val
+	if TestingMode then
+		print("Auto Rebirth: ",Val)
+	end 
+end)
+local OreBoostToggle = BoostSection:addToggle("Ore Boost",false,function(Val)
+	OreBoost = Val
+	OreBoostActive = Val
+	if TestingMode then
+		print("Ore Boost: ",Val)
+	end 
+end)
+local IgnoreFuleToggle = BoostSection:addToggle("Using Industrial Mine",false,function(Val)
+	Fuel = Val
+	if TestingMode then
+		print("Industrial Mine: ",Val)
+	end 
 end)
 
-UIS.InputBegan:Connect(function(Input)
-	if UIS:GetFocusedTextBox() == nil then
-		if Input.KeyCode == Enum.KeyCode.N then
-			MainFrame.Visible = not MainFrame.Visible
+local FarmRPToggle = BoostSection:addToggle("Farm RP(Disable ore boost)",false,function(Val)
+	FarmRp = Val
+	if TestingMode then
+		print("Farm RP: ",Val)
+	end 
+end)
+local MooneyLoopToggle = BoostSection:addToggle("Use Money Loopables",false,function(Val)
+	UsingMoneyLoop = Val
+	if TestingMode then
+		print("Money Loopables: ",Val)
+	end 
+end)
+
+local WaitToSkip = AutoRebirthSection:addSlider("Wait for Skips",0,0,20,function(val)
+	Skips = val or 0
+end)
+
+local MinWaitBox = AutoRebirthSection:addTextbox("Minimum Rebirth Wait","20",function(text)
+	MinWait = tonumber(text) or 20
+	if TestingMode then
+		print("Minimum rebirth wait : ",text)
+	end 
+end)
+
+local WaitRandom = AutoRebirthSection:addToggle("Add Wait Randomness ",false,function(Val)
+	AddRandomness = Val
+	if TestingMode then
+		print("Minimum rebirth wait randomness: ",Val)
+	end 
+end)
+local SlipstreamDropDown = AutoRebirthSection:addDropdown("Stop On Slipstream",Slipstreams, function(Selected)
+	Slipstream = Selected
+	if TestingMode then
+		print("Slipstream: ",Selected)
+	end 
+end)
+
+local LayoutSelect = AutoRebirthSection:addDropdown("First Layout ",{"Layout1","Layout2","Layout3"}, function(Selected)
+	Layout1 = Selected
+	if TestingMode then
+		print("First Layout: ",Selected)
+	end 
+end)
+
+local LayoutWaitBox = AutoRebirthSection:addTextbox("Layout 2 load Wait","5",function(text)
+	LayoutWaitTime = tonumber(text) or 5
+	if TestingMode then
+		print("Layout Spit wait: ",text)
+	end 
+end)
+
+local WaitRandom = AutoRebirthSection:addToggle("Withdraw between Layouts ",false,function(Val)
+	WithdrawBase = Val
+	if TestingMode then
+		print("Minimum rebirth wait randomness: ",Val)
+	end 
+end)
+
+local LayoutSelect2 = AutoRebirthSection:addDropdown("Second Layout ",{"None","Layout1","Layout2","Layout3"}, function(Selected)
+	Layout2 = Selected
+	if TestingMode then
+		print("Second Layout: ",Selected)
+	end 
+end)
+
+local FirstLife = AutoSection:addButton("Load Badic First Life Setup(15qd-390qd, Warning loud)", function()
+	if TestingMode then
+		print("Loading Basic First Life Layout.")
+	end
+	ClearBase:InvokeServer()
+	LoadExternlLayout(ELayout)
+end)
+
+local ConveyorSpeedSlider = UpgraderSection:addSlider("Conveyor Speed(Max 30)",1,5,100,function(val)
+	ConveyorSpeed = val or 5
+	AdjustSpeed.Value = ConveyorSpeed/5
+	if TestingMode then
+		print("Resize Size : ",UpgraderSize)
+	end 
+end)
+
+local UpgSizeSlider = UpgraderSection:addSlider("Upgarader Size",1,1,20,function(val)
+	UpgraderSize = val or 1
+end)
+local UpgarderNameTextBox = UpgraderSection:addTextbox("Item Name (Case Sensitive)","Name",function(text)
+	SingleItemUpgrade = text
+end)
+
+local RezieAllButton = UpgraderSection:addButton("Resize all placed upgrader beams", function()
+	if TestingMode then
+		print("Resizing all upgraders")
+	end
+	ResizeUpgraders()
+end)
+local ResizeSingleButton = UpgraderSection:addButton("Resize Specific Items Upgrade Beam", function()
+	if TestingMode then
+		print("Resizing ",SingleItemUpgrade)
+	end
+	RezieSingleUpgrader(SingleItemUpgrade)
+end)
+
+local OreTrackToggle = AutoSection:addToggle("Track Ore Value",false,function(Val)
+	ToggleOreTrack(Val)
+	if TestingMode then
+		print("Ore Value Tracking: ",Val)
+	end 
+end)
+
+local Craftsman = GuiInteractions:addButton("Open Craftsman", function()
+	ChangeUi("Craftsman")
+end)
+
+local MaskedMan = GuiInteractions:addButton("Open MaskedMan", function()
+	ChangeUi("EventShop")
+end)
+
+local Boxman = GuiInteractions:addButton("Open Box merchant", function()
+	ChangeUi("SpookMcDookShop")
+end)
+
+local Superstitious = GuiInteractions:addButton("Open Superstitious Crafting", function()
+	ChangeUi("SuperstitiousCrafting")
+end)
+
+local TBOK = GuiInteractions:addButton("Open True Book Of Knowlage", function()
+	ChangeUi("BOKBook")
+end)
+
+local Phantasm = GuiInteractions:addButton("Open Phantasm", function()
+	ChangeUi("Phantasm")
+end)
+
+local Fleabag = GuiInteractions:addButton("Open Fleabag", function()
+	ChangeUi("Fleabag")
+end)
+
+local EventShop = GuiInteractions:addButton("Open Event ", function()
+	ChangeUi("EventMenu")
+end)
+
+local Santa = GuiInteractions:addButton("Open Gift Exchange ", function()
+	Player.Character.HumanoidRootPart.CFrame =game.Workspace.Map.SantaModel.Santa.CamPos.CFrame
+	wait(0.1)
+	ChangeUi("GiftExchange")
+end)
+
+
+local BaseTp = GuiInteractions:addButton("Teleport Back to base", function()
+	if TestingMode then
+		print("Teleporting to base")
+	end
+	Player.Character.HumanoidRootPart.CFrame = Tycoon.Base.CFrame + Vector3.new(0,10,0)
+end)
+
+local BoxSelectDropdown = BoxSection:addDropdown("Select Box ",{"Regular","Unreal","Inferno","Red-Banded","Spectral","Pumpkin","Luxury","Festive","Magnificent","Twitch","Birthday","Heavenly","Easter","Cake Raffle"}, function(Selected)
+	if TestingMode then
+		print("Selected",Selected,"Box")
+	end
+	SelectedBox = Selected
+end)
+
+local UseCloverToggle = BoxSection:addToggle("Use Clovers",UseClovers,function(Val)
+	if TestingMode then
+		print("Toggled Clovers:",Val)
+	end
+	game.ReplicatedStorage.ToggleBoxItem:InvokeServer("Clover")
+end)
+
+local OpenBoxToggle = BoxSection:addToggle("Auto Open Selected box",false,function(Val)
+	if TestingMode then
+		print("Toggle auto Box:",Val)
+	end
+	OpenBoxes = Val
+end)
+
+local Warning = InfoSection:addButton("Spoofed Chats are local, Other player will seen tham as your roblox name.", function() end)
+
+local FakeNameText = SpoofSection:addTextbox("Fake Name",Player.Name,function(text)
+	if TestingMode then
+		print("Fake Name set to",text)
+	end
+	FakeName =text or Player.Name
+end)
+
+local SpoofNameToggle = SpoofSection:addToggle("Spoof Name",false,function(Val)
+	if TestingMode then
+		print("Toggled Name Spoofing:",Val)
+	end
+	SpoofName = Val
+end)
+
+local CutsomTagText = SpoofSection:addTextbox("Custom Chat Tag(Rich Text Compatible)",'<font color="#F0F064">[MX6] </font>',function(text)
+	if TestingMode then
+		print("Fake Tag set to",text)
+	end
+	CTag =text
+end)
+
+local LifeRandomness = SpoofSection:addSlider("Additional Lifes",0,0,5000,function(val)
+	if TestingMode then
+		print("Exta Lives set to:",val)
+	end
+	LifeVal = val or 0
+end)
+
+local SpoofLifeToggle = SpoofSection:addToggle("Spoof Rebirtrhs",false,function(Val)
+	if TestingMode then
+		print("Spoof Lives toggle: ",Val)
+	end
+	SpoofLife = Val
+end)
+
+
+local Testing = TestSecrion:addToggle("Testing Mode(set ore limit to 1 and check F9)",false,function(Val)
+	local MessageEnd  = Val and "Enabled" or "Disabled"
+	print("Testing mode",MessageEnd)
+	TestingMode = Val
+end)
+
+local BoxTrack = VisualSection:addToggle("Track Dropped Boxes",false,function(Val)
+	ToggleBoxTrack(Val)
+	if TestingMode then
+		print("Dropped Crate ESP: ",Val)
+	end 
+end)
+local BoxTeleport = VisualSection:addButton("Collect Boxes(High ban chance in public Servers)", function()
+	if TestingMode then
+		print("Collecting Boxes")
+	end 
+	CollectBoxes()
+end)
+
+local BlurToggle = VisualSection:addToggle("Disable Game Blur",false,function(Val)
+	if TestingMode then
+		print("game Blur toggle:", Val)
+	end 
+	Blur = not Val
+	game.Lighting.Blur.Enabled = Blur
+end)
+
+local CharSpeed = CharSection:addSlider("Player Speed",16,1,200,function(val)
+	if TestingMode then
+		print("Player Walk Speed set to",val)
+	end
+	Player.Character.Humanoid.WalkSpeed = val
+	WalkSpeed = val
+end)
+
+local CharJump = CharSection:addSlider("Player Jump",50,1,300,function(val)
+	if TestingMode then
+		print("Player Jump set to",val)
+	end
+	Player.Character.Humanoid.JumpPower = val
+	JumpPower = val
+end)
+
+local LayoutStealer = ExternalSection:addButton("Layout Stealer(Keybind N)",function()
+	if TestingMode then
+		print("Loading External Script: Layout Stealer")
+	end
+	if game.CoreGui:FindFirstChild("LayoutsStealer") then return end
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/LayoutLoaderRaw.lua"))()
+end)
+local ItemTracker = ExternalSection:addButton("Item Tracker(Keybnd T)",function()
+	if TestingMode then
+		print("Loading External Script: Item Tracker")
+	end
+	if game.CoreGui:FindFirstChild("ItemTracker") then return end
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/MinersHavenItemTracker.lua"))()
+end)
+
+local ToggleKey = OptionsSection:addKeybind("UI Toggle",Enum.KeyCode.K,function(Key)
+	MainUi:toggle()--Toggles the gui when the set key is pressed
+end)
+
+local Background = UIThemeSection:addColorPicker("Background", Color3.fromRGB(0,0,0),function(Col)
+	UILib:setTheme("Background",Col)
+end)
+
+local Glow = UIThemeSection:addColorPicker("Glow", Color3.fromRGB(170,170,0),function(Col) 
+	UILib:setTheme("Glow",Col)
+end)
+
+local Accent = UIThemeSection:addColorPicker("Accent", Color3.fromRGB(50,50,50),function(Col) 
+	UILib:setTheme("Accent",Col)
+end)
+
+local LightContrast = UIThemeSection:addColorPicker("Light Contrast", Color3.fromRGB(30,30,30),function(Col) 
+	UILib:setTheme("LightContrast",Col)
+end)
+
+local DarkContrast = UIThemeSection:addColorPicker("Dark Contrast", Color3.fromRGB(10,10,10),function(Col) 
+	UILib:setTheme("DarkContrast",Col)
+end)
+
+local TextColor = UIThemeSection:addColorPicker("Text Color", Color3.fromRGB(255,255,255),function(Col) 
+	UILib:setTheme("TextColor",Col)
+end)
+
+local ScrollBarColor = UIThemeSection:addColorPicker("Scroll Bar Color", Color3.fromRGB(200,200,200),function(Col) 
+	UILib:setTheme("ScrollBarColor",Col)
+end)
+
+
+local MaxRebirthPrice = 1e241 -- 10 * 10^240 = 10^241
+local function RebornPrice(Player)
+	local Life = Player.Rebirths.Value
+	local REBIRTH_PRICE_CAP = 1e241 -- 10NVSPTGNTL
+	local REBIRTH_CAP_LIFE = 80351
+
+	if Life >= 80351 then
+		return 1e241
+	end
+
+	local x = Life - 1
+	local cost
+
+	if Life >= 1 and Life <= 40 then
+		cost = 2.5 * (10^19) * (x + 1)
+	elseif Life >= 41 and Life <= 5000 then
+		cost = ((10^19) * ((5 * math.floor(x / 5)) + 2.5) * ((100 * math.floor(x / 25)) + 1) * ((1000 * math.floor(x / 500)) + 1)) ^ ((0.00024 * x) + 1)
+	elseif Life >= 5001 then
+		cost = ((10^19) * ((5 * math.floor(x / 5)) + 2.5) * ((100 * math.floor(x / 25)) + 1) * ((1000 * math.floor(x / 500)) + 1)) ^ ((0.00024 * math.floor(10 * ((12500 * (x ^ 4)) ^ (1/7)))) + 1)
+	else
+		-- If currentLife is invalid (e.g., less than 1), return the cost for the first life (Life 1)
+		return 2.5 * (10^19) * (1 - 1 + 1) -- This simplifies to 2.5e19, which is cost for life 1 (x=0)
+	end
+
+	if cost >= 1e241 then
+		return 1e241
+	end
+
+	return cost
+end
+
+function BoostOre(Ore) 
+	if TestingMode then
+		print("Ore boost Start")
+	end 
+	for i,v in Tycoon:GetChildren() do
+		if OreBoostActive == false then break end--Oreboost not active
+		if not Ore then break end 
+		if not v  then break end 
+		if MoneyLoopables[v.Name] or table.find(ResettersNames,v.Name) then continue end--Passes money loops and resetters
+		if v:FindFirstChild("ItemId") and v:FindFirstChild("Plane")  then
+			if not v:FindFirstChild("Model") then continue end
+			if v.Model:FindFirstChild("Upgrade") then
+				for i=1,3 do
+					Ore.CFrame =v.Model.Upgrade.CFrame 
+					wait(0.01)
+				end
+			elseif v.Model:FindFirstChild("Lava") and not v.Model:FindFirstChild("TeleportSend") then
+				if v and v:FindFirstChild("Model") and v.Model:FindFirstChild("Lava") and not v.Model.Lava:FindFirstChild("TeleportSend") then
+					if TestingMode then
+						print("Has Lava, not a tp")
+					end
+					if not v.Model:FindFirstChild("Drop") and  (Furnace == nil or Furnace:FindFirstChild("Model") == nil or Furnace.Model:FindFirstChild("Lava") == nil) then 
+						Furnace = v	
+						if TestingMode then
+							print("Furnace set to",v.Name)
+						end
+					end
+					if v.Model:FindFirstChild("Drop") and v.Model:FindFirstChild("Lava") and  (IndMine == nil or IndMine:FindFirstChild("Model") == nil )  then
+						IndMine = v
+						if TestingMode then
+							print("Industrial Mine set to",v.Name)
+						end
+					end
+				end
+			end
+		end
+	end
+	if TestingMode then
+		print("Ore boost End")
+	end 
+end
+
+function Reset(Ore)
+	local Dae = Tycoon:FindFirstChild("Daestrophe") 
+	local Sac =  Tycoon:FindFirstChild("The Final Upgrader") or Tycoon:FindFirstChild("The Ultimate Sacrifice")  
+	local Star = Tycoon:FindFirstChild("Void Star") or Tycoon:FindFirstChild("Black Dwarf")
+	local Tes = Tycoon:FindFirstChild("Tesla Resetter") or Tycoon:FindFirstChild("Tesla Refuter")
+
+	BoostOre(Ore)
+	if Dae and Ore and OreBoostActive then --checks if Daestrophe is on the base
+		if TestingMode then
+			print("Found Daestrophe")
+		end 
+		for i=1,3 do 
+			Ore.CFrame = Dae.Model.Upgrade.CFrame
+			wait(0.01)
+		end
+		BoostOre(Ore)
+	else
+		if TestingMode then
+			print("Daestrophe Not found")
+		end
+	end
+	if Sac and Ore and OreBoostActive then  --Checks if either of the sacrifice resetters are on the base 
+		if TestingMode then
+			print("Found", Sac.Name)
+		end 
+		for i=1,3 do 
+			Ore.CFrame = Sac.Model.Upgrade.CFrame
+			wait(0.01)
+		end
+		BoostOre(Ore)
+	else
+		if TestingMode then
+			print("Sacrifice resetter Not found")
+		end				
+	end
+	if Star and Ore and OreBoostActive then --Checks if black dwarf or void star is on the base 
+		if TestingMode then
+			print("Found", Star.Name)
+		end 
+		for i=1,3 do 
+			Ore.CFrame = Star.Model.Upgrade.CFrame
+			wait(0.01)
+		end
+		BoostOre(Ore)
+	else
+		if TestingMode then
+			print("Void star/black dwarf Not found")
+		end
+	end
+	if Tes and Ore and OreBoostActive then --Checks if either tesla is on the base
+		if TestingMode then
+			print("Found", Tes.Name)
+		end 
+		for i=1,3 do 
+			Ore.CFrame = Tes.Model.Upgrade.CFrame
+			wait(0.01)
+		end
+		BoostOre(Ore)
+	else
+		if TestingMode then
+			print("Tesla Not found")
+		end
+	end
+end
+function GetFurnace()
+	for i,v in Tycoon:GetChildren() do
+		if v and v:FindFirstChild("Model") and v.Model:FindFirstChild("Lava") and not v.Model.Lava:FindFirstChild("TeleportSend") then
+			if not v.Model:FindFirstChild("Drop") and  (Furnace == nil or Furnace:FindFirstChild("Model") == nil or Furnace.Model:FindFirstChild("Lava") == nil) then 
+				Furnace = v	
+			end
+			if v.Model:FindFirstChild("Drop") and v.Model:FindFirstChild("Lava") and  (IndMine == nil or IndMine:FindFirstChild("Model") == nil )  then
+				IndMine = v
+			end
+		end
+	end
+end
+
+function Sell(Ore)
+	if Furnace == nil or Furnace:FindFirstChild("Model") == nil or Furnace.Model:FindFirstChild("Lava")then 
+		GetFurnace()
+	end
+	Ore.CFrame = Furnace.Model.Lava.CFrame + Vector3.new(0,1,0)
+end
+
+function StartOreBoost(Ore)
+	if TestingMode then
+		print("Ore Boost Setting up")
+	end 
+	Ore.Anchored = true
+	repeat wait() until Ore:FindFirstChild("Cash")
+	local SavePos = Ore.CFrame
+	local MoneyLoop = nil
+	local LooperStats 
+	local Protect
+	Ore.Anchored = false
+	if TestingMode then
+		print("Ore Boost finished setting up")
+	end 
+	if UsingMoneyLoop then
+		if TestingMode then
+			print("Using Money cap Items")
+		end 
+		for i,v in MoneyLoopables do
+			if Tycoon:FindFirstChild(i) then 
+				MoneyLoop = Tycoon:FindFirstChild(i)
+				LooperStats = i
+			end
+		end
+		for i,v in EffectRemovers do
+			if Tycoon:FindFirstChild(i) then 
+				Protect = Tycoon:FindFirstChild(i)
+			end
+		end
+		if MoneyLoop then
+			if TestingMode then
+				print("Found Money Loop item:",MoneyLoop)
+			end 
+			local Info = MoneyLoopables[MoneyLoop.Name]
+			repeat 
+				if not Ore then
+					break
+				end
+				if OreBoost == false or OreBoostActive == false then break end
+				for i=1,3 do
+					Ore.CFrame = MoneyLoop.Model.Upgrade.CFrame
+					wait(Info.MinWait or 0.01)
+					if LooperStats.Effect ~= nil and Protect ~= nil then
+						Ore.CFrame = Protect.Model.Upgrade.CFrame
+					end
+				end
+				wait(0.1)
+			until Ore == nil or MoneyLoop == nil or MoneyLoop:FindFirstChild("Model") == nil or Ore:FindFirstChild("Cash") == nil or Ore.Cash.Value >= Info.Cap
+			if TestingMode then
+				print("Money Loop Finished")
+			end 	
+		end
+	end
+
+	if OreBoostActive then
+		Reset(Ore)
+	end
+
+	if Ore then
+		if TestingMode then
+			print("Selling Ore")
+		end 
+		Ore.AssemblyAngularVelocity = Vector3.new(0,0,0)
+		Ore.AssemblyLinearVelocity = Vector3.new(0,0,0)
+		if Furnace and Furnace:FindFirstChild("Model") then
+			Ore.CFrame = Furnace.Model.Lava.CFrame + Vector3.new(0,2,0)
+		else
+			if TestingMode then
+				print("No Furnace found, sending ore to spawn location")
+			end 
+			Ore.CFrame = SavePos	
+		end
+	end
+end
+
+function Load()
+
+	if TestingMode then
+		print("Start Layout Loading")
+	end 
+
+	if OreBoost then
+		OreBoostActive = true
+	end
+
+	game.ReplicatedStorage.DestroyAll:InvokeServer()
+	wait(0.1)
+
+	if TestingMode then
+		print("Load First Layout")
+	end 
+
+	game.ReplicatedStorage.Layouts:InvokeServer("Load",Layout1)
+
+	if Layout2 ~= "None" then
+		if TestingMode then
+			print("Using Second Layout")
+		end 
+		wait(LayoutWaitTime)
+		OreBoostActive = false
+		wait(0.3)
+		if WithdrawBase then
+			game.ReplicatedStorage.DestroyAll:InvokeServer()
+			wait(0.1)
+		end
+
+		if TestingMode then
+			print("Load Second Layout")
+		end 
+		game.ReplicatedStorage.Layouts:InvokeServer("Load",Layout2)
+		wait(0.1)
+		if OreBoost then
+			OreBoostActive = true
+		end
+	end
+end
+
+GetFurnace()
+if Ores then
+	Ores.ChildAdded:Connect(function(Child)
+		AddTracker(Child)
+		if OreBoost then
+			if Child:FindFirstChild("Fuel") and Fuel then
+				if IndMine and IndMine:FindFirstChild("Model") then
+					Child.CFrame = IndMine.Model.Lava.CFrame + Vector3.new(0,1,0)
+				end
+				return 
+			end 
+			StartOreBoost(Child)
+		elseif FarmRp then
+			Sell(Child)
+		end
+	end)
+end
+
+local rebirthing  = false
+local LastRebirth = os.time()
+local WaitTime = 0
+Money.Changed:Connect(function()
+	if TestingMode then
+		print("Money Updated")
+	end 
+	local RB = RebornPrice(Player) * (1000^Skips)
+	WaitTime= MinWait + math.random(1,20) * (AddRandomness and 1 or 0)
+	if TestingMode then
+		print("Wait Time: ",WaitTime)
+	end 
+	if AutoRebirth and not rebirthing and  (tostring(Money.Value )== "inf" or Money.Value > RB) and os.time()-LastRebirth >= WaitTime and Tycoon == ActiveTycoon then
+		if TestingMode then
+			print("Auto Rebirth")
+		end 
+		rebirthing = true
+		OreBoostActive = false
+		wait(0.5)
+		game.ReplicatedStorage.Rebirth:InvokeServer()
+		wait(1)
+		rebirthing = false
+		LastRebirth = os.time()
+		WaitTime = 0
+		if AutoRebirth then
+			if TestingMode then
+				print("Rebirthed")
+			end 
+			Load()
 		end
 	end
 end)
+
+for i,v in Boxes:GetChildren(1) do
+	AddBoxTrack(v)
+end
+
+game.ReplicatedStorage.ItemObtained.OnClientEvent:Connect(function(Item,Amount)
+	if Item.Tier.Value == 78 and Item.Name == Slipstream then
+		AutoRebirth = false
+		OreBoostActive = false
+	end
+end)
+
+game.Workspace.Boxes.ChildAdded:Connect(function(Box)
+	AddBoxTrack(Box)
+end)
+
+Player.CharacterAdded:Connect(function(character)
+	local humanoid = character:WaitForChild("Humanoid")
+
+	-- Set initial properties
+	humanoid.WalkSpeed = WalkSpeed
+	humanoid.JumpPower = JumpPower
+
+	-- Re-connect the property change signals
+	humanoid:GetPropertyChangedSignal("WalkSpeed"):Connect(function()
+		if humanoid.WalkSpeed < WalkSpeed then
+			humanoid.WalkSpeed = WalkSpeed
+		end
+	end)
+
+	humanoid:GetPropertyChangedSignal("JumpPower"):Connect(function()
+		if humanoid.JumpPower < JumpPower then
+			humanoid.JumpPower = JumpPower
+		end
+	end)
+end)
+
+
+game.Lighting.Blur:GetPropertyChangedSignal("Enabled"):Connect(function()
+	game.Lighting.Blur.Enabled = Blur
+end)
+
+Chat.OnIncomingMessage = function(Message)
+	if Message then
+		if Message.Text and not Message.TextSource then
+			local NewText = Message.Text
+			if string.find(Message.Text, Player.Name)  then 
+				if SpoofName then
+					NewText = string.gsub(NewText,Player.Name,FakeName)
+				end
+			end
+			if string.find(Message.Text,"was born")then
+				local CurrentLifeText = tostring(Player.Rebirths.Value+1)
+				local NewLife = HandleLife(tonumber(Player.Rebirths.Value+LifeVal))
+				if SpoofLife then
+					NewText = string.gsub(NewText,CurrentLifeText.."(..)",NewLife)
+				end
+				
+			end
+			Message.Text = NewText
+		elseif Message.TextSource then 
+			if string.find(Message.PrefixText, tostring(Player.Name)) then 
+				if SpoofName then
+					Message.PrefixText = string.gsub(Message.PrefixText,tostring(Player.Name),CTag..FakeName)
+				end
+			elseif not string.find(Message.PrefixText, tostring(Player.Name)) and  string.find(Message.Text, Player.Name) then 
+				local NewText = Message.Text
+				if SpoofName then
+					NewText = string.gsub(NewText,Player.Name,FakeName)
+				end
+				Message.Text = NewText
+			end
+		end
+	end
+end
+
+local VS = game:GetService("VirtualUser")
+game.Players.LocalPlayer.Idled:Connect(function()
+	VS:CaptureController()
+	VS:ClickButton2(Vector2.new())
+end)
+
+--Keep at bottom of script
+while true do
+	wait(BoxWait)
+	local BoxName = SelectedBox or "Regular"
+	local Box = Player.Crates:FindFirstChild(SelectedBox)
+	if OpenBoxes and  Box and Box.Value >0  then
+		game.ReplicatedStorage.MysteryBox:InvokeServer(Box.Name)	
+	end 
+end
