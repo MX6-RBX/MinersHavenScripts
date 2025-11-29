@@ -1031,6 +1031,7 @@ game.ReplicatedStorage.ItemObtained.OnClientEvent:Connect(function(Item,Amount)
 	end
 end)
 Player.MostRecentObject.Changed:Connect(function()
+	if not AutoExchangeGift then return end 
 	if Player.MostRecentObject.Value.Name == "CreatedPresent" then
 		local Time = os.time()-LastGift
 		local TimeLeft = 15-Time
