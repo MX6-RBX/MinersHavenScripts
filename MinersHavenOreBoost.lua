@@ -51,6 +51,8 @@ local CTag = "[MX6]"
 local SpoofLife =false
 local SpoofName = false
 local LifeVal = 0 
+local AutoExchangeGift = false
+local LastGift = os.time()
 
 
 GUi.Name = "GUi"
@@ -395,6 +397,13 @@ local MooneyLoopToggle = BoostSection:addToggle("Use Money Loopables",false,func
 	end 
 end)
 
+local AutoGift = BoostSection:addToggle("Auto Exhange Gift",false,function(Val)
+	AutoExchangeGift = Val
+	if TestingMode then
+		print("Auto Exhange Gift: ",Val)
+	end 
+end)
+
 local WaitToSkip = AutoRebirthSection:addSlider("Wait for Skips",0,0,20,function(val)
 	Skips = val or 0
 end)
@@ -523,7 +532,9 @@ local EventShop = GuiInteractions:addButton("Open Event ", function()
 end)
 
 local Santa = GuiInteractions:addButton("Open Gift Exchange ", function()
-	ChangeUi("GifExchange")
+	Player.Character.HumanoidRootPart.CFrame =game.Workspace.Map.SantaModel.Santa.CamPos.CFrame
+	wait(0.1)
+	ChangeUi("GiftExchange")
 end)
 
 
@@ -531,7 +542,7 @@ local BaseTp = GuiInteractions:addButton("Teleport Back to base", function()
 	if TestingMode then
 		print("Teleporting to base")
 	end
-	Player.Character.HumanoidRootPart.CFrame = Tycoon.Base.CFame + Vector3.new(0,10,0)
+	Player.Character.HumanoidRootPart.CFrame = Tycoon.Base.CFrame + Vector3.new(0,10,0)
 end)
 
 local BoxSelectDropdown = BoxSection:addDropdown("Select Box ",{"Regular","Unreal","Inferno","Red-Banded","Spectral","Pumpkin","Luxury","Festive","Magnificent","Twitch","Birthday","Heavenly","Easter","Cake Raffle"}, function(Selected)
@@ -1017,6 +1028,24 @@ game.ReplicatedStorage.ItemObtained.OnClientEvent:Connect(function(Item,Amount)
 	if Item.Tier.Value == 78 and Item.Name == Slipstream then
 		AutoRebirth = false
 		OreBoostActive = false
+	end
+end)
+Player.MostRecentObject.Changed:Connect(function()
+	if Player.MostRecentObject.Value.Name == "CreatedPresent" then
+		local Time = os.time()-LastGift
+		local TimeLeft = 15-Time
+		if Time < 15 then
+			wait(TimeLeft+1)
+		end
+		Player.Character.HumanoidRootPart.CFrame =game.Workspace.Map.SantaModel.Santa.CamPos.CFrame
+		wait(0.2)
+		ChangeUi("GiftExchange")
+		wait(0.5)
+		game:GetService("ReplicatedStorage").EventControllers.Christmas.CashInGift:InvokeServer()
+		LastGift = os.time()
+		wait(0.2)
+		Player.Character.HumanoidRootPart.CFrame = Tycoon.Base.CFrame + Vector3.new(0,10,0)
+		
 	end
 end)
 
