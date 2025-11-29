@@ -495,7 +495,7 @@ local Craftsman = GuiInteractions:addButton("Open Craftsman", function()
 end)
 
 local MaskedMan = GuiInteractions:addButton("Open MaskedMan", function()
-	ChangeUi("EventMenu")
+	ChangeUi("EventShop")
 end)
 
 local Boxman = GuiInteractions:addButton("Open Box merchant", function()
@@ -519,7 +519,11 @@ local Fleabag = GuiInteractions:addButton("Open Fleabag", function()
 end)
 
 local EventShop = GuiInteractions:addButton("Open Event ", function()
-	ChangeUi("EventShop")
+	ChangeUi("EventMenu")
+end)
+
+local Santa = GuiInteractions:addButton("Open Gift Exchange ", function()
+	ChangeUi("GifExchange")
 end)
 
 
