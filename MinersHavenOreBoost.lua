@@ -991,7 +991,7 @@ Money.Changed:Connect(function()
 	if TestingMode then
 		print("Wait Time: ",WaitTime)
 	end 
-	if AutoRebirth and not rebirthing and  Money.Value > RB and os.time()-LastRebirth >= WaitTime and Tycoon == ActiveTycoon then
+	if AutoRebirth and not rebirthing and  (tostring(Money.Value )== "inf" or Money.Value > RB) and os.time()-LastRebirth >= WaitTime and Tycoon == ActiveTycoon then
 		if TestingMode then
 			print("Auto Rebirth")
 		end 
@@ -1085,6 +1085,12 @@ Chat.OnIncomingMessage = function(Message)
 		end
 	end
 end
+
+local VS = game:GetService("VirtualUser")
+game.Players.LocalPlayer.Idled:Connect(function()
+	VS:CaptureController()
+	VS:ClickButton2(Vector2.new())
+end)
 
 --Keep at bottom of script
 while true do
