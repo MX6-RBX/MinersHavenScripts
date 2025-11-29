@@ -51,8 +51,7 @@ local CTag = "[MX6]"
 local SpoofLife =false
 local SpoofName = false
 local LifeVal = 0 
-local AutoExchangeGift = false
-local LastGift = os.time()
+
 
 
 GUi.Name = "GUi"
@@ -394,13 +393,6 @@ local MooneyLoopToggle = BoostSection:addToggle("Use Money Loopables",false,func
 	UsingMoneyLoop = Val
 	if TestingMode then
 		print("Money Loopables: ",Val)
-	end 
-end)
-
-local AutoGift = BoostSection:addToggle("Auto Exhange Gift",false,function(Val)
-	AutoExchangeGift = Val
-	if TestingMode then
-		print("Auto Exhange Gift: ",Val)
 	end 
 end)
 
@@ -1028,25 +1020,6 @@ game.ReplicatedStorage.ItemObtained.OnClientEvent:Connect(function(Item,Amount)
 	if Item.Tier.Value == 78 and Item.Name == Slipstream then
 		AutoRebirth = false
 		OreBoostActive = false
-	end
-end)
-Player.MostRecentObject.Changed:Connect(function()
-	if not AutoExchangeGift then return end 
-	if Player.MostRecentObject.Value.Name == "CreatedPresent" then
-		local Time = os.time()-LastGift
-		local TimeLeft = 15-Time
-		if Time < 15 then
-			wait(TimeLeft+1)
-		end
-		Player.Character.HumanoidRootPart.CFrame =game.Workspace.Map.SantaModel.Santa.CamPos.CFrame
-		wait(0.2)
-		ChangeUi("GiftExchange")
-		wait(0.5)
-		game:GetService("ReplicatedStorage").EventControllers.Christmas.CashInGift:InvokeServer()
-		LastGift = os.time()
-		wait(0.2)
-		Player.Character.HumanoidRootPart.CFrame = Tycoon.Base.CFrame + Vector3.new(0,10,0)
-		
 	end
 end)
 
