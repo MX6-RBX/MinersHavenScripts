@@ -240,7 +240,7 @@ local function CollectBoxes()
 			else
 				Player.Character.HumanoidRootPart.CFrame = v.CFrame	
 			end
-			wait(0.1)
+			wait(0.5)
 		end
 		CollectingBoxes = false
 		Player.Character.HumanoidRootPart.AssemblyLinearVelocity = Vector3.new(0,0,0)
