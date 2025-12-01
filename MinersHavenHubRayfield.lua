@@ -590,7 +590,7 @@ local OreTrackToggle = BoostPage:CreateToggle({
 	CurrentValue = false,
 	Flag = "TrackOreValue", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
 	Callback = function(Value)
-		UsingMoneyLoop = Value
+		ToggleOreTrack(Value)
 		if TestingMode then
 			print("Track Ore Value: ",Value)
 		end 
@@ -1337,7 +1337,7 @@ game.Players.LocalPlayer.Idled:Connect(function()
 	VS:CaptureController()
 	VS:ClickButton2(Vector2.new())
 end)
-
+Rayfield:LoadConfiguration()
 --Keep at bottom of script
 while true do
 	wait(BoxWait)
@@ -1348,3 +1348,5 @@ while true do
 	end 
 end
 
+
+		
