@@ -56,6 +56,12 @@ game.Workspace.ChildAdded:Connect(function(Child)
 		keyrelease(90)
 	end
 end)
+
+local VS = game:GetService("VirtualUser")
+game.Players.LocalPlayer.Idled:Connect(function()
+	VS:CaptureController()
+	VS:ClickButton2(Vector2.new())
+end)
 Player.MostRecentObject.Changed:Connect(function()
 	if not AutoExchangeGift then return end 
 	if Player.MostRecentObject.Value and Player.MostRecentObject.Value.Name == "CreatedPresent" then
