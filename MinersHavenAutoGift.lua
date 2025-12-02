@@ -32,6 +32,33 @@ local function Exchange()
 	keyrelease(90)
 end
 
+local function AddValueToUi()
+	local Ui = GUI:FindFirstChild("GiftExchange")
+	for i,v in Ui.Items:GetChildren() do
+		if v:FindFirstChild("PresentValue") then
+			local ValueText = Instance.new("TextLabel")
+			ValueText.Name = "ValueText"
+			ValueText.Parent = v
+			ValueText.AnchorPoint = Vector2.new(1, 1)
+			ValueText.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+			ValueText.BackgroundTransparency = 1.000
+			ValueText.BorderColor3 = Color3.fromRGB(0, 0, 0)
+			ValueText.BorderSizePixel = 0
+			ValueText.Position = UDim2.new(1, -3, 1, -3)
+			ValueText.Size = UDim2.new(0.3, 0, 0.3, 0)
+			ValueText.ZIndex = 67
+			ValueText.Font = Enum.Font.SourceSansBold
+			ValueText.Text = v.PresentValue.Value
+			ValueText.TextColor3 = Color3.fromRGB(255, 255, 255)
+			ValueText.TextScaled = true
+			ValueText.TextSize = 14.000
+			ValueText.TextStrokeTransparency = 0.000
+			ValueText.TextWrapped = true
+		end
+	end
+end
+AddValueToUi()
+
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 local MainUi = Rayfield:CreateWindow({
