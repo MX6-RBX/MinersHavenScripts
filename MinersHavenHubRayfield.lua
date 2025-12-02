@@ -406,7 +406,7 @@ local MinWaitTime = BoostPage:CreateInput({
 	Name = "Min Rebirth time",
 	CurrentValue = "20",
 	PlaceholderText = "20",
-	RemoveTextAfterFocusLost = false,
+	RemoveTextAfterFocusLost = true,
 	Flag = "MinWait",
 	Callback = function(Text)
 		MinWait = tonumber(Text) or 20
@@ -460,7 +460,7 @@ local LayoutWaitBox = BoostPage:CreateInput({
 	Name = "Layout 2 Load Wait",
 	CurrentValue = "5",
 	PlaceholderText = "5",
-	RemoveTextAfterFocusLost = false,
+	RemoveTextAfterFocusLost = true,
 	Flag = "LayoutLoadWait",
 	Callback = function(Text)
 		LayoutWaitTime = tonumber(Text) or 5
@@ -531,6 +531,22 @@ local MoneyLoopToggle = BoostPage:CreateToggle({
 	end,
 })
 
+local FarmRpToggle = BoostPage:CreateToggle({
+	Name = "Farm RP(Disables oreboost and auto rebirth)",
+	CurrentValue = false,
+	Flag = "MoneyLoopables", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+	Callback = function(Value)
+		FarmRp = Value
+		if OreBoost then
+			BoostToggle:Set(false)
+			AutoRebithToggle:Set(false)
+			OreBoost = false
+			OreBoostActive = false
+			AutoRebirth = false
+		end
+	end,
+})
+
 local UpgraderSection = BoostPage:CreateSection("Item Manipulation")
 local ConveyorSpeedSlider = BoostPage:CreateSlider({
 	Name = "Conveyor speed",
@@ -564,7 +580,7 @@ local UpgarderNameTextBox = BoostPage:CreateInput({
 	Name = "Item Name (Case Sensitive)",
 	CurrentValue = "",
 	PlaceholderText = "Name",
-	RemoveTextAfterFocusLost = false,
+	RemoveTextAfterFocusLost = true,
 	Flag = "ItemName",
 	Callback = function(Text)
 		SingleItemUpgrade = Text
@@ -838,7 +854,7 @@ local SpoofNameText = SpoofPage:CreateInput({
 	Name = "Fake Name",
 	CurrentValue = "",
 	PlaceholderText = "Fake Name",
-	RemoveTextAfterFocusLost = false,
+	RemoveTextAfterFocusLost = true,
 	Flag = "FakeName",
 	Callback = function(Text)
 		if TestingMode then
@@ -864,7 +880,7 @@ local CutsomTagText = SpoofPage:CreateInput({
 	Name = "Custom Chat Tag(Rich Text Compatible)",
 	CurrentValue = "[MX6]",
 	PlaceholderText = "[MX6]",
-	RemoveTextAfterFocusLost = false,
+	RemoveTextAfterFocusLost = true,
 	Flag = "FakeTag",
 	Callback = function(Text)
 		if TestingMode then
@@ -1077,6 +1093,10 @@ function StartOreBoost(Ore)
 	end 
 	Ore.Anchored = true
 	repeat wait() until Ore:FindFirstChild("Cash")
+	if Ore.Cash.Value <= 0 then
+		Ore.Anchored = false
+		return
+	end
 	local SavePos = Ore.CFrame
 	local MoneyLoop = nil
 	local LooperStats 
@@ -1349,4 +1369,3 @@ while true do
 end
 
 
-		
