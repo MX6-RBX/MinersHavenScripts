@@ -474,16 +474,16 @@ end)
 local function AddNewButton(Item,Amount)
 	if Items:FindFirstChild(Item.Name) == nil then
 		local Clone = ItemTemplate:Clone()
-		Clone.Name = Item.Name
+		local TierId = Item.Tier.Value
+		local Tier =  game.ReplicatedStorage.Tiers:FindFirstChild(tostring(TierId))
+		Clone.Name = Item.Name.."("..Tier.TierName.Value..")"
 		Clone.BackgroundColor3 = GetTierColor(Item.Tier.Value)
 		Clone.ImageLabel.Image = "rbxassetid://"..Item.ThumbnailId.Value
-		Clone.ItemName.Text = Item.Name
 		Clone.Amount.Value = Amount
 		Clone.ItemAmount.Text = "X"..Clone.Amount.Value
 		Clone.LastObtained.Text = "Last Obtained - "..GetSuffix()..Life.Value+1
 		Clone.Parent = Items
-		local TierId = Item.Tier.Value
-		local Tier =  game.ReplicatedStorage.Tiers:FindFirstChild(tostring(TierId))
+		
 		
 		if TierId == 36 or TierId == 38 then
 			local UiS = UIStroke:Clone()
