@@ -482,7 +482,7 @@ local function AddNewButton(Item,Amount)
 		Clone.Amount.Value = Amount
 		Clone.ItemAmount.Text = "X"..Clone.Amount.Value
 		Clone.LastObtained.Text = "Last Obtained - "..GetSuffix()..Life.Value+1
-		Clone.ItemName.Text = Item.Name.."("..Tier.TierName.Value..")"
+		Clone.ItemName.Text = Item.Name.." ("..Tier.TierName.Value..")"
 		Clone.Parent = Items
 
 
