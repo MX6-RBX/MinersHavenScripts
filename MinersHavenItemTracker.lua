@@ -404,7 +404,7 @@ local function ToggleTier(Ui)
 	if table.find(SelectedTiers,Tier) then
 		print("Removed ",Tier)
 		local pos = table.find(SelectedTiers,Tier)
-		
+
 		table.remove(SelectedTiers,pos)
 		Ui.UIStroke.Enabled = false
 	else
@@ -476,15 +476,16 @@ local function AddNewButton(Item,Amount)
 		local Clone = ItemTemplate:Clone()
 		local TierId = Item.Tier.Value
 		local Tier =  game.ReplicatedStorage.Tiers:FindFirstChild(tostring(TierId))
-		Clone.Name = Item.Name.."("..Tier.TierName.Value..")"
+		Clone.Name = Item.Name
 		Clone.BackgroundColor3 = GetTierColor(Item.Tier.Value)
 		Clone.ImageLabel.Image = "rbxassetid://"..Item.ThumbnailId.Value
 		Clone.Amount.Value = Amount
 		Clone.ItemAmount.Text = "X"..Clone.Amount.Value
 		Clone.LastObtained.Text = "Last Obtained - "..GetSuffix()..Life.Value+1
+		Clone.ItemName.Text = Item.Name.."("..Tier.TierName.Value..")"
 		Clone.Parent = Items
-		
-		
+
+
 		if TierId == 36 or TierId == 38 then
 			local UiS = UIStroke:Clone()
 			UiS.Parent = Clone
