@@ -144,8 +144,26 @@ local MoneyLoopables = {
 	["⭐ Hypergiant Blue Supergiant ⭐"]={ Cap = 1e+90,Effect = "Fire",MinVal = nil,MinWait = 1.5},
 }
 
-local EffectRemovers = {"Wild Spore", "Deadly Spore", "Azure Spore", "The Death Cap"}
-local ResettersNames = {"Tesla Resetter","Tesla Refuter","Black Dwarf","Void Star","The Ultimate Sacrifice","The Final Upgrader","Daestrophe"}
+local EffectRemovers = {
+	"Wild Spore", 
+	"Deadly Spore", 
+	"Azure Spore", 
+	"The Death Cap"
+}
+
+local ResettersNames = {
+	"Tesla Resetter",
+	"Tesla Refuter",
+	"Black Dwarf",
+	"Void Star",
+	"The Ultimate Sacrifice",
+	"The Final Upgrader",
+	"Daestrophe",
+	"⭐ Advanced Tesla Refuter ⭐",
+	"⭐ Advanced Tesla Resetter ⭐",
+	"⭐ Spooky Tesla Resetter ⭐"
+}
+
 local Slipstreams = {"None"}	
 local OreTrackers = {}
 local BoxTrackers = {}
@@ -1367,5 +1385,4 @@ while true do
 		game.ReplicatedStorage.MysteryBox:InvokeServer(Box.Name)	
 	end 
 end
-
 
