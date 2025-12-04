@@ -391,7 +391,7 @@ local GUI = Player.PlayerGui:WaitForChild("GUI")
 local Life = Player.Rebirths
 local StartLife = Life.Value + 1
 
-local SelectedTiers = {30,33,36,38}--Filtered Item Tracking defualt Reborns, Advanced Reborns, Shinies, Limited Shinies
+local SelectedTiers = {30,33,36,38,157}--Filtered Item Tracking defualt Reborns, Advanced Reborns, Shinies, Limited Shinies
 local LastLife = Player.Rebirths.Value
 local OverAllTime = 0
 local LivesAdvanced = 0
