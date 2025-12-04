@@ -1024,8 +1024,15 @@ function Reset(Ore)
 	local Dae = Tycoon:FindFirstChild("Daestrophe") 
 	local Sac =  Tycoon:FindFirstChild("The Final Upgrader") or Tycoon:FindFirstChild("The Ultimate Sacrifice")  
 	local Star = Tycoon:FindFirstChild("Void Star") or Tycoon:FindFirstChild("Black Dwarf")
-	local Tes = Tycoon:FindFirstChild("Tesla Resetter") or Tycoon:FindFirstChild("Tesla Refuter")
-
+	local Tes = Tycoon:FindFirstChild("Tesla Resetter")or Tycoon:FindFirstChild("⭐ Advanced Tesla Resetter ⭐") or Tycoon:FindFirstChild("⭐ Spooky Tesla Resetter ⭐") or Tycoon:FindFirstChild("Tesla Refuter") or Tycoon:FindFirstChild("⭐ Advanced Tesla Refuter ⭐") 
+		
+		--[[
+		
+		"⭐ Advanced Tesla Refuter ⭐",
+	"⭐ Advanced Tesla Resetter ⭐",
+	"⭐ Spooky Tesla Resetter ⭐"
+		
+		]]
 	BoostOre(Ore)
 	if Dae and Ore and OreBoostActive then --checks if Daestrophe is on the base
 		if TestingMode then
