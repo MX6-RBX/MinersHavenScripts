@@ -52,6 +52,7 @@ local SpoofLife =false
 local SpoofName = false
 local LifeVal = 0 
 local FastOreBoost = false
+local FarmBoxes = false
 
 GUi.Name = "GUi"
 GUi.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
@@ -802,12 +803,20 @@ local BoxTrackToggle = OtherOptionsPage:CreateToggle({
 })
 
 local BoxTeleport = OtherOptionsPage:CreateButton({
-	Name = "Collect Boxes(High ban chance in public Servers)",
+	Name = "Single Collect Boxes(High ban chance in public Servers)",
 	Callback = function()
 		if TestingMode then
 			print("Collecting Boxes")
 		end 
 		CollectBoxes()
+	end,
+})
+local AutoBoxTeleportToggle = OtherOptionsPage:CreateToggle({
+	Name = "Farm Boxes",
+	CurrentValue = false,
+	Flag = "TrackBoxes", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+	Callback = function(Value)
+		FarmBoxes = Value
 	end,
 })
 
@@ -1446,6 +1455,30 @@ game.Players.LocalPlayer.Idled:Connect(function()
 end)
 Rayfield:LoadConfiguration()
 --Keep at bottom of script
+
+spawn(function()
+	wait()
+	while true do
+		if not CollectingBoxes then
+			local Pos = Player.Character.HumanoidRootPart.CFrame 
+			CollectingBoxes = true
+
+			for i,v in Boxes:GetChildren() do
+				if v:IsA("Model") and v:FindFirstChild("Crate") then
+					Player.Character.HumanoidRootPart.CFrame = v.Crate.CFrame		
+				else
+					Player.Character.HumanoidRootPart.CFrame = v.CFrame	
+				end
+				wait(0.5)
+			end
+			CollectingBoxes = false
+			Player.Character.HumanoidRootPart.AssemblyLinearVelocity = Vector3.new(0,0,0)
+			Player.Character.HumanoidRootPart.AssemblyAngularVelocity = Vector3.new(0,0,0)
+			Player.Character.HumanoidRootPart.CFrame = Pos
+		end
+	end
+end)
+
 while true do
 	wait(BoxWait)
 	local BoxName = SelectedBox or "Regular"
@@ -1453,5 +1486,6 @@ while true do
 	if OpenBoxes and  Box and Box.Value >0  then
 		game.ReplicatedStorage.MysteryBox:InvokeServer(Box.Name)	
 	end 
+	
 end
 
