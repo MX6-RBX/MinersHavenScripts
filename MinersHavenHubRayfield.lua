@@ -371,8 +371,8 @@ local MainUi = Rayfield:CreateWindow({
 
 	ConfigurationSaving = {
 		Enabled = true,
-		FolderName = nil, 
-		FileName = "MX6MHHubSettings"
+		FolderName = "MX6 Hub Settings", 
+		FileName = "MinersHavenHub"
 	},
 
 	Discord = {
@@ -814,7 +814,7 @@ local BoxTeleport = OtherOptionsPage:CreateButton({
 local AutoBoxTeleportToggle = OtherOptionsPage:CreateToggle({
 	Name = "Farm Boxes",
 	CurrentValue = false,
-	Flag = "TrackBoxes", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+	Flag = "AutoFarmBoxes", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
 	Callback = function(Value)
 		FarmBoxes = Value
 	end,
@@ -1026,7 +1026,7 @@ function BoostOre(Ore)
 						wait(0.01)
 					end
 				end
-				
+
 			elseif v.Model:FindFirstChild("Lava") and not v.Model:FindFirstChild("TeleportSend") then
 				if v and v:FindFirstChild("Model") and v.Model:FindFirstChild("Lava") and not v.Model.Lava:FindFirstChild("TeleportSend") then
 					if TestingMode then
@@ -1058,7 +1058,7 @@ function Reset(Ore)
 	local Sac =  Tycoon:FindFirstChild("The Final Upgrader") or Tycoon:FindFirstChild("The Ultimate Sacrifice")  
 	local Star = Tycoon:FindFirstChild("Void Star") or Tycoon:FindFirstChild("Black Dwarf")
 	local Tes = Tycoon:FindFirstChild("Tesla Resetter")or Tycoon:FindFirstChild("⭐ Advanced Tesla Resetter ⭐") or Tycoon:FindFirstChild("⭐ Spooky Tesla Resetter ⭐") or Tycoon:FindFirstChild("Tesla Refuter") or Tycoon:FindFirstChild("⭐ Advanced Tesla Refuter ⭐") 
-		
+
 		--[[
 		
 		"⭐ Advanced Tesla Refuter ⭐",
@@ -1081,7 +1081,7 @@ function Reset(Ore)
 				wait(0.01)
 			end
 		end
-		
+
 		BoostOre(Ore)
 	else
 		if TestingMode then
@@ -1092,7 +1092,7 @@ function Reset(Ore)
 		if TestingMode then
 			print("Found", Sac.Name)
 		end 
-		
+
 		if FastOreBoost then
 			firetouchinterst(Ore,Sac.Model.Upgrade.CFrame,0)
 			wait(0.01)
@@ -1232,7 +1232,7 @@ function StartOreBoost(Ore)
 						end
 					end
 				end
-				
+
 				wait(0.1)
 			until Ore == nil or MoneyLoop == nil or MoneyLoop:FindFirstChild("Model") == nil or Ore:FindFirstChild("Cash") == nil or Ore.Cash.Value >= Info.Cap
 			if TestingMode then
@@ -1457,13 +1457,10 @@ Rayfield:LoadConfiguration()
 --Keep at bottom of script
 
 spawn(function()
-	
 	while true do
 		wait()
-		if FarmBoxes and  not CollectingBoxes then
+		if FarmBoxes then
 			local Pos = Player.Character.HumanoidRootPart.CFrame 
-			CollectingBoxes = true
-
 			for i,v in Boxes:GetChildren() do
 				if v:IsA("Model") and v:FindFirstChild("Crate") then
 					Player.Character.HumanoidRootPart.CFrame = v.Crate.CFrame		
@@ -1472,7 +1469,6 @@ spawn(function()
 				end
 				wait(0.5)
 			end
-			CollectingBoxes = false
 			Player.Character.HumanoidRootPart.AssemblyLinearVelocity = Vector3.new(0,0,0)
 			Player.Character.HumanoidRootPart.AssemblyAngularVelocity = Vector3.new(0,0,0)
 			Player.Character.HumanoidRootPart.CFrame = Pos
@@ -1487,6 +1483,5 @@ while true do
 	if OpenBoxes and  Box and Box.Value >0  then
 		game.ReplicatedStorage.MysteryBox:InvokeServer(Box.Name)	
 	end 
-	
-end
 
+end
