@@ -1460,7 +1460,7 @@ spawn(function()
 	
 	while true do
 		wait()
-		if not CollectingBoxes then
+		if FarmBoxes and  not CollectingBoxes then
 			local Pos = Player.Character.HumanoidRootPart.CFrame 
 			CollectingBoxes = true
 
