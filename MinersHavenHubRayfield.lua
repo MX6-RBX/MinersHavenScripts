@@ -40,7 +40,8 @@ local CollectingBoxes = false
 local Blur = true
 local WithdrawBase = false
 local OpenBoxes = false
-local UseClovers = Player:FindFirstChild("UseClover")
+local UseCloversValue = Player:FindFirstChild("UseClover")
+local UseClovers = UseCloversValue
 local SelectedBox = "Regular"
 local UpgraderSize = 1
 local SingleItemUpgrade = ""
@@ -426,7 +427,7 @@ local MinWaitTime = BoostPage:CreateInput({
 	Name = "Min Rebirth time",
 	CurrentValue = "20",
 	PlaceholderText = "20",
-	RemoveTextAfterFocusLost = true,
+	RemoveTextAfterFocusLost = false,
 	Flag = "MinWait",
 	Callback = function(Text)
 		MinWait = tonumber(Text) or 20
@@ -480,7 +481,7 @@ local LayoutWaitBox = BoostPage:CreateInput({
 	Name = "Layout 2 Load Wait",
 	CurrentValue = "5",
 	PlaceholderText = "5",
-	RemoveTextAfterFocusLost = true,
+	RemoveTextAfterFocusLost = false,
 	Flag = "LayoutLoadWait",
 	Callback = function(Text)
 		LayoutWaitTime = tonumber(Text) or 5
@@ -534,7 +535,7 @@ local IgnoreFuleToggle = BoostPage:CreateToggle({
 	Name = "Using Ind Mine",
 	CurrentValue = false,
 	Flag = "IndMine", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
-	Callback = function(Value)
+	Callback = function(Value) 
 		Fuel = true
 	end,
 })
@@ -554,7 +555,7 @@ local MoneyLoopToggle = BoostPage:CreateToggle({
 local FarmRpToggle = BoostPage:CreateToggle({
 	Name = "Farm RP(Disables oreboost and auto rebirth)",
 	CurrentValue = false,
-	Flag = "MoneyLoopables", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+	Flag = "FarmRp", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
 	Callback = function(Value)
 		FarmRp = Value
 		if OreBoost then
@@ -564,20 +565,23 @@ local FarmRpToggle = BoostPage:CreateToggle({
 			OreBoostActive = false
 			AutoRebirth = false
 		end
+		if TestingMode then
+			print("Farm Rp: ",Value)
+		end 
 	end,
 })
 
-local Paragraph = BoostPage:CreateParagraph({Title = "Fast Ore Boos", Content = "Fast Ore boost will use a custom function that some executors have to upgrade the ores quicker. NOTE Not all executors will work so check before using. Enabling this when using an unsupported executor may brake the script. solara should have this"})
+local Paragraph = BoostPage:CreateParagraph({Title = "Fast Ore Boost", Content = "Fast Ore boost will use a custom function that some executors have to upgrade the ores quicker. NOTE Not all executors will work so check before using. Enabling this when using an unsupported executor may brake the script. solara should have this"})
 
 local FastOreBoostToggle = BoostPage:CreateToggle({
-	Name = "Enable fast boost method",
+	Name = "Enable Fast boost method",
 	CurrentValue = false,
 	Flag = "FastOreBoost", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
 	Callback = function(Value)
-		FarmRp = Value
-		if OreBoost then
-			FastOreBoost = Value
-		end
+		FastOreBoost = Value
+		if TestingMode then
+			print("Fast Ore Boost: ",Value)
+		end 
 	end,
 })
 
@@ -616,7 +620,7 @@ local UpgarderNameTextBox = BoostPage:CreateInput({
 	Name = "Item Name (Case Sensitive)",
 	CurrentValue = "",
 	PlaceholderText = "Name",
-	RemoveTextAfterFocusLost = true,
+	RemoveTextAfterFocusLost = false,
 	Flag = "ItemName",
 	Callback = function(Text)
 		SingleItemUpgrade = Text
@@ -755,19 +759,20 @@ local BoxSelectDropdown = VendorsPage:CreateDropdown({
 local UseCloverToggle = VendorsPage:CreateToggle({
 	Name = "Use Clovers",
 	CurrentValue = UseClovers,
-	Flag = "UserClovers", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+	Flag = "UseClovers", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
 	Callback = function(Value)
 		if TestingMode then
 			print("Toggled Clovers:",Value)
 		end
 		game.ReplicatedStorage.ToggleBoxItem:InvokeServer("Clover")
+		UseClovers = Value
 	end,
 })
 
 local OpenBoxToggle = VendorsPage:CreateToggle({
 	Name = "Auto Open Selected box",
 	CurrentValue = UseClovers,
-	Flag = "AutoOpenBox", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+	Flag = "OpenBoxes", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
 	Callback = function(Value)
 		if TestingMode then
 			print("Toggle auto Box:",Value)
@@ -817,6 +822,9 @@ local AutoBoxTeleportToggle = OtherOptionsPage:CreateToggle({
 	Flag = "AutoFarmBoxes", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
 	Callback = function(Value)
 		FarmBoxes = Value
+		if TestingMode then
+			print("Box Farming: ",Value)
+		end 
 	end,
 })
 
@@ -898,7 +906,7 @@ local SpoofNameText = SpoofPage:CreateInput({
 	Name = "Fake Name",
 	CurrentValue = "",
 	PlaceholderText = "Fake Name",
-	RemoveTextAfterFocusLost = true,
+	RemoveTextAfterFocusLost = false,
 	Flag = "FakeName",
 	Callback = function(Text)
 		if TestingMode then
@@ -924,7 +932,7 @@ local CutsomTagText = SpoofPage:CreateInput({
 	Name = "Custom Chat Tag(Rich Text Compatible)",
 	CurrentValue = "[MX6]",
 	PlaceholderText = "[MX6]",
-	RemoveTextAfterFocusLost = true,
+	RemoveTextAfterFocusLost = false,
 	Flag = "FakeTag",
 	Callback = function(Text)
 		if TestingMode then
@@ -1017,11 +1025,13 @@ function BoostOre(Ore)
 			if not v:FindFirstChild("Model") then continue end
 			if v.Model:FindFirstChild("Upgrade") then
 				if FastOreBoost then
-					firetouchinterst(Ore,v.Model.Upgrade.CFrame,0)
+					print(Ore)
+					print(v.Model.Upgrade)
+					firetouchinterest(Ore,v.Model.Upgrade,0) 
 					wait(0.01)
-					firetouchinterst(Ore,v.Model.Upgrade.CFrame,1)
+					firetouchinterest(Ore,v.Model.Upgrade,1)
 				else
-					for i=1,3 do
+					for i=1,2 do
 						Ore.CFrame =v.Model.Upgrade.CFrame 
 						wait(0.01)
 					end
@@ -1058,25 +1068,18 @@ function Reset(Ore)
 	local Sac =  Tycoon:FindFirstChild("The Final Upgrader") or Tycoon:FindFirstChild("The Ultimate Sacrifice")  
 	local Star = Tycoon:FindFirstChild("Void Star") or Tycoon:FindFirstChild("Black Dwarf")
 	local Tes = Tycoon:FindFirstChild("Tesla Resetter")or Tycoon:FindFirstChild("⭐ Advanced Tesla Resetter ⭐") or Tycoon:FindFirstChild("⭐ Spooky Tesla Resetter ⭐") or Tycoon:FindFirstChild("Tesla Refuter") or Tycoon:FindFirstChild("⭐ Advanced Tesla Refuter ⭐") 
-
-		--[[
-		
-		"⭐ Advanced Tesla Refuter ⭐",
-	"⭐ Advanced Tesla Resetter ⭐",
-	"⭐ Spooky Tesla Resetter ⭐"
-		
-		]]
+	
 	BoostOre(Ore)
 	if Dae and Ore and OreBoostActive then --checks if Daestrophe is on the base
 		if TestingMode then
 			print("Found Daestrophe")
 		end 
 		if FastOreBoost then
-			firetouchinterst(Ore,Dae.Model.Upgrade.CFrame,0)
+			firetouchinterest(Ore,Dae.Model.Upgrade,0)
 			wait(0.01)
-			firetouchinterst(Ore,Dae.Model.Upgrade.CFrame,1)
+			firetouchinterest(Ore,Dae.Model.Upgrade,1)
 		else
-			for i=1,3 do 
+			for i=1,2 do 
 				Ore.CFrame = Dae.Model.Upgrade.CFrame
 				wait(0.01)
 			end
@@ -1094,11 +1097,11 @@ function Reset(Ore)
 		end 
 
 		if FastOreBoost then
-			firetouchinterst(Ore,Sac.Model.Upgrade.CFrame,0)
+			firetouchinterest(Ore,Sac.Model.Upgrade,0)
 			wait(0.01)
-			firetouchinterst(Ore,Sac.Model.Upgrade.CFrame,1)
+			firetouchinterest(Ore,Sac.Model.Upgrade,1)
 		else
-			for i=1,3 do 
+			for i=1,2 do 
 				Ore.CFrame = Sac.Model.Upgrade.CFrame
 				wait(0.01)
 			end
@@ -1114,11 +1117,11 @@ function Reset(Ore)
 			print("Found", Star.Name)
 		end 
 		if FastOreBoost then
-			firetouchinterst(Ore,Star.Model.Upgrade.CFrame,0)
+			firetouchinterest(Ore,Star.Model.Upgrade,0)
 			wait(0.01)
-			firetouchinterst(Ore,Star.Model.Upgrade.CFrame,1)
+			firetouchinterest(Ore,Star.Model.Upgrade,1)
 		else
-			for i=1,3 do 
+			for i=1,2 do 
 				Ore.CFrame = Star.Model.Upgrade.CFrame
 				wait(0.01)
 			end
@@ -1134,11 +1137,11 @@ function Reset(Ore)
 			print("Found", Tes.Name)
 		end 
 		if FastOreBoost then
-			firetouchinterst(Ore,Tes.Model.Upgrade.CFrame,0)
-			wait(0.01)
-			firetouchinterst(Ore,Tes.Model.Upgrade.CFrame,1)
+			firetouchinterest(Ore,Tes.Model.Upgrade,0)
+			wait()
+			firetouchinterest(Ore,Tes.Model.Upgrade,1)
 		else
-			for i=1,3 do 
+			for i=1,2 do 
 				Ore.CFrame = Tes.Model.Upgrade.CFrame
 				wait(0.01)
 			end
@@ -1185,7 +1188,10 @@ function StartOreBoost(Ore)
 	local MoneyLoop = nil
 	local LooperStats 
 	local Protect
-	Ore.Anchored = false
+	if not FastOreBoost then
+		Ore.Anchored = false
+	end
+
 	if TestingMode then
 		print("Ore Boost finished setting up")
 	end 
@@ -1215,16 +1221,16 @@ function StartOreBoost(Ore)
 				end
 				if OreBoost == false or OreBoostActive == false then break end
 				if FastOreBoost then
-					firetouchinterst(Ore,MoneyLoop.Model.Upgrade.CFrame,0)
+					firetouchinterest(Ore,MoneyLoop.Model.Upgrade,0)
 					wait(0.01)
-					firetouchinterst(Ore,MoneyLoop.Model.Upgrade.CFrame,1)
+					firetouchinterest(Ore,MoneyLoop.Model.Upgrade,1)
 					if LooperStats.Effect ~= nil and Protect ~= nil then
-						firetouchinterst(Ore,Protect.Model.Upgrade.CFrame,0)
+						firetouchinterest(Ore,Protect.Model.Upgrade,0)
 						wait(0.01)
-						firetouchinterst(Ore,Protect.Model.Upgrade.CFrame,1)
+						firetouchinterest(Ore,Protect.Model.Upgrade,1)
 					end
 				else
-					for i=1,3 do
+					for i=1,2 do
 						Ore.CFrame = MoneyLoop.Model.Upgrade.CFrame
 						wait(Info.MinWait or 0.01)
 						if LooperStats.Effect ~= nil and Protect ~= nil then
@@ -1233,7 +1239,7 @@ function StartOreBoost(Ore)
 					end
 				end
 
-				wait(0.1)
+				wait(0.05)
 			until Ore == nil or MoneyLoop == nil or MoneyLoop:FindFirstChild("Model") == nil or Ore:FindFirstChild("Cash") == nil or Ore.Cash.Value >= Info.Cap
 			if TestingMode then
 				print("Money Loop Finished")
@@ -1252,11 +1258,20 @@ function StartOreBoost(Ore)
 		Ore.AssemblyAngularVelocity = Vector3.new(0,0,0)
 		Ore.AssemblyLinearVelocity = Vector3.new(0,0,0)
 		if Furnace and Furnace:FindFirstChild("Model") then
-			Ore.CFrame = Furnace.Model.Lava.CFrame + Vector3.new(0,2,0)
+			if FastOreBoost then
+				firetouchinterest(Ore,Furnace.Model.Lava,0)
+				wait(0.01)
+				firetouchinterest(Ore,Furnace.Model.Lava,1)
+			else
+				Ore.Anchored = false
+				Ore.CFrame = Furnace.Model.Lava.CFrame + Vector3.new(0,2,0)
+			end
+			
 		else
 			if TestingMode then
 				print("No Furnace found, sending ore to spawn location")
 			end 
+			Ore.Anchored = false
 			Ore.CFrame = SavePos	
 		end
 	end
@@ -1331,46 +1346,25 @@ Money.Changed:Connect(function()
 	if TestingMode then
 		print("Rebirth Price: ",RB)
 	end 
-	if AutoRebirth then
+	
+	if AutoRebirth and not rebirthing and Money.Value > RB and os.time()-LastRebirth >= WaitTime and Tycoon == ActiveTycoon then
 		if TestingMode then
-			print("Auto Rebirth Enabled")
+			print("Is on their tycoon")
 		end 
-		if not rebirthing then
+		rebirthing = true
+		OreBoostActive = false
+		wait(0.1)
+		game.ReplicatedStorage.Rebirth:InvokeServer()
+		wait(1)
+		rebirthing = false
+		LastRebirth = os.time()
+		WaitTime = 0
+		if AutoRebirth then
 			if TestingMode then
-				print("Not in rebirth prrogress")
+				print("Rebirthed")
 			end 
-			if Money.Value > RB then
-				if TestingMode then
-					print("Has enough to rebirth")
-				end 
-				if os.time()-LastRebirth >= WaitTime then
-					if TestingMode then
-						print("Has waited minimum time ")
-					end 
-					if Tycoon == ActiveTycoon then
-						if TestingMode then
-							print("Is on their tycoon")
-						end 
-						rebirthing = true
-						OreBoostActive = false
-						wait(0.5)
-						game.ReplicatedStorage.Rebirth:InvokeServer()
-						wait(1)
-						rebirthing = false
-						LastRebirth = os.time()
-						WaitTime = 0
-						if AutoRebirth then
-							if TestingMode then
-								print("Rebirthed")
-							end 
-							Load()
-						end
-					end 
-				end
-			end
-
+			Load()
 		end
-
 	end
 end)
 
