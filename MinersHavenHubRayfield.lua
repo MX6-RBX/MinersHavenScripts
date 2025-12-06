@@ -1457,8 +1457,9 @@ Rayfield:LoadConfiguration()
 --Keep at bottom of script
 
 spawn(function()
-	wait()
+	
 	while true do
+		wait()
 		if not CollectingBoxes then
 			local Pos = Player.Character.HumanoidRootPart.CFrame 
 			CollectingBoxes = true
