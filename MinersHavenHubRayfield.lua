@@ -1,6 +1,55 @@
+
+
+
 local Chat = game:GetService("TextChatService")
 local channel = Chat:WaitForChild('TextChannels').RBXGeneral
 local Player = game.Players.LocalPlayer
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+local MainUi = Rayfield:CreateWindow({
+	Name = "MX6 Miners Haven Hub",
+	Icon = 0,
+	LoadingTitle = "MX6 Miners Haven Hub",
+	LoadingSubtitle = "by MX6",
+	ShowText = "Using Rayfield UI",
+	Theme = "Default", 
+
+	ToggleUIKeybind = "K",
+
+	DisableRayfieldPrompts = false,
+	DisableBuildWarnings = false, 
+
+	ConfigurationSaving = {
+		Enabled = true,
+		FolderName = "MX6 Hub Settings", 
+		FileName = "MinersHavenHub"
+	},
+
+	Discord = {
+		Enabled = false, 
+		Invite = "discord.gg/eCQnApxxgd", 
+		RememberJoins = true
+	},
+
+	KeySystem = false, 
+	KeySettings = {
+		Title = "This Is Just A Test",
+		Subtitle = "Key System",
+		Note = "Key Is FreeKeys",
+		FileName = "MX6MinersHavenHubKeys", 
+		SaveKey = true, 
+		GrabKeyFromSite = false, 
+		Key = {"FreeKeys"}
+	}
+})
+
+if not Player:FindFirstChild("BaseDataLoaded") then 
+	Rayfield:Notify({
+		Title = "Waiting on game",
+		Content = "Please Load into a slot to allow the script to finnish loading",
+		Duration = 5,
+		Image = 4483362458,
+	})
+end
 local Tycoon = Player.PlayerTycoon.Value
 local ActiveTycoon = Player.ActiveTycoon.Value
 local AdjustSpeed = Tycoon.AdjustSpeed
@@ -31,9 +80,7 @@ local AddRandomness = false
 local Fuel = false
 local WalkSpeed = 16
 local JumpPower = 50
-local GUi = Instance.new("BillboardGui")
-local Box = Instance.new("TextLabel")
-local UICorner = Instance.new("UICorner")
+
 local WaitToRebirth = false
 local Skips = 0
 local CollectingBoxes = false
@@ -55,6 +102,10 @@ local LifeVal = 0
 local FastOreBoost = false
 local FarmBoxes = false
 
+
+local GUi = Instance.new("BillboardGui")
+local Box = Instance.new("TextLabel")
+local UICorner = Instance.new("UICorner")
 GUi.Name = "GUi"
 GUi.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 GUi.Active = true
@@ -145,8 +196,12 @@ local MoneyLoopables = {
 	["⭐ Wholesome Neutron Star ⭐"]={ Cap = 1e+72,Effect = "Fire",MinVal = nil,MinWait = 1.5},
 	["Blue Supergiant"]={ Cap = 1e+90,Effect = "Fire",MinVal = nil,MinWait = 1.5},
 	["⭐ Hypergiant Blue Supergiant ⭐"]={ Cap = 1e+90,Effect = "Fire",MinVal = nil,MinWait = 1.5},
+	["Sinister Sepulcher"]={ Cap = 1e+99,Effect = nil,MinVal = nil,MinWait = nil},
+	["Renegade Sinister Sepulcher"]={ Cap = 1e+99,Effect = nil,MinVal = nil,MinWait = 0.03},
+	["⭐ Ornate Sinister Sepulcher ⭐"]={ Cap = 1e+99,Effect = nil,MinVal = nil,MinWait = 0.03},
+	
 }
-
+--⭐ Ornate Sinister Sepulcher ⭐     Renegade Sinister Sepulcher      Sinister Sepulcher
 local EffectRemovers = {
 	"Wild Spore", 
 	"Deadly Spore", 
@@ -356,43 +411,6 @@ local function HandleLife(Life)
 	return tostring(comma(Life))..Suffix
 end
 
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
-local MainUi = Rayfield:CreateWindow({
-	Name = "MX6 Miners Haven Hub",
-	Icon = 0,
-	LoadingTitle = "MX6 Miners Haven Hub",
-	LoadingSubtitle = "by MX6",
-	ShowText = "Using Rayfield UI",
-	Theme = "Default", 
-
-	ToggleUIKeybind = "K",
-
-	DisableRayfieldPrompts = false,
-	DisableBuildWarnings = false, 
-
-	ConfigurationSaving = {
-		Enabled = true,
-		FolderName = "MX6 Hub Settings", 
-		FileName = "MinersHavenHub"
-	},
-
-	Discord = {
-		Enabled = false, 
-		Invite = "discord.gg/eCQnApxxgd", 
-		RememberJoins = true
-	},
-
-	KeySystem = false, 
-	KeySettings = {
-		Title = "This Is Just A Test",
-		Subtitle = "Key System",
-		Note = "Key Is FreeKeys",
-		FileName = "MX6MinersHavenHubKeys", 
-		SaveKey = true, 
-		GrabKeyFromSite = false, 
-		Key = {"FreeKeys"}
-	}
-})
 
 local BoostPage = MainUi:CreateTab("Boost Options", 130772689610761) 
 local AutoRebirthSection = BoostPage:CreateSection("Auto Rebirth")
@@ -899,7 +917,7 @@ local ItemTracker = OtherOptionsPage:CreateButton({
 
 local SpoofPage = MainUi:CreateTab("Spoofer",6031215978)
 local InfoSection = SpoofPage:CreateSection("Info")
-local Paragraph = SpoofPage:CreateParagraph({Title = "Warning", Content = "Spoofed Chats are local, Other player will seen tham as your roblox name."})
+local Paragraph = SpoofPage:CreateParagraph({Title = "<b>!WARNING!</b>", Content = "Spoofed Chats are local, Other player will seen tham as your roblox name."})
 
 local SpoofSection = SpoofPage:CreateSection("Spoof Info")
 local SpoofNameText = SpoofPage:CreateInput({
@@ -1032,8 +1050,10 @@ function BoostOre(Ore)
 					firetouchinterest(Ore,v.Model.Upgrade,1)
 				else
 					for i=1,2 do
-						Ore.CFrame =v.Model.Upgrade.CFrame 
-						wait(0.01)
+						if v and v:FindFirstChild("Model")  then
+							Ore.CFrame =v.Model.Upgrade.CFrame 
+							wait(0.01)
+						end
 					end
 				end
 
@@ -1062,13 +1082,12 @@ function BoostOre(Ore)
 		print("Ore boost End")
 	end 
 end
-
+--BaseDataLoaded
 function Reset(Ore)
 	local Dae = Tycoon:FindFirstChild("Daestrophe") 
 	local Sac =  Tycoon:FindFirstChild("The Final Upgrader") or Tycoon:FindFirstChild("The Ultimate Sacrifice")  
 	local Star = Tycoon:FindFirstChild("Void Star") or Tycoon:FindFirstChild("Black Dwarf")
 	local Tes = Tycoon:FindFirstChild("Tesla Resetter")or Tycoon:FindFirstChild("⭐ Advanced Tesla Resetter ⭐") or Tycoon:FindFirstChild("⭐ Spooky Tesla Resetter ⭐") or Tycoon:FindFirstChild("Tesla Refuter") or Tycoon:FindFirstChild("⭐ Advanced Tesla Refuter ⭐") 
-	
 	BoostOre(Ore)
 	if Dae and Ore and OreBoostActive then --checks if Daestrophe is on the base
 		if TestingMode then
@@ -1080,8 +1099,10 @@ function Reset(Ore)
 			firetouchinterest(Ore,Dae.Model.Upgrade,1)
 		else
 			for i=1,2 do 
-				Ore.CFrame = Dae.Model.Upgrade.CFrame
-				wait(0.01)
+				if Dae and Dae:FindFirstChild("Model") then
+					Ore.CFrame = Dae.Model.Upgrade.CFrame
+					wait(0.01)
+				end
 			end
 		end
 
@@ -1102,8 +1123,10 @@ function Reset(Ore)
 			firetouchinterest(Ore,Sac.Model.Upgrade,1)
 		else
 			for i=1,2 do 
-				Ore.CFrame = Sac.Model.Upgrade.CFrame
-				wait(0.01)
+				if Sac and Sac:FindFirstChild("Model") then
+					Ore.CFrame = Sac.Model.Upgrade.CFrame
+					wait(0.01)
+				end
 			end
 		end
 		BoostOre(Ore)
@@ -1122,8 +1145,10 @@ function Reset(Ore)
 			firetouchinterest(Ore,Star.Model.Upgrade,1)
 		else
 			for i=1,2 do 
-				Ore.CFrame = Star.Model.Upgrade.CFrame
-				wait(0.01)
+				if Star and Star:FindFirstChild("Model") then
+					Ore.CFrame = Star.Model.Upgrade.CFrame
+					wait(0.01)
+				end
 			end
 		end
 		BoostOre(Ore)
@@ -1142,8 +1167,10 @@ function Reset(Ore)
 			firetouchinterest(Ore,Tes.Model.Upgrade,1)
 		else
 			for i=1,2 do 
-				Ore.CFrame = Tes.Model.Upgrade.CFrame
-				wait(0.01)
+				if Tes and Tes:FindFirstChild("Model") then
+					Ore.CFrame = Tes.Model.Upgrade.CFrame
+					wait(0.01)
+				end
 			end
 		end
 		BoostOre(Ore)
@@ -1216,7 +1243,7 @@ function StartOreBoost(Ore)
 			end 
 			local Info = MoneyLoopables[MoneyLoop.Name]
 			repeat 
-				if not Ore then
+				if not Ore or (Info.MinVal and  Ore.Cash.Value < Info.MinVal) then
 					break
 				end
 				if OreBoost == false or OreBoostActive == false then break end
@@ -1479,3 +1506,11 @@ while true do
 	end 
 
 end
+
+
+
+
+--<font color="rgb(240,235,80)">[MX6] </font> <font color="rgb(255, 211, 35)">[#1] </font>
+Color3.fromRGB(240,235,80)
+
+game.Players.LocalPlayer.CameraMaxZoomDistance = 500
