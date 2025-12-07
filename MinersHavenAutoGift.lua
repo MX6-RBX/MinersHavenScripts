@@ -144,12 +144,14 @@ local EspThresholdSlider = AutoPage:CreateSlider({
 
 if Ores then
 	Ores.ChildAdded:Connect(function(Ore)
+		if  not Ore:FindFirstChild("PresentValue") then return end
+		
 		Ore.PresentValue.Changed:Connect(function()
 			if ESPValue >0 and Ore.PresentValue.Value >= ESPValue then
 				AddEsp(Ore)
 			end
 		end)
-		
+
 	end)
 end
 
