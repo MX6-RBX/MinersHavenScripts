@@ -142,11 +142,19 @@ local EspThresholdSlider = AutoPage:CreateSlider({
 	end,
 })
 
+if Ores then
+	Ores.ChildAdded:Connect(function(Ore)
+		Ore.PresentValue.Changed:Connect(function()
+			if ESPValue >0 and Ore.PresentValue.Value >= ESPValue then
+				AddEsp(Ore)
+			end
+		end)
+		
+	end)
+end
+
 game.Workspace.ChildAdded:Connect(function(Child)
-	if Child.Name == "CreatedPresent" and (Child.Position-Furnace.Position).Magnitude <= 20 then
-		if Child.PresentValue.Value >= ESPValue then
-			AddEsp(Child)
-		end
+	if Child.Name == "CreatedPresent" and (Child.Position-Tycoon.Base.Position).Magnitude <= 230 then
 		if not AutoExchangeGift then return end
 		Child.ProximityPrompt.RequiresLineOfSight = false
 		wait(0.5)
