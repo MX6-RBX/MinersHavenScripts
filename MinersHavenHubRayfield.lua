@@ -408,6 +408,13 @@ local function HandleLife(Life)
 	return tostring(comma(Life))..Suffix
 end
 
+local function KillOres()
+	for i,v in Ores:GetChildren() do
+		if v and v:IsA("Part") then
+			v.CFrame = Tycoon.Base.CFrame
+		end
+	end
+end
 
 local BoostPage = MainUi:CreateTab("Boost Options", 130772689610761) 
 local AutoRebirthSection = BoostPage:CreateSection("Auto Rebirth")
@@ -652,6 +659,16 @@ local RezieAllButton = BoostPage:CreateButton({
 			print("Resizing all upgraders")
 		end
 		ResizeUpgraders()
+	end,
+})
+
+local KillOresButton = BoostPage:CreateButton({
+	Name = "Kill Ores",
+	Callback = function()
+		if TestingMode then
+			print("Killing all ores")
+		end
+		KillOres()
 	end,
 })
 
@@ -1501,13 +1518,4 @@ while true do
 	if OpenBoxes and  Box and Box.Value >0  then
 		game.ReplicatedStorage.MysteryBox:InvokeServer(Box.Name)	
 	end 
-
 end
-
-
-
-
---<font color="rgb(240,235,80)">[MX6] </font> <font color="rgb(255, 211, 35)">[#1] </font>
-Color3.fromRGB(240,235,80)
-
-game.Players.LocalPlayer.CameraMaxZoomDistance = 500
