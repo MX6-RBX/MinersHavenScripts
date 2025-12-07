@@ -1446,7 +1446,7 @@ Chat.OnIncomingMessage = function(Message)
 				end
 			end
 			if string.find(Message.Text,"was born")then
-				local CurrentLifeText = tostring(Player.Rebirths.Value+1)
+				local CurrentLifeText = comma(Player.Rebirths.Value+1)
 				local NewLife = HandleLife(tonumber(Player.Rebirths.Value+LifeVal))
 				if SpoofLife then
 					NewText = string.gsub(NewText,CurrentLifeText.."(..)",NewLife)
@@ -1506,11 +1506,3 @@ while true do
 	end 
 
 end
-
-
-
-
---<font color="rgb(240,235,80)">[MX6] </font> <font color="rgb(255, 211, 35)">[#1] </font>
-Color3.fromRGB(240,235,80)
-
-game.Players.LocalPlayer.CameraMaxZoomDistance = 500
