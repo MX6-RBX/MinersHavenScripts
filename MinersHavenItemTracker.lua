@@ -489,14 +489,14 @@ local function AddNewButton(Item,Amount)
 		if TierId == 36 or TierId == 38 then
 			local UiS = UIStroke:Clone()
 			UiS.Parent = Clone
-			UiS.Color = Tier.TierColor.Value		
+			UiS.Color = Color3.fromRGB(125, 125, 62)		
 		end  
 		ButtonCount.Value  +=1
 		if Item:FindFirstChild("RebornChance") and Item.RebornChance.Value <1 then
 			local Stroke = Instance.new("UIStroke")
 			Stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 			Stroke.Color = Color3.fromRGB(255, 0, 255)
-			Stroke.Parent = game.workspace
+			Stroke.Parent = Clone
 			Stroke.Thickness = 3
 		end
 		Clone.Visible = true
