@@ -306,7 +306,11 @@ local function AddTracker(ore)
 	Ui.Enabled = OreTracking
 	table.insert(OreTrackers,Ui)
 	ore.Cash.Changed:Connect(function()
-		Ui.Box.Text = "$"..shorten(ore.Cash.Value)
+		local Val = 0
+		if ore and ore.Cash then
+			Val = ore.Cash.Value or 0
+		end
+		Ui.Box.Text = "$"..shorten(Val)
 	end)
 end
 
@@ -1518,4 +1522,5 @@ while true do
 	if OpenBoxes and  Box and Box.Value >0  then
 		game.ReplicatedStorage.MysteryBox:InvokeServer(Box.Name)	
 	end 
+
 end
