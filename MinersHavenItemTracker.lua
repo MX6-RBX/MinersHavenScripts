@@ -492,7 +492,7 @@ local function AddNewButton(Item,Amount)
 			UiS.Color = Color3.fromRGB(125, 125, 62)		
 		end  
 		ButtonCount.Value  +=1
-		if Item:FindFirstChild("RebornChance") and Item.RebornChance.Value <1 then
+		if Item:FindFirstChild("RebornChance") and tonumber(Item.RebornChance.Value) < 1 then
 			local Stroke = Instance.new("UIStroke")
 			Stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 			Stroke.Color = Color3.fromRGB(255, 0, 255)
