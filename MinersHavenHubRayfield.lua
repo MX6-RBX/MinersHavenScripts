@@ -1,6 +1,3 @@
-
-
-
 local Chat = game:GetService("TextChatService")
 local channel = Chat:WaitForChild('TextChannels').RBXGeneral
 local Player = game.Players.LocalPlayer
@@ -882,7 +879,7 @@ local CharJump = OtherOptionsPage:CreateSlider({
 	Increment = 1,
 	Suffix = "Jump Power",
 	CurrentValue = 50,
-	Flag = "WalkSpeed", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+	Flag = "JumpPower", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
 	Callback = function(Value)
 		if TestingMode then
 			print("Player Jump set to",Value)
@@ -1506,3 +1503,11 @@ while true do
 	end 
 
 end
+
+
+
+
+--<font color="rgb(240,235,80)">[MX6] </font> <font color="rgb(255, 211, 35)">[#1] </font>
+Color3.fromRGB(240,235,80)
+
+game.Players.LocalPlayer.CameraMaxZoomDistance = 500
