@@ -84,8 +84,8 @@ local MainUi = Rayfield:CreateWindow({
 
 	ConfigurationSaving = {
 		Enabled = false,
-		FolderName = nil, 
-		FileName = "MX6MHHubSettings"
+		FolderName = "MX6 Hub Settings", 
+		FileName = "MinersHavenAutoGiftSettings"
 	},
 
 	Discord = {
