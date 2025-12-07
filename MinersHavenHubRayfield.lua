@@ -12,7 +12,7 @@ local MainUi = Rayfield:CreateWindow({
 
 	ToggleUIKeybind = "K",
 
-	DisableRayfieldPrompts = false,
+	DisableRayfieldPrompts = true,
 	DisableBuildWarnings = false, 
 
 	ConfigurationSaving = {
@@ -38,6 +38,48 @@ local MainUi = Rayfield:CreateWindow({
 		Key = {"FreeKeys"}
 	}
 })
+
+local  CustomThemeTable = {
+	TextColor = Color3.fromRGB(240, 240, 240),
+
+	Background = Color3.fromRGB(25, 25, 25),
+	Topbar = Color3.fromRGB(34, 34, 34),
+	Shadow = Color3.fromRGB(20, 20, 20),
+
+	NotificationBackground = Color3.fromRGB(20, 20, 20),
+	NotificationActionsBackground = Color3.fromRGB(230, 230, 230),
+
+	TabBackground = Color3.fromRGB(80, 80, 80),
+	TabStroke = Color3.fromRGB(85, 85, 85),
+	TabBackgroundSelected = Color3.fromRGB(210, 210, 210),
+	TabTextColor = Color3.fromRGB(240, 240, 240),
+	SelectedTabTextColor = Color3.fromRGB(50, 50, 50),
+
+	ElementBackground = Color3.fromRGB(35, 35, 35),
+	ElementBackgroundHover = Color3.fromRGB(40, 40, 40),
+	SecondaryElementBackground = Color3.fromRGB(25, 25, 25),
+	ElementStroke = Color3.fromRGB(50, 50, 50),
+	SecondaryElementStroke = Color3.fromRGB(40, 40, 40),
+
+	SliderBackground = Color3.fromRGB(50, 138, 220),
+	SliderProgress = Color3.fromRGB(50, 138, 220),
+	SliderStroke = Color3.fromRGB(58, 163, 255),
+
+	ToggleBackground = Color3.fromRGB(30, 30, 30),
+	ToggleEnabled = Color3.fromRGB(0, 146, 214),
+	ToggleDisabled = Color3.fromRGB(100, 100, 100),
+	ToggleEnabledStroke = Color3.fromRGB(0, 170, 255),
+	ToggleDisabledStroke = Color3.fromRGB(125, 125, 125),
+	ToggleEnabledOuterStroke = Color3.fromRGB(100, 100, 100),
+	ToggleDisabledOuterStroke = Color3.fromRGB(65, 65, 65),
+
+	DropdownSelected = Color3.fromRGB(40, 40, 40),
+	DropdownUnselected = Color3.fromRGB(30, 30, 30),
+
+	InputBackground = Color3.fromRGB(30, 30, 30),
+	InputStroke = Color3.fromRGB(65, 65, 65),
+	PlaceholderColor = Color3.fromRGB(178, 178, 178)
+}
 
 if not Player:FindFirstChild("BaseDataLoaded") then 
 	Rayfield:Notify({
@@ -1006,17 +1048,344 @@ local SpoofedLifeToggle = SpoofPage:CreateToggle({
 })
 
 local Options = MainUi:CreateTab("UI Options",6031280882)
-local Dropdown = Options:CreateDropdown({
+local UiOptionsSection = SpoofPage:CreateSection("UI Theme")
+local ThemeDropdown = Options:CreateDropdown({
 	Name = "GUI Theme",
-	Options = {"Default","AmberGlow","Amethyst","Bloom","DarkBlue","Green","Light","Ocean","Serenity"},
+	Options = {"Default","AmberGlow","Amethyst","Bloom","DarkBlue","Green","Light","Ocean","Serenity","Custom"},
 	CurrentOption = {"Default"},
 	MultipleOptions = false,
 	Flag = "GUITheme", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
 	Callback = function(Options)
 		print(Options)
-		MainUi.ModifyTheme(Options[1])
+		if Options[1] == "Custom" then
+			MainUi.ModifyTheme(CustomThemeTable)
+		else
+			MainUi.ModifyTheme(Options[1])
+		end
 	end,
 })
+
+local AdvUiOptionsSection = SpoofPage:CreateSection("Advanced UI Theme")
+local Paragraph = Options:CreateParagraph({Title = "<b>Advanced Color Editing</b>", Content = "This allows for individual control of each color for parts of the gui"})
+-- Text Color
+local TextColorPicker = Options:CreateColorPicker({
+	Name = "Text Color",
+	Color = Color3.fromRGB(240, 240, 240),
+	Flag = "TextColor",
+	Callback = function(Value)
+		CustomThemeTable.TextColor = Value or Color3.fromRGB(240, 240, 240)
+	end
+})
+
+-- Background
+local BackgroundPicker = Options:CreateColorPicker({
+	Name = "Background",
+	Color = Color3.fromRGB(25, 25, 25),
+	Flag = "Background",
+	Callback = function(Value)
+		CustomThemeTable.Background = Value or Color3.fromRGB(25, 25, 25)
+	end
+})
+
+-- Topbar
+local TopbarPicker = Options:CreateColorPicker({
+	Name = "Topbar",
+	Color = Color3.fromRGB(34, 34, 34),
+	Flag = "Topbar",
+	Callback = function(Value)
+		CustomThemeTable.Topbar = Value or Color3.fromRGB(34, 34, 34)
+	end
+})
+
+-- Shadow
+local ShadowPicker = Options:CreateColorPicker({
+	Name = "Shadow",
+	Color = Color3.fromRGB(20, 20, 20),
+	Flag = "Shadow",
+	Callback = function(Value)
+		CustomThemeTable.Shadow = Value or Color3.fromRGB(20, 20, 20)
+	end
+})
+
+-- Notification Background
+local NotificationBackgroundPicker = Options:CreateColorPicker({
+	Name = "Notification Background",
+	Color = Color3.fromRGB(20, 20, 20),
+	Flag = "NotificationBackground",
+	Callback = function(Value)
+		CustomThemeTable.NotificationBackground = Value or Color3.fromRGB(20, 20, 20)
+	end
+})
+
+-- Notification Actions Background
+local NotificationActionsBackgroundPicker = Options:CreateColorPicker({
+	Name = "Notification Actions Background",
+	Color = Color3.fromRGB(230, 230, 230),
+	Flag = "NotificationActionsBackground",
+	Callback = function(Value)
+		CustomThemeTable.NotificationActionsBackground = Value or Color3.fromRGB(230, 230, 230)
+	end
+})
+
+-- Tab Background
+local TabBackgroundPicker = Options:CreateColorPicker({
+	Name = "Tab Background",
+	Color = Color3.fromRGB(80, 80, 80),
+	Flag = "TabBackground",
+	Callback = function(Value)
+		CustomThemeTable.TabBackground = Value or Color3.fromRGB(80, 80, 80)
+	end
+})
+
+-- Tab Stroke
+local TabStrokePicker = Options:CreateColorPicker({
+	Name = "Tab Stroke",
+	Color = Color3.fromRGB(85, 85, 85),
+	Flag = "TabStroke",
+	Callback = function(Value)
+		CustomThemeTable.TabStroke = Value or Color3.fromRGB(85, 85, 85)
+	end
+})
+
+-- Selected Tab Background
+local TabBackgroundSelectedPicker = Options:CreateColorPicker({
+	Name = "Selected Tab Background",
+	Color = Color3.fromRGB(210, 210, 210),
+	Flag = "TabBackgroundSelected",
+	Callback = function(Value)
+		CustomThemeTable.TabBackgroundSelected = Value or Color3.fromRGB(210, 210, 210)
+	end
+})
+
+-- Tab Text Color
+local TabTextColorPicker = Options:CreateColorPicker({
+	Name = "Tab Text Color",
+	Color = Color3.fromRGB(240, 240, 240),
+	Flag = "TabTextColor",
+	Callback = function(Value)
+		CustomThemeTable.TabTextColor = Value or Color3.fromRGB(240, 240, 240)
+	end
+})
+
+-- Selected Tab Text Color
+local SelectedTabTextColorPicker = Options:CreateColorPicker({
+	Name = "Selected Tab Text Color",
+	Color = Color3.fromRGB(50, 50, 50),
+	Flag = "SelectedTabTextColor",
+	Callback = function(Value)
+		CustomThemeTable.SelectedTabTextColor = Value or Color3.fromRGB(50, 50, 50)
+	end
+})
+
+-- Element Background
+local ElementBackgroundPicker = Options:CreateColorPicker({
+	Name = "Element Background",
+	Color = Color3.fromRGB(35, 35, 35),
+	Flag = "ElementBackground",
+	Callback = function(Value)
+		CustomThemeTable.ElementBackground = Value or Color3.fromRGB(35, 35, 35)
+	end
+})
+
+-- Element Background Hover
+local ElementBackgroundHoverPicker = Options:CreateColorPicker({
+	Name = "Element Background Hover",
+	Color = Color3.fromRGB(40, 40, 40),
+	Flag = "ElementBackgroundHover",
+	Callback = function(Value)
+		CustomThemeTable.ElementBackgroundHover = Value or Color3.fromRGB(40, 40, 40)
+	end
+})
+
+-- Secondary Element Background
+local SecondaryElementBackgroundPicker = Options:CreateColorPicker({
+	Name = "Secondary Element Background",
+	Color = Color3.fromRGB(25, 25, 25),
+	Flag = "SecondaryElementBackground",
+	Callback = function(Value)
+		CustomThemeTable.SecondaryElementBackground = Value or Color3.fromRGB(25, 25, 25)
+	end
+})
+
+-- Element Stroke
+local ElementStrokePicker = Options:CreateColorPicker({
+	Name = "Element Stroke",
+	Color = Color3.fromRGB(50, 50, 50),
+	Flag = "ElementStroke",
+	Callback = function(Value)
+		CustomThemeTable.ElementStroke = Value or Color3.fromRGB(50, 50, 50)
+	end
+})
+
+-- Secondary Element Stroke
+local SecondaryElementStrokePicker = Options:CreateColorPicker({
+	Name = "Secondary Element Stroke",
+	Color = Color3.fromRGB(40, 40, 40),
+	Flag = "SecondaryElementStroke",
+	Callback = function(Value)
+		CustomThemeTable.SecondaryElementStroke = Value or Color3.fromRGB(40, 40, 40)
+	end
+})
+
+-- Slider Background
+local SliderBackgroundPicker = Options:CreateColorPicker({
+	Name = "Slider Background",
+	Color = Color3.fromRGB(50, 138, 220),
+	Flag = "SliderBackground",
+	Callback = function(Value)
+		CustomThemeTable.SliderBackground = Value or Color3.fromRGB(50, 138, 220)
+	end
+})
+
+-- Slider Progress
+local SliderProgressPicker = Options:CreateColorPicker({
+	Name = "Slider Progress",
+	Color = Color3.fromRGB(50, 138, 220),
+	Flag = "SliderProgress",
+	Callback = function(Value)
+		CustomThemeTable.SliderProgress = Value or Color3.fromRGB(50, 138, 220)
+	end
+})
+
+-- Slider Stroke
+local SliderStrokePicker = Options:CreateColorPicker({
+	Name = "Slider Stroke",
+	Color = Color3.fromRGB(58, 163, 255),
+	Flag = "SliderStroke",
+	Callback = function(Value)
+		CustomThemeTable.SliderStroke = Value or Color3.fromRGB(58, 163, 255)
+	end
+})
+
+-- Toggle Background
+local ToggleBackgroundPicker = Options:CreateColorPicker({
+	Name = "Toggle Background",
+	Color = Color3.fromRGB(30, 30, 30),
+	Flag = "ToggleBackground",
+	Callback = function(Value)
+		CustomThemeTable.ToggleBackground = Value or Color3.fromRGB(30, 30, 30)
+	end
+})
+
+-- Toggle Enabled
+local ToggleEnabledPicker = Options:CreateColorPicker({
+	Name = "Toggle Enabled",
+	Color = Color3.fromRGB(0, 146, 214),
+	Flag = "ToggleEnabled",
+	Callback = function(Value)
+		CustomThemeTable.ToggleEnabled = Value or Color3.fromRGB(0, 146, 214)
+	end
+})
+
+-- Toggle Disabled
+local ToggleDisabledPicker = Options:CreateColorPicker({
+	Name = "Toggle Disabled",
+	Color = Color3.fromRGB(100, 100, 100),
+	Flag = "ToggleDisabled",
+	Callback = function(Value)
+		CustomThemeTable.ToggleDisabled = Value or Color3.fromRGB(100, 100, 100)
+	end
+})
+
+-- Toggle Enabled Stroke
+local ToggleEnabledStrokePicker = Options:CreateColorPicker({
+	Name = "Toggle Enabled Stroke",
+	Color = Color3.fromRGB(0, 170, 255),
+	Flag = "ToggleEnabledStroke",
+	Callback = function(Value)
+		CustomThemeTable.ToggleEnabledStroke = Value or Color3.fromRGB(0, 170, 255)
+	end
+})
+
+-- Toggle Disabled Stroke
+local ToggleDisabledStrokePicker = Options:CreateColorPicker({
+	Name = "Toggle Disabled Stroke",
+	Color = Color3.fromRGB(125, 125, 125),
+	Flag = "ToggleDisabledStroke",
+	Callback = function(Value)
+		CustomThemeTable.ToggleDisabledStroke = Value or Color3.fromRGB(125, 125, 125)
+	end
+})
+
+-- Toggle Enabled Outer Stroke
+local ToggleEnabledOuterStrokePicker = Options:CreateColorPicker({
+	Name = "Toggle Enabled Outer Stroke",
+	Color = Color3.fromRGB(100, 100, 100),
+	Flag = "ToggleEnabledOuterStroke",
+	Callback = function(Value)
+		CustomThemeTable.ToggleEnabledOuterStroke = Value or Color3.fromRGB(100, 100, 100)
+	end
+})
+
+-- Toggle Disabled Outer Stroke
+local ToggleDisabledOuterStrokePicker = Options:CreateColorPicker({
+	Name = "Toggle Disabled Outer Stroke",
+	Color = Color3.fromRGB(65, 65, 65),
+	Flag = "ToggleDisabledOuterStroke",
+	Callback = function(Value)
+		CustomThemeTable.ToggleDisabledOuterStroke = Value or Color3.fromRGB(65, 65, 65)
+	end
+})
+
+-- Dropdown Selected
+local DropdownSelectedPicker = Options:CreateColorPicker({
+	Name = "Dropdown Selected",
+	Color = Color3.fromRGB(40, 40, 40),
+	Flag = "DropdownSelected",
+	Callback = function(Value)
+		CustomThemeTable.DropdownSelected = Value or Color3.fromRGB(40, 40, 40)
+	end
+})
+
+-- Dropdown Unselected
+local DropdownUnselectedPicker = Options:CreateColorPicker({
+	Name = "Dropdown Unselected",
+	Color = Color3.fromRGB(30, 30, 30),
+	Flag = "DropdownUnselected",
+	Callback = function(Value)
+		CustomThemeTable.DropdownUnselected = Value or Color3.fromRGB(30, 30, 30)
+	end
+})
+
+-- Input Background
+local InputBackgroundPicker = Options:CreateColorPicker({
+	Name = "Input Background",
+	Color = Color3.fromRGB(30, 30, 30),
+	Flag = "InputBackground",
+	Callback = function(Value)
+		CustomThemeTable.InputBackground = Value or Color3.fromRGB(30, 30, 30)
+	end
+})
+
+-- Input Stroke
+local InputStrokePicker = Options:CreateColorPicker({
+	Name = "Input Stroke",
+	Color = Color3.fromRGB(65, 65, 65),
+	Flag = "InputStroke",
+	Callback = function(Value)
+		CustomThemeTable.InputStroke = Value or Color3.fromRGB(65, 65, 65)
+	end
+})
+
+-- Placeholder Color
+local PlaceholderColorPicker = Options:CreateColorPicker({
+	Name = "Placeholder Color",
+	Color = Color3.fromRGB(178, 178, 178),
+	Flag = "PlaceholderColor",
+	Callback = function(Value)
+		CustomThemeTable.PlaceholderColor = Value or Color3.fromRGB(178, 178, 178)
+	end
+})
+
+local ApplyCustomThemeButton = Options:CreateButton({
+	Name = "Apply Custom theme colors",
+	Callback = function()
+		MainUi.ModifyTheme(CustomThemeTable)
+		ThemeDropdown:Set({"Custom"})
+	end,
+})
+
+
 
 local MaxRebirthPrice = 1e241 -- 10 * 10^240 = 10^241
 local function RebornPrice(Player)
