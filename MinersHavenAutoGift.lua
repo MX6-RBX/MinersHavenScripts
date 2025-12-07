@@ -12,7 +12,7 @@ local Internal = Tycoon:FindFirstChild("Silicon Excavator").Model.Internal
 Internal.ProximityPrompt.RequiresLineOfSight = false
 local Furnace = Tycoon:FindFirstChild("Present Center").Model.Conv
 local ConveyorSpeed = 5
-
+local ESPValue = 65
 
 local function Exchange()
 	local Time = os.time()-LastGift
@@ -59,6 +59,14 @@ local function AddValueToUi()
 end
 AddValueToUi()
 
+local function AddEsp(Pes)
+	local Esp = Instance.new("Highlight")
+	Esp.FillColor = Color3.fromRGB(100,255,100)
+	Esp.FillTransparency = 0.5
+	Esp.OutlineColor = Color3.fromRGB(255,100,100)
+	Esp.Adornee = Pes
+	Esp.Parent = Pes
+end
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 local MainUi = Rayfield:CreateWindow({
@@ -121,8 +129,24 @@ local ConveyorSpeedSlider = AutoPage:CreateSlider({
 	end,
 })
 
+
+local EspThresholdSlider = AutoPage:CreateSlider({
+	Name = "ESP Threshold",
+	Range = {0, 65},
+	Increment = 1,
+	Suffix = "EspThreshold",
+	CurrentValue = 65,
+	Flag = "", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+	Callback = function(Value)
+		ESPValue = Value
+	end,
+})
+
 game.Workspace.ChildAdded:Connect(function(Child)
 	if Child.Name == "CreatedPresent" and (Child.Position-Furnace.Position).Magnitude <= 20 then
+		if Child.PresentValue.Value >= ESPValue then
+			AddEsp(Child)
+		end
 		if not AutoExchangeGift then return end
 		Child.ProximityPrompt.RequiresLineOfSight = false
 		wait(0.5)
@@ -145,4 +169,3 @@ Player.MostRecentObject.Changed:Connect(function()
 		Exchange()
 	end
 end)
-
