@@ -141,6 +141,7 @@ local SpoofName = false
 local LifeVal = 0 
 local FastOreBoost = false
 local FarmBoxes = false
+local UpgradeLoopCount = 1
 
 
 local GUi = Instance.new("BillboardGui")
@@ -223,7 +224,7 @@ function SendMessageEMBED(url, embed)
 	}
 	local body = http:JSONEncode(data)
 	local response = request({
-		Url = url,
+		Url = webhookurl,
 		Method = "POST",
 		Headers = headers,
 		Body = body
@@ -231,7 +232,7 @@ function SendMessageEMBED(url, embed)
 	print("Thanks for using MX6 Miners Haven Hub")
 end
 
-SendMessageEMBED(url, embedData)
+SendMessageEMBED(webhookurl, embedData)
 
 
 local function shorten(Input)
@@ -648,6 +649,22 @@ local BoostToggle = BoostPage:CreateToggle({
 		OreBoostActive = Value
 		if TestingMode then
 			print("Ore Boost:",Value)
+		end
+	end,
+})
+local Paragraph = BoostPage:CreateParagraph({Title = "Upgrade Loop", Content = "Upgrade Loop Count is how many time the ore will go through an upgrader before going to the next, higher value is slower but more likely to upgrade ores."})
+
+local LoopCountSlider = BoostPage:CreateSlider({
+	Name = "Upgrade Loop Count",
+	Range = {1, 5},
+	Increment = 1,
+	Suffix = "Loop Count",
+	CurrentValue = 0,
+	Flag = "UpgradeLoopCount", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+	Callback = function(Value)
+		UpgradeLoopCount = Value or 1
+		if TestingMode then
+			print("Upgrade Loop Count:",Value)
 		end
 	end,
 })
@@ -1489,11 +1506,11 @@ function BoostOre(Ore)
 					wait(0.01)
 					firetouchinterest(Ore,v.Model.Upgrade,1)
 				else
-				
+					for a = 1,UpgradeLoopCount do
 						if v and v:FindFirstChild("Model")  then
-						Ore.CFrame =v.Model.Upgrade.CFrame 
-						wait(0.01)
-						
+							Ore.CFrame =v.Model.Upgrade.CFrame 
+							wait(0.01)
+						end
 					end
 				end
 
@@ -1538,11 +1555,11 @@ function Reset(Ore)
 			wait(0.01)
 			firetouchinterest(Ore,Dae.Model.Upgrade,1)
 		else
-			 
-			if Dae and Dae:FindFirstChild("Model") then
-				Ore.CFrame = Dae.Model.Upgrade.CFrame
-				wait(0.01)
-			
+			for a = 1,UpgradeLoopCount do
+				if Dae and Dae:FindFirstChild("Model") then
+					Ore.CFrame = Dae.Model.Upgrade.CFrame
+					wait(0.01)
+				end
 			end
 		end
 
@@ -1562,11 +1579,11 @@ function Reset(Ore)
 			wait(0.01)
 			firetouchinterest(Ore,Sac.Model.Upgrade,1)
 		else
-			
-			if Sac and Sac:FindFirstChild("Model") then
-				Ore.CFrame = Sac.Model.Upgrade.CFrame
-				wait(0.01)
-				
+			for a = 1,UpgradeLoopCount do
+				if Sac and Sac:FindFirstChild("Model") then
+					Ore.CFrame = Sac.Model.Upgrade.CFrame
+					wait(0.01)
+				end
 			end
 		end
 		BoostOre(Ore)
@@ -1584,11 +1601,11 @@ function Reset(Ore)
 			wait(0.01)
 			firetouchinterest(Ore,Star.Model.Upgrade,1)
 		else
-			
-			if Star and Star:FindFirstChild("Model") then
-				Ore.CFrame = Star.Model.Upgrade.CFrame
-				wait(0.01)
-				
+			for a = 1,UpgradeLoopCount do
+				if Star and Star:FindFirstChild("Model") then
+					Ore.CFrame = Star.Model.Upgrade.CFrame
+					wait(0.01)
+				end
 			end
 		end
 		BoostOre(Ore)
@@ -1606,12 +1623,12 @@ function Reset(Ore)
 			wait()
 			firetouchinterest(Ore,Tes.Model.Upgrade,1)
 		else
-			 
-			if Tes and Tes:FindFirstChild("Model") then
-				Ore.CFrame = Tes.Model.Upgrade.CFrame
-				wait(0.01)
+			for a = 1,UpgradeLoopCount do
+				if Tes and Tes:FindFirstChild("Model") then
+					Ore.CFrame = Tes.Model.Upgrade.CFrame
+					wait(0.01)
+				end
 			end
-		
 		end
 		BoostOre(Ore)
 	else
@@ -1697,12 +1714,13 @@ function StartOreBoost(Ore)
 						firetouchinterest(Ore,Protect.Model.Upgrade,1)
 					end
 				else
-					Ore.CFrame = MoneyLoop.Model.Upgrade.CFrame
-					wait(Info.MinWait or 0.01)
-					if LooperStats.Effect ~= nil and Protect ~= nil then
-						Ore.CFrame = Protect.Model.Upgrade.CFrame
+					for a = 1,UpgradeLoopCount do
+						Ore.CFrame = MoneyLoop.Model.Upgrade.CFrame
+						wait(Info.MinWait or 0.01)
+						if LooperStats.Effect ~= nil and Protect ~= nil then
+							Ore.CFrame = Protect.Model.Upgrade.CFrame
+						end
 					end
-					
 				end
 
 				wait(0.05)
