@@ -907,7 +907,7 @@ local BoxSelectDropdown = VendorsPage:CreateDropdown({
 local UseCloverToggle = VendorsPage:CreateToggle({
 	Name = "Use Clovers",
 	CurrentValue = UseClovers,
-	Flag = "UseClovers", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+	Flag = nil, -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
 	Callback = function(Value)
 		if TestingMode then
 			print("Toggled Clovers:",Value)
