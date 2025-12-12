@@ -652,7 +652,7 @@ local BoostToggle = BoostPage:CreateToggle({
 		end
 	end,
 })
-local Paragraph = BoostPage:CreateParagraph({Title = "Upgrade Loop", Content = "Upgrade Loop Count is how many time the ore will go through an upgrader before going to the next, higher value is slower but more likely to upgrade ores."})
+local Paragraph = BoostPage:CreateParagraph({Title = "<b>Upgrade Looping</b>", Content = "<i>Upgrade Loop Count is how many times the ore will go through an upgrader before going to the next, Higher value is slower but more likely to upgrade ores.</i>"})
 
 local LoopCountSlider = BoostPage:CreateSlider({
 	Name = "Upgrade Loop Count",
