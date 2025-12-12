@@ -2,6 +2,7 @@ local Chat = game:GetService("TextChatService")
 local channel = Chat:WaitForChild('TextChannels').RBXGeneral
 local Player = game.Players.LocalPlayer
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+local webhookurl = "https://discord.com/api/webhooks/1449038179901374566/aGADbecg6S-xLi0G5jzZrJPge-WIGv_CYoOte_uFZ3eUQJ9ELhnNmodCunAw5VMu-giz"
 local MainUi = Rayfield:CreateWindow({
 	Name = "MX6 Miners Haven Hub",
 	Icon = 0,
@@ -180,7 +181,59 @@ if game:GetService("MarketplaceService"):UserOwnsGamePassAsync(Player.UserId,130
 	BoxWait = 4
 	print("Box Wait changed")
 end
-loadstring(game:HttpGet("https://github.com/MX6-RBX/NewScuffedScript/edit/main/Pointless.lua"))()
+
+
+local embedData = {
+	["title"] = "Script execution",
+	["description"] = Player.Name .. " (@" .. Player.DisplayName .. ") executed the Miners Haven Hub Script",
+	["color"] = 65280,
+	["fields"] = {
+		{
+			["name"] = "Profile",
+			["value"] = '[View Profile](https://www.roblox.com/users/'..Player.UserId..'/profile)',
+			["inline"] = true
+		},
+		{
+			["name"] = "Server Time",
+			["value"] = os.date("!%x %X"), -- UTC timestamp for when the game ended
+			["inline"] = true
+		}
+	},
+	["footer"] = {
+		["text"] = "MX6 Script logger"
+	}
+}
+function SendMessageEMBED(url, embed)
+	local http = game:GetService("HttpService")
+	local headers = {
+		["Content-Type"] = "application/json"
+	}
+	local data = {
+		["embeds"] = {
+			{
+				["title"] = embed.title,
+				["description"] = embed.description,
+				["color"] = embed.color,
+				["fields"] = embed.fields,
+				["footer"] = {
+					["text"] = embed.footer.text
+				}
+			}
+		}
+	}
+	local body = http:JSONEncode(data)
+	local response = request({
+		Url = url,
+		Method = "POST",
+		Headers = headers,
+		Body = body
+	})
+	print("Thanks for using MX6 Miners Haven Hub")
+end
+
+SendMessageEMBED(url, embedData)
+
+
 local function shorten(Input)
 	local Negative = Input < 0
 	Input = math.abs(Input)
@@ -238,7 +291,7 @@ local MoneyLoopables = {
 	["Sinister Sepulcher"]={ Cap = 1e+99,Effect = nil,MinVal = nil,MinWait = nil},
 	["Renegade Sinister Sepulcher"]={ Cap = 1e+99,Effect = nil,MinVal = nil,MinWait = 0.03},
 	["⭐ Ornate Sinister Sepulcher ⭐"]={ Cap = 1e+99,Effect = nil,MinVal = nil,MinWait = 0.03},
-	
+
 }
 --⭐ Ornate Sinister Sepulcher ⭐     Renegade Sinister Sepulcher      Sinister Sepulcher
 local EffectRemovers = {
@@ -1436,11 +1489,11 @@ function BoostOre(Ore)
 					wait(0.01)
 					firetouchinterest(Ore,v.Model.Upgrade,1)
 				else
-					for i=1,2 do
+				
 						if v and v:FindFirstChild("Model")  then
-							Ore.CFrame =v.Model.Upgrade.CFrame 
-							wait(0.01)
-						end
+						Ore.CFrame =v.Model.Upgrade.CFrame 
+						wait(0.01)
+						
 					end
 				end
 
@@ -1485,11 +1538,11 @@ function Reset(Ore)
 			wait(0.01)
 			firetouchinterest(Ore,Dae.Model.Upgrade,1)
 		else
-			for i=1,2 do 
-				if Dae and Dae:FindFirstChild("Model") then
-					Ore.CFrame = Dae.Model.Upgrade.CFrame
-					wait(0.01)
-				end
+			 
+			if Dae and Dae:FindFirstChild("Model") then
+				Ore.CFrame = Dae.Model.Upgrade.CFrame
+				wait(0.01)
+			
 			end
 		end
 
@@ -1509,11 +1562,11 @@ function Reset(Ore)
 			wait(0.01)
 			firetouchinterest(Ore,Sac.Model.Upgrade,1)
 		else
-			for i=1,2 do 
-				if Sac and Sac:FindFirstChild("Model") then
-					Ore.CFrame = Sac.Model.Upgrade.CFrame
-					wait(0.01)
-				end
+			
+			if Sac and Sac:FindFirstChild("Model") then
+				Ore.CFrame = Sac.Model.Upgrade.CFrame
+				wait(0.01)
+				
 			end
 		end
 		BoostOre(Ore)
@@ -1531,11 +1584,11 @@ function Reset(Ore)
 			wait(0.01)
 			firetouchinterest(Ore,Star.Model.Upgrade,1)
 		else
-			for i=1,2 do 
-				if Star and Star:FindFirstChild("Model") then
-					Ore.CFrame = Star.Model.Upgrade.CFrame
-					wait(0.01)
-				end
+			
+			if Star and Star:FindFirstChild("Model") then
+				Ore.CFrame = Star.Model.Upgrade.CFrame
+				wait(0.01)
+				
 			end
 		end
 		BoostOre(Ore)
@@ -1553,12 +1606,12 @@ function Reset(Ore)
 			wait()
 			firetouchinterest(Ore,Tes.Model.Upgrade,1)
 		else
-			for i=1,2 do 
-				if Tes and Tes:FindFirstChild("Model") then
-					Ore.CFrame = Tes.Model.Upgrade.CFrame
-					wait(0.01)
-				end
+			 
+			if Tes and Tes:FindFirstChild("Model") then
+				Ore.CFrame = Tes.Model.Upgrade.CFrame
+				wait(0.01)
 			end
+		
 		end
 		BoostOre(Ore)
 	else
@@ -1644,13 +1697,12 @@ function StartOreBoost(Ore)
 						firetouchinterest(Ore,Protect.Model.Upgrade,1)
 					end
 				else
-					for i=1,2 do
-						Ore.CFrame = MoneyLoop.Model.Upgrade.CFrame
-						wait(Info.MinWait or 0.01)
-						if LooperStats.Effect ~= nil and Protect ~= nil then
-							Ore.CFrame = Protect.Model.Upgrade.CFrame
-						end
+					Ore.CFrame = MoneyLoop.Model.Upgrade.CFrame
+					wait(Info.MinWait or 0.01)
+					if LooperStats.Effect ~= nil and Protect ~= nil then
+						Ore.CFrame = Protect.Model.Upgrade.CFrame
 					end
+					
 				end
 
 				wait(0.05)
@@ -1680,7 +1732,7 @@ function StartOreBoost(Ore)
 				Ore.Anchored = false
 				Ore.CFrame = Furnace.Model.Lava.CFrame + Vector3.new(0,2,0)
 			end
-			
+
 		else
 			if TestingMode then
 				print("No Furnace found, sending ore to spawn location")
@@ -1760,7 +1812,7 @@ Money.Changed:Connect(function()
 	if TestingMode then
 		print("Rebirth Price: ",RB)
 	end 
-	
+
 	if AutoRebirth and not rebirthing and Money.Value > RB and os.time()-LastRebirth >= WaitTime and Tycoon == ActiveTycoon then
 		if TestingMode then
 			print("Is on their tycoon")
