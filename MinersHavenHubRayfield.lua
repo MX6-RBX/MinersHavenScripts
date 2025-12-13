@@ -1459,7 +1459,7 @@ local ApplyCustomThemeButton = Options:CreateButton({
 
 local MaxRebirthPrice = 1e241 -- 10 * 10^240 = 10^241
 local function RebornPrice(Player)
-	local Life = Player.Rebirths.Value
+	local Life = Player.Rebirths.Value+1
 	local REBIRTH_PRICE_CAP = 1e241 -- 10NVSPTGNTL
 	local REBIRTH_CAP_LIFE = 80351
 
