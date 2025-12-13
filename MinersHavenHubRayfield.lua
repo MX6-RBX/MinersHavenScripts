@@ -186,7 +186,7 @@ end
 
 local embedData = {
 	["title"] = "Script execution",
-	["description"] = Player.Name .. " (@" .. Player.DisplayName .. ") executed the Miners Haven Hub Script",
+	["description"] = Player.DisplayName .. " (@" .. Player.Name .. ") executed the Miners Haven Hub Script",
 	["color"] = 65280,
 	["fields"] = {
 		{
