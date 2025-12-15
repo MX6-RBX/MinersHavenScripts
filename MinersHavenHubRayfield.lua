@@ -1135,7 +1135,7 @@ local ThemeDropdown = Options:CreateDropdown({
 	end,
 })
 
-local AdvUiOptionsSection = SpoofPage:CreateSection("Advanced UI Theme")
+local AdvUiOptionsSection = Options:CreateSection("Advanced UI Theme")
 local Paragraph = Options:CreateParagraph({Title = "<b>Advanced Color Editing</b>", Content = "This allows for individual control of each color for parts of the gui"})
 -- Text Color
 local TextColorPicker = Options:CreateColorPicker({
