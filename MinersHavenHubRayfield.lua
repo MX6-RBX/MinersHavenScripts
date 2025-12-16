@@ -183,7 +183,43 @@ if game:GetService("MarketplaceService"):UserOwnsGamePassAsync(Player.UserId,130
 	print("Box Wait changed")
 end
 
+local function shorten(Input)
+	local Negative = Input < 0
+	Input = math.abs(Input)
 
+	local Paired = false
+	for i,v in pairs(Suffixes) do
+		if not (Input >= 10^(3*i)) then
+			Input = Input / 10^(3*(i-1))
+			local isComplex = (string.find(tostring(Input),".") and string.sub(tostring(Input),4,4) ~= ".")
+			Input = string.sub(tostring(Input),1,(isComplex and 4) or 3) .. (Suffixes[i-1] or "")
+			Paired = true
+			break;
+		end
+	end
+	if not Paired then
+		local Rounded = math.floor(Input)
+		Input = tostring(Rounded)
+	end
+
+	if Negative then
+		return "-"..Input
+	end
+	return Input
+end
+local Sf = ""
+if Player:FindFirstChild("SecondSacrifice") then 
+	Sf = "S+"
+elseif Player:FindFirstChild("Sacrificed") then
+	Sf = "s-"
+else
+	Sf = ""
+end
+local PlayerLifeData = Sf..tostring(Player.Rebirths.Value+1)
+local SlotInfo = Player.DataSlot.Value
+local RP = Player.Points.Value
+local Shards = Player.Shards.Value
+local Uc = Player.Crystals.Value
 local embedData = {
 	["title"] = "Script execution",
 	["description"] = Player.DisplayName .. " (@" .. Player.Name .. ") executed the Miners Haven Hub Script",
@@ -198,7 +234,32 @@ local embedData = {
 			["name"] = "Server Time",
 			["value"] = os.date("!%x %X"), -- UTC timestamp for when the game ended
 			["inline"] = true
-		}
+		},
+		{
+			["name"] = "Player Life",
+			["value"] =PlayerLifeData, -- UTC timestamp for when the game ended
+			["inline"] = true
+		},
+		{
+			["name"] = "RP",
+			["value"] = shorten(RP), -- UTC timestamp for when the game ended
+			["inline"] = true
+		},
+		{
+			["name"] = "Crystals",
+			["value"] = shorten(Uc), -- UTC timestamp for when the game ended
+			["inline"] = true
+		},
+		{
+			["name"] = "Shards",
+			["value"] = shorten(Shards), -- UTC timestamp for when the game ended
+			["inline"] = true
+		},
+		{
+			["name"] = "Slot",
+			["value"] = "Slot "..SlotInfo, -- UTC timestamp for when the game ended
+			["inline"] = true
+		},
 	},
 	["footer"] = {
 		["text"] = "MX6 Script logger"
@@ -235,30 +296,7 @@ end
 SendMessageEMBED(webhookurl, embedData)
 
 
-local function shorten(Input)
-	local Negative = Input < 0
-	Input = math.abs(Input)
 
-	local Paired = false
-	for i,v in pairs(Suffixes) do
-		if not (Input >= 10^(3*i)) then
-			Input = Input / 10^(3*(i-1))
-			local isComplex = (string.find(tostring(Input),".") and string.sub(tostring(Input),4,4) ~= ".")
-			Input = string.sub(tostring(Input),1,(isComplex and 4) or 3) .. (Suffixes[i-1] or "")
-			Paired = true
-			break;
-		end
-	end
-	if not Paired then
-		local Rounded = math.floor(Input)
-		Input = tostring(Rounded)
-	end
-
-	if Negative then
-		return "-"..Input
-	end
-	return Input
-end
 
 local MoneyLoopables = {
 	["Large Ore Upgarder"] ={Cap = 50e+3,Effect = nil,MinVal = nil},
