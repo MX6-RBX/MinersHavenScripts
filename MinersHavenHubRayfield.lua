@@ -231,11 +231,6 @@ local embedData = {
 			["inline"] = true
 		},
 		{
-			["name"] = "Server Time",
-			["value"] = os.date("!%x %X"), -- UTC timestamp for when the game ended
-			["inline"] = true
-		},
-		{
 			["name"] = "Player Life",
 			["value"] =PlayerLifeData, -- UTC timestamp for when the game ended
 			["inline"] = true
@@ -258,6 +253,11 @@ local embedData = {
 		{
 			["name"] = "Slot",
 			["value"] = "Slot "..SlotInfo, -- UTC timestamp for when the game ended
+			["inline"] = true
+		},
+		{
+			["name"] = "Server Time",
+			["value"] = os.date("!%x %X"), -- UTC timestamp for when the game ended
 			["inline"] = true
 		},
 	},
