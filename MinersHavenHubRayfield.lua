@@ -369,7 +369,7 @@ local function LoadExternlLayout(Layout)--Converts a shared layout string to a p
 	if Layout then 
 		local PlaceTable = {}
 		for i,v in pairs(Layout) do
-			task.spawn(function()
+			spawn(function()
 				local Item = game.ReplicatedStorage.Items:FindFirstChild(v["Name"])
 				local P = string.split(v["Pos"],",")
 				local Pos = CFrame.new(P[1],P[2],P[3],P[4],P[5],P[6],P[7],P[8],P[9],P[10],P[11],P[12])
@@ -390,35 +390,25 @@ local function LoadExternlLayout(Layout)--Converts a shared layout string to a p
 		return nil
 	end 
 end
-local function AddBoxTrack(Box)
-	if not Box or BoxTrackers[Box] then return end
 
+local function AddBoxTrack(Box)
 	local Ui = GUi:Clone()
 	Ui.Box.Text = Box.Name
 	Ui.AlwaysOnTop = true
 	Ui.Box.BackgroundTransparency = 0
-
 	if Box:IsA("Model") and Box:FindFirstChild("Crate") then
 		Ui.Box.BackgroundColor3 = Box.Crate.Color
 		Ui.Parent = Box.Crate
 		Ui.Adornee = Box.Crate
+
 	else
 		Ui.Box.BackgroundColor3 = Box.Color
 		Ui.Parent = Box
 		Ui.Adornee = Box
 	end
-
 	Ui.Enabled = TrackBoxes
-	BoxTrackers[Box] = Ui
-
-	Box.AncestryChanged:Connect(function(_, parent)
-		if not parent then
-			if Ui then Ui:Destroy() end
-			BoxTrackers[Box] = nil
-		end
-	end)
+	table.insert(BoxTrackers,Ui)
 end
-
 
 local function CollectBoxes()
 	if not CollectingBoxes then
@@ -440,46 +430,23 @@ local function CollectBoxes()
 	end
 end
 
-local OreConnections = {}
 local function AddTracker(ore)
-	if not ore or OreConnections[ore] then return end
-	local cash = ore:WaitForChild("Cash", 5) 
-	if not cash or not ore.Parent then return end
-
+	repeat wait() until ore:FindFirstChild("Cash")
 	local Ui = GUi:Clone()
-	Ui.Box.Text = "$" .. shorten(cash.Value)
+	Ui.Box.Text = "$"..shorten(ore.Cash.Value)
 	Ui.AlwaysOnTop = true
 	Ui.Parent = ore
 	Ui.Adornee = ore
 	Ui.Enabled = OreTracking
-	
-	local connections = {}
-	OreConnections[ore] = connections
-	connections.cashConn = cash.Changed:Connect(function()
-		if Ui and Ui.Parent then
-			Ui.Box.Text = "$" .. shorten(cash.Value or 0)
+	table.insert(OreTrackers,Ui)
+	ore.Cash.Changed:Connect(function()
+		local Val = 0
+		if ore and ore.Cash then
+			Val = ore.Cash.Value or 0
 		end
-	end)
-	local function cleanup()
-		for _, conn in pairs(connections) do
-			if conn then conn:Disconnect() end
-		end
-		if Ui then 
-			Ui:Destroy() 
-			Ui = nil
-		end
-
-		OreTrackers[ore] = nil
-		OreConnections[ore] = nil
-	end
-	connections.destroyConn = ore.Destroying:Connect(cleanup)
-	connections.ancestryConn = ore.AncestryChanged:Connect(function(_, parent)
-		if not parent then
-			cleanup()
-		end
+		Ui.Box.Text = "$"..shorten(Val)
 	end)
 end
-
 
 local function ToggleBoxTrack(Val)
 	TrackBoxes = Val
@@ -2005,7 +1972,7 @@ end)
 Rayfield:LoadConfiguration()
 --Keep at bottom of script
 
-task.spawn(function()
+spawn(function()
 	while true do
 		wait()
 		if FarmBoxes then
