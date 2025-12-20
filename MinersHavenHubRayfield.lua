@@ -911,9 +911,19 @@ local EventMenu = VendorsPage:CreateButton({
 local GiftExchange = VendorsPage:CreateButton({
 	Name = "Open Gift Exchange/Present Santa",
 	Callback = function()
-		Player.Character.HumanoidRootPart.CFrame =game.Workspace.Map.SantaModel.Santa.CamPos.CFrame
-		wait(0.1)
-		ChangeUi("GiftExchange")
+		if game.Workspace.Map:FindFirstChild("SantaModel") then
+			Player.Character.HumanoidRootPart.CFrame = game.Workspace.Map.SantaModel.Santa.CamPos.CFrame
+			wait(0.1)
+			ChangeUi("GiftExchange")
+		else
+			Rayfield:Notify({
+				Title = "Unable to open",
+				Content = "The Gui cant be opened due to the Santa model not being found, this is probably because your playing on solo island.",
+				Duration = 5,
+				Image = 4483362458,
+			})
+		end
+		
 	end,
 })
 
