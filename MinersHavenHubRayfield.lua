@@ -96,6 +96,7 @@ local Ores = game.Workspace.DroppedParts:FindFirstChild(Tycoon.Name)
 local GUI = Player.PlayerGui:WaitForChild("GUI")
 local PlaceItem = game.ReplicatedStorage.PlaceItem 
 local buyItem = game.ReplicatedStorage.BuyItem 
+local RemoteDrop = game.ReplicatedStorage.RemoteDrop
 local ClearBase = game.ReplicatedStorage.DestroyAll
 local Money = GUI:FindFirstChild("Money")
 local Boxes = game.Workspace.Boxes
@@ -141,6 +142,7 @@ local LifeVal = 0
 local FastOreBoost = false
 local FarmBoxes = false
 local UpgradeLoopCount = 1
+local AutoDrop = false
 
 
 local GUi = Instance.new("BillboardGui")
@@ -586,6 +588,18 @@ local Layout2Dropdown = BoostPage:CreateDropdown({
 	end,
 })
 
+local AutoDropToggle = BoostPage:CreateToggle({
+	Name = "Auto Remote drops",
+	CurrentValue = false,
+	Flag = "AutoDrop", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+	Callback = function(Value)
+		AutoDrop = Value
+		if TestingMode then
+			print("Auto Drop:",Value)
+		end
+	end,
+})
+
 local BoostSection = BoostPage:CreateSection("Auto Upgrade")
 local BoostToggle = BoostPage:CreateToggle({
 	Name = "Ore Boost",
@@ -832,7 +846,7 @@ local GiftExchange = VendorsPage:CreateButton({
 				Image = 4483362458,
 			})
 		end
-		
+
 	end,
 })
 
@@ -1891,7 +1905,7 @@ end)
 Rayfield:LoadConfiguration()
 --Keep at bottom of script
 
-spawn(function()
+task.spawn(function()
 	while true do
 		wait()
 		if FarmBoxes then
@@ -1911,12 +1925,22 @@ spawn(function()
 	end
 end)
 
-while true do
-	wait(BoxWait)
-	local BoxName = SelectedBox or "Regular"
-	local Box = Player.Crates:FindFirstChild(SelectedBox)
-	if OpenBoxes and  Box and Box.Value >0  then
-		game.ReplicatedStorage.MysteryBox:InvokeServer(Box.Name)	
-	end 
+task.spawn(function()
+	while true do
+		wait(BoxWait)
+		local BoxName = SelectedBox or "Regular"
+		local Box = Player.Crates:FindFirstChild(SelectedBox)
+		if OpenBoxes and  Box and Box.Value >0  then
+			game.ReplicatedStorage.MysteryBox:InvokeServer(Box.Name)	
+		end 
+	end
+end)
+task.spawn(function()
+	while true do
+		wait()
+		if AutoDrop then 
+			RemoteDrop:FireServer()
+		end
+	end
+end)
 
-end
