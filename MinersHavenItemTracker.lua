@@ -31,6 +31,8 @@ local LastItem = Instance.new("TextLabel")
 local UITextSizeConstraint_3 = Instance.new("UITextSizeConstraint")
 local ElapseTime = Instance.new("TextLabel")
 local UITextSizeConstraint_4 = Instance.new("UITextSizeConstraint")
+local AvrageTime = Instance.new("TextLabel")
+local UITextSizeConstraint_8 = Instance.new("UITextSizeConstraint")
 local LivesAdvancedText = Instance.new("TextLabel")
 local UITextSizeConstraint_5 = Instance.new("UITextSizeConstraint")
 local UIListLayout = Instance.new("UIListLayout")
@@ -47,6 +49,7 @@ local UIPadding_6 = Instance.new("UIPadding")
 local TierTemplate = Instance.new("TextButton")
 local UICorner_6 = Instance.new("UICorner")
 local UIStroke = Instance.new("UIStroke")
+
 
 --Properties:
 
@@ -246,6 +249,23 @@ ElapseTime.TextWrapped = true
 
 UITextSizeConstraint_4.Parent = ElapseTime
 UITextSizeConstraint_4.MaxTextSize = 30
+
+AvrageTime.Name = "AvrageTime"
+AvrageTime.Parent = Info
+AvrageTime.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+AvrageTime.BackgroundTransparency = 1.000
+AvrageTime.LayoutOrder = 6
+AvrageTime.Position = UDim2.new(0, 0, 0.649999976, 0)
+AvrageTime.Size = UDim2.new(1, 0, 0.100000001, 0)
+AvrageTime.Font = Enum.Font.ArialBold
+AvrageTime.Text = "Avrage Time - 00:00:00"
+AvrageTime.TextColor3 = Color3.fromRGB(255, 255, 255)
+AvrageTime.TextScaled = true
+AvrageTime.TextSize = 14.000
+AvrageTime.TextWrapped = true
+
+UITextSizeConstraint_8.Parent = AvrageTime
+UITextSizeConstraint_8.MaxTextSize = 30
 
 LivesAdvancedText.Name = "LivesAdvanced"
 LivesAdvancedText.Parent = Info
@@ -539,6 +559,7 @@ game.ReplicatedStorage.ItemObtained.OnClientEvent:Connect(function(Item,Amount)
 	end
 	LivesAdvancedText.Text = "Lifes Advanced - " ..tostring(LivesAdvanced)
 	Current.Text = "Current Life - "..GetSuffix()..Life.Value+1
+	AvrageTime.Text = "Avrage Time - ".. HandleTime(OverAllTime/LivesAdvanced)
 end)
 
 
