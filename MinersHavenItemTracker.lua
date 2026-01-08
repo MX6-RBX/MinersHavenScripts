@@ -297,7 +297,7 @@ Current_2.LayoutOrder = 2
 Current_2.Position = UDim2.new(0, 0, 1, -10)
 Current_2.Size = UDim2.new(0.5, -10, 0, 20)
 Current_2.Font = Enum.Font.ArialBold
-Current_2.Text = "Click an Item to remove from List"
+Current_2.Text = "CTRL+Click an Item to remove from List"
 Current_2.TextColor3 = Color3.fromRGB(255, 255, 255)
 Current_2.TextScaled = true
 Current_2.TextSize = 14.000
@@ -398,6 +398,7 @@ local LivesAdvanced = 0
 local LogShinysOnly = false
 local LogAll = false
 local TotalItems = 0
+local HoldingCTRL = false
 
 local function ToggleTier(Ui)
 	local Tier = Ui.TierValue.Value
@@ -467,6 +468,16 @@ UIS.InputBegan:Connect(function(Input)--toggle key function for the gui
 			Main.Visible = not Main.Visible
 		elseif Input.KeyCode == Enum.KeyCode.Y then
 			TierSelect.Visible = not TierSelect.Visible
+		elseif Input.KeyCode == Enum.KeyCode.LeftControl or Input.KeyCode == Enum.KeyCode.RightControl then
+			HoldingCTRL = true
+		end
+	end
+end)
+
+UIS.InputEnded:Connect(function(Input)
+	if UIS:GetFocusedTextBox() == nil then
+		if Input.KeyCode == Enum.KeyCode.LeftControl or Input.KeyCode == Enum.KeyCode.RightControl then
+			HoldingCTRL = false
 		end
 	end
 end)
@@ -501,6 +512,7 @@ local function AddNewButton(Item,Amount)
 		end
 		Clone.Visible = true
 		Clone.MouseButton1Click:Connect(function()
+			if not HoldingCTRL then return end 
 			ButtonCount.Value -= 1
 			Clone:Destroy()
 		end)
