@@ -254,11 +254,11 @@ AvrageTime.Name = "AvrageTime"
 AvrageTime.Parent = Info
 AvrageTime.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 AvrageTime.BackgroundTransparency = 1.000
-AvrageTime.LayoutOrder = 6
+AvrageTime.LayoutOrder = 7
 AvrageTime.Position = UDim2.new(0, 0, 0.649999976, 0)
 AvrageTime.Size = UDim2.new(1, 0, 0.100000001, 0)
 AvrageTime.Font = Enum.Font.ArialBold
-AvrageTime.Text = "Avrage rebirth Time - 00:00:00"
+AvrageTime.Text = "Avrage Time - 00:00:00"
 AvrageTime.TextColor3 = Color3.fromRGB(255, 255, 255)
 AvrageTime.TextScaled = true
 AvrageTime.TextSize = 14.000
@@ -559,7 +559,9 @@ game.ReplicatedStorage.ItemObtained.OnClientEvent:Connect(function(Item,Amount)
 	end
 	LivesAdvancedText.Text = "Lifes Advanced - " ..tostring(LivesAdvanced)
 	Current.Text = "Current Life - "..GetSuffix()..Life.Value+1
-	AvrageTime.Text = "Avrage Rebirth Time - ".. HandleTime(OverAllTime/LivesAdvanced)
+	local average = LivesAdvanced > 0 and (OverAllTime / LivesAdvanced) or 0
+	average = math.floor(average*100)/100
+	AvrageTime.Text = "Avrage Time - " .. HandleTime(average)
 end)
 
 
