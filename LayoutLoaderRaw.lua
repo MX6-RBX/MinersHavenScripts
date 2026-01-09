@@ -1,7 +1,4 @@
--- Gui to Lua
--- Version: 3.2
-
--- Instances:
+local HTTP = game:GetService("HttpService")
 
 local LayoutsStealer = Instance.new("ScreenGui")
 local MainFrame = Instance.new("Frame")
@@ -17,31 +14,32 @@ local UIPadding_2 = Instance.new("UIPadding")
 local ItemTemplate = Instance.new("ImageLabel")
 local Amount = Instance.new("TextLabel")
 local UICorner_3 = Instance.new("UICorner")
-local LayoutTemplate = Instance.new("Frame")
+local LoaddingMessage = Instance.new("TextLabel")
 local UICorner_4 = Instance.new("UICorner")
+local PlayerTemplate = Instance.new("TextButton")
+local UICorner_5 = Instance.new("UICorner")
+local PlayerImage = Instance.new("ImageLabel")
+local UICorner_6 = Instance.new("UICorner")
+local Display = Instance.new("TextLabel")
+local User = Instance.new("TextLabel")
+local WaterMark = Instance.new("TextLabel")
+local UICorner_7 = Instance.new("UICorner")
+local LayoutTemplate = Instance.new("Frame")
+local UICorner_8 = Instance.new("UICorner")
 local Items = Instance.new("ScrollingFrame")
 local UIGridLayout = Instance.new("UIGridLayout")
 local UIPadding_3 = Instance.new("UIPadding")
 local LayoutName = Instance.new("TextLabel")
-local UICorner_5 = Instance.new("UICorner")
-local ItemCount = Instance.new("TextLabel")
-local UICorner_6 = Instance.new("UICorner")
-local StealLayout = Instance.new("TextButton")
-local UICorner_7 = Instance.new("UICorner")
-local Frame = Instance.new("Frame")
-local UICorner_8 = Instance.new("UICorner")
-local Missing = Instance.new("TextButton")
 local UICorner_9 = Instance.new("UICorner")
-local LoaddingMessage = Instance.new("TextLabel")
+local ItemCount = Instance.new("TextLabel")
 local UICorner_10 = Instance.new("UICorner")
-local PlayerTemplate = Instance.new("TextButton")
+local StealLayout = Instance.new("TextButton")
 local UICorner_11 = Instance.new("UICorner")
-local PlayerImage = Instance.new("ImageLabel")
+local Frame = Instance.new("Frame")
 local UICorner_12 = Instance.new("UICorner")
-local Display = Instance.new("TextLabel")
-local User = Instance.new("TextLabel")
+local Missing = Instance.new("TextButton")
 local UICorner_13 = Instance.new("UICorner")
-local WaterMark = Instance.new("TextLabel")
+local String = Instance.new("TextButton")
 local UICorner_14 = Instance.new("UICorner")
 local MissingItems = Instance.new("Frame")
 local UICorner_15 = Instance.new("UICorner")
@@ -51,19 +49,17 @@ local UIPadding_4 = Instance.new("UIPadding")
 local Close = Instance.new("TextButton")
 local UICorner_16 = Instance.new("UICorner")
 
---Properties:
-
 LayoutsStealer.Name = "LayoutsStealer"
-LayoutsStealer.Parent = game.CoreGui
+LayoutsStealer.Parent = game:GetService("CoreGui")
 LayoutsStealer.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
 MainFrame.Name = "MainFrame"
 MainFrame.Parent = LayoutsStealer
 MainFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 MainFrame.BackgroundTransparency = 1.000
-MainFrame.Position = UDim2.new(0.25, 0, 0.25, 0)
-MainFrame.Size = UDim2.new(0.3, 0, 0.3, 0)
 MainFrame.Draggable = true
+MainFrame.Position = UDim2.new(0.25, 0, 0.25, 0)
+MainFrame.Size = UDim2.new(0.300000012, 0, 0.300000012, 0)
 
 Players.Name = "Players"
 Players.Parent = MainFrame
@@ -134,102 +130,6 @@ Amount.TextWrapped = true
 
 UICorner_3.Parent = ItemTemplate
 
-LayoutTemplate.Name = "LayoutTemplate"
-LayoutTemplate.Parent = MainFrame
-LayoutTemplate.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-LayoutTemplate.Size = UDim2.new(1, -20, 0, 250)
-LayoutTemplate.Visible = false
-
-UICorner_4.Parent = LayoutTemplate
-
-Items.Name = "Items"
-Items.Parent = LayoutTemplate
-Items.Active = true
-Items.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Items.BackgroundTransparency = 1.000
-Items.BorderSizePixel = 0
-Items.Position = UDim2.new(0, 0, 0.150000006, 5)
-Items.Size = UDim2.new(1, 0, 0.850000024, -10)
-Items.ZIndex = 2
-Items.CanvasSize = UDim2.new(0,0,0,0)
-Items.AutomaticCanvasSize = Enum.AutomaticSize.Y
-Items.ScrollBarThickness = 5
-
-UIGridLayout.Parent = Items
-UIGridLayout.SortOrder = Enum.SortOrder.LayoutOrder
-UIGridLayout.CellSize = UDim2.new(0, 50, 0, 50)
-
-UIPadding_3.Parent = Items
-UIPadding_3.PaddingLeft = UDim.new(0, 5)
-UIPadding_3.PaddingRight = UDim.new(0, 5)
-
-LayoutName.Name = "LayoutName"
-LayoutName.Parent = LayoutTemplate
-LayoutName.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-LayoutName.Position = UDim2.new(0, 5, 0.0199999996, 0)
-LayoutName.Size = UDim2.new(0.200000003, 0, 0.125, 0)
-LayoutName.Font = Enum.Font.SourceSansBold
-LayoutName.Text = "Layout X"
-LayoutName.TextColor3 = Color3.fromRGB(255, 255, 255)
-LayoutName.TextScaled = true
-LayoutName.TextSize = 14.000
-LayoutName.TextTransparency = 0.500
-LayoutName.TextWrapped = true
-
-UICorner_5.Parent = LayoutName
-
-ItemCount.Name = "ItemCount"
-ItemCount.Parent = LayoutTemplate
-ItemCount.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-ItemCount.Position = UDim2.new(0.224999994, 5, 0.0199999996, 0)
-ItemCount.Size = UDim2.new(0.224999994, -5, 0.125, 0)
-ItemCount.Font = Enum.Font.SourceSansBold
-ItemCount.Text = "Item Count: 250"
-ItemCount.TextColor3 = Color3.fromRGB(255, 255, 255)
-ItemCount.TextScaled = true
-ItemCount.TextSize = 14.000
-ItemCount.TextTransparency = 0.500
-ItemCount.TextWrapped = true
-
-UICorner_6.Parent = ItemCount
-
-StealLayout.Name = "StealLayout"
-StealLayout.Parent = LayoutTemplate
-StealLayout.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-StealLayout.Position = UDim2.new(0.75, -5, 0.0199999996, 0)
-StealLayout.Size = UDim2.new(0.25, 0, 0.125, 0)
-StealLayout.Font = Enum.Font.SourceSansBold
-StealLayout.Text = "Steal This Layout"
-StealLayout.TextColor3 = Color3.fromRGB(255, 255, 255)
-StealLayout.TextScaled = true
-StealLayout.TextSize = 14.000
-StealLayout.TextTransparency = 0.500
-StealLayout.TextWrapped = true
-
-UICorner_7.Parent = StealLayout
-
-Frame.Parent = LayoutTemplate
-Frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-Frame.Position = UDim2.new(0, 5, 0.150000006, 5)
-Frame.Size = UDim2.new(1, -10, 0.850000024, -10)
-
-UICorner_8.Parent = Frame
-
-Missing.Name = "Missing"
-Missing.Parent = LayoutTemplate
-Missing.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-Missing.Position = UDim2.new(0.474999994, 0, 0.0199999996, 0)
-Missing.Size = UDim2.new(0.25, -5, 0.125, 0)
-Missing.Font = Enum.Font.SourceSansBold
-Missing.Text = "Show Missing Items"
-Missing.TextColor3 = Color3.fromRGB(255, 255, 255)
-Missing.TextScaled = true
-Missing.TextSize = 14.000
-Missing.TextTransparency = 0.500
-Missing.TextWrapped = true
-
-UICorner_9.Parent = Missing
-
 LoaddingMessage.Name = "LoaddingMessage"
 LoaddingMessage.Parent = MainFrame
 LoaddingMessage.BackgroundColor3 = Color3.fromRGB(255, 90, 90)
@@ -244,7 +144,7 @@ LoaddingMessage.TextSize = 14.000
 LoaddingMessage.TextStrokeColor3 = Color3.fromRGB(255, 255, 255)
 LoaddingMessage.TextWrapped = true
 
-UICorner_10.Parent = LoaddingMessage
+UICorner_4.Parent = LoaddingMessage
 
 PlayerTemplate.Name = "PlayerTemplate"
 PlayerTemplate.Parent = MainFrame
@@ -257,7 +157,7 @@ PlayerTemplate.TextColor3 = Color3.fromRGB(0, 0, 0)
 PlayerTemplate.TextSize = 14.000
 PlayerTemplate.TextTransparency = 1.000
 
-UICorner_11.Parent = PlayerTemplate
+UICorner_5.Parent = PlayerTemplate
 
 PlayerImage.Name = "PlayerImage"
 PlayerImage.Parent = PlayerTemplate
@@ -265,7 +165,7 @@ PlayerImage.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 PlayerImage.Size = UDim2.new(0, 50, 0, 50)
 PlayerImage.Image = "rbxasset://textures/ui/GuiImagePlaceholder.png"
 
-UICorner_12.Parent = PlayerImage
+UICorner_6.Parent = PlayerImage
 
 Display.Name = "Display"
 Display.Parent = PlayerTemplate
@@ -293,8 +193,6 @@ User.TextScaled = true
 User.TextSize = 14.000
 User.TextWrapped = true
 
-
-
 WaterMark.Name = "WaterMark"
 WaterMark.Parent = MainFrame
 WaterMark.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
@@ -310,7 +208,117 @@ WaterMark.TextSize = 14.000
 WaterMark.TextTransparency = 0.500
 WaterMark.TextWrapped = true
 
-UICorner_14.Parent = WaterMark
+UICorner_7.Parent = WaterMark
+
+LayoutTemplate.Name = "LayoutTemplate"
+LayoutTemplate.Parent = MainFrame
+LayoutTemplate.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+LayoutTemplate.Size = UDim2.new(1, -20, 0, 250)
+LayoutTemplate.Visible = false
+
+UICorner_8.Parent = LayoutTemplate
+
+Items.Name = "Items"
+Items.Parent = LayoutTemplate
+Items.Active = true
+Items.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Items.BackgroundTransparency = 1.000
+Items.BorderSizePixel = 0
+Items.Position = UDim2.new(0, 0, 0.150000006, 5)
+Items.Size = UDim2.new(1, 0, 0.850000024, -10)
+Items.ZIndex = 2
+Items.CanvasSize = UDim2.new(0, 0, 0, 0)
+Items.ScrollBarThickness = 5
+
+UIGridLayout.Parent = Items
+UIGridLayout.SortOrder = Enum.SortOrder.LayoutOrder
+UIGridLayout.CellSize = UDim2.new(0, 50, 0, 50)
+
+UIPadding_3.Parent = Items
+UIPadding_3.PaddingLeft = UDim.new(0, 5)
+UIPadding_3.PaddingRight = UDim.new(0, 5)
+
+LayoutName.Name = "LayoutName"
+LayoutName.Parent = LayoutTemplate
+LayoutName.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+LayoutName.Position = UDim2.new(0, 5, 0.0199999996, 0)
+LayoutName.Size = UDim2.new(0.200000003, 0, 0.125, 0)
+LayoutName.Font = Enum.Font.SourceSansBold
+LayoutName.Text = "Layout X"
+LayoutName.TextColor3 = Color3.fromRGB(255, 255, 255)
+LayoutName.TextScaled = true
+LayoutName.TextSize = 14.000
+LayoutName.TextTransparency = 0.500
+LayoutName.TextWrapped = true
+
+UICorner_9.Parent = LayoutName
+
+ItemCount.Name = "ItemCount"
+ItemCount.Parent = LayoutTemplate
+ItemCount.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+ItemCount.Position = UDim2.new(0.224999994, 5, 0.0199999996, 0)
+ItemCount.Size = UDim2.new(0.224999994, -5, 0.125, 0)
+ItemCount.Font = Enum.Font.SourceSansBold
+ItemCount.Text = "Item Count: 250"
+ItemCount.TextColor3 = Color3.fromRGB(255, 255, 255)
+ItemCount.TextScaled = true
+ItemCount.TextSize = 14.000
+ItemCount.TextTransparency = 0.500
+ItemCount.TextWrapped = true
+
+UICorner_10.Parent = ItemCount
+
+StealLayout.Name = "StealLayout"
+StealLayout.Parent = LayoutTemplate
+StealLayout.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+StealLayout.Position = UDim2.new(0.654999971, -5, 0.0199999996, 0)
+StealLayout.Size = UDim2.new(0.170000002, -5, 0.125, 0)
+StealLayout.Font = Enum.Font.SourceSansBold
+StealLayout.Text = "Steal This Layout"
+StealLayout.TextColor3 = Color3.fromRGB(255, 255, 255)
+StealLayout.TextScaled = true
+StealLayout.TextSize = 14.000
+StealLayout.TextTransparency = 0.500
+StealLayout.TextWrapped = true
+
+UICorner_11.Parent = StealLayout
+
+Frame.Parent = LayoutTemplate
+Frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+Frame.Position = UDim2.new(0, 5, 0.150000006, 5)
+Frame.Size = UDim2.new(1, -10, 0.850000024, -10)
+
+UICorner_12.Parent = Frame
+
+Missing.Name = "Missing"
+Missing.Parent = LayoutTemplate
+Missing.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+Missing.Position = UDim2.new(0.474999994, 0, 0.0199999996, 0)
+Missing.Size = UDim2.new(0.170000002, -5, 0.125, 0)
+Missing.Font = Enum.Font.SourceSansBold
+Missing.Text = "Show Missing Items"
+Missing.TextColor3 = Color3.fromRGB(255, 255, 255)
+Missing.TextScaled = true
+Missing.TextSize = 14.000
+Missing.TextTransparency = 0.500
+Missing.TextWrapped = true
+
+UICorner_13.Parent = Missing
+
+String.Name = "String"
+String.Parent = LayoutTemplate
+String.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+String.Position = UDim2.new(0.829999983, -5, 0.0199999996, 0)
+String.Size = UDim2.new(0.170000002, -5, 0.125, 0)
+String.Font = Enum.Font.SourceSansBold
+String.Text = "External String"
+String.TextColor3 = Color3.fromRGB(255, 255, 255)
+String.TextScaled = true
+String.TextSize = 14.000
+String.TextTransparency = 0.500
+String.TextWrapped = true
+
+UICorner_14.Parent = String
 
 MissingItems.Name = "MissingItems"
 MissingItems.Parent = LayoutsStealer
@@ -330,7 +338,6 @@ Items_2.BackgroundTransparency = 1.000
 Items_2.BorderSizePixel = 0
 Items_2.Size = UDim2.new(1, 0, 1, 0)
 Items_2.CanvasSize = UDim2.new(0, 0, 0, 0)
-Items_2.AutomaticCanvasSize = Enum.AutomaticSize.Y
 
 UIGridLayout_2.Parent = Items_2
 UIGridLayout_2.SortOrder = Enum.SortOrder.LayoutOrder
@@ -353,7 +360,6 @@ Close.TextSize = 14.000
 Close.TextWrapped = true
 
 UICorner_16.Parent = Close
-
 
 local HasItem = game.ReplicatedStorage.HasItem
 local Withdraw = game.ReplicatedStorage.DestroyAll
@@ -378,6 +384,47 @@ Count2.Parent = MissingItems
 
 local Player = game.Players.LocalPlayer
 local PlayerLoaded = nil
+
+local Suffixes = { "k", "M", "B", "T", "qd", "Qn", "sx", "Sp", "O", "N", "de", "Ud",
+	"DD", "tdD", "qdD", "QnD", "sxD", "SpD", "OcD", "NvD", "Vgn", "UVg", "DVg", "TVg",
+	"qtV", "QnV", "SeV", "SPG", "OVG", "NVG", "TGN", "UTG", "DTG", "tsTG", "qtTG", 
+	"QnTG", "ssTG", "SpTG", "OcTG", "NoTG", "QdDR", "uQDR", "dQDR", "tQDR", "qdQDR", 
+	"QnQDR", "sxQDR", "SpQDR", "OQDDr", "NQDDr", "qQGNT", "uQGNT", "dQGNT", "tQGNT", 
+	"qdQGNT", "QnQGNT", "sxQGNT", "SpQGNT", "OQQGNT", "NQQGNT", "SXGNTL", "USXGNTL", 
+	"DSXGNTL", "TSXGNTL", "QTSXGNTL", "QNSXGNTL", "SXSXGNTL", "SPSXGNTL", "OSXGNTL", 
+	"NVSXGNTL", "SPTGNTL", "USPTGNTL", "DSPTGNTL", "TSPTGNTL", "QTSPTGNTL", "QNSPTGNTL",
+	"SXSPTGNTL", "SPSPTGNTL", "OSPTGNTL", "NVSPTGNTL", "OTGNTL", "UOTGNTL", "DOTGNTL", 
+	"TOTGNTL", "QTOTGNTL", "QNOTGNTL", "SXOTGNTL", "SPOTGNTL", "OTOTGNTL", "NVOTGNTL", 
+	"NONGNTL", "UNONGNTL", "DNONGNTL", "TNONGNTL", "QTNONGNTL", "QNNONGNTL", "SXNONGNTL", 
+	"SPNONGNTL", "OTNONGNTL", "NONONGNTL", "CENT", "UNCENT","inf"
+}
+
+local function shorten(Input)
+	local Negative = Input < 0
+	Input = math.abs(Input)
+
+	local Paired = false
+	for i,v in pairs(Suffixes) do
+		if not (Input >= 10^(3*i)) then
+			Input = Input / 10^(3*(i-1))
+			local isComplex = (string.find(tostring(Input),".") and string.sub(tostring(Input),4,4) ~= ".")
+			Input = string.sub(tostring(Input),1,(isComplex and 4) or 3) .. (Suffixes[i-1] or "")
+			Paired = true
+			break;
+		end
+	end
+	if not Paired then
+		local Rounded = math.floor(Input)
+		Input = tostring(Rounded)
+	end
+
+	if Negative then
+		return "-"..Input
+	end
+	return Input
+end
+
+
 function findItem(Id) 
 	for i,v in game.ReplicatedStorage.Items:GetChildren() do
 		if v:FindFirstChild("ItemId") and v.ItemId.Value == tonumber(Id) then
@@ -405,7 +452,7 @@ function Message(Text)
 	local SafeText = LoaddingMessage.Text
 	LoaddingMessage.Text = Text
 	LoaddingMessage.Visible = true
-	wait(3)
+	wait(5)
 	LoaddingMessage.Visible = false
 	LoaddingMessage.Text = SafeText
 end
@@ -478,6 +525,58 @@ function FindBaseMissing(Base)
 			end
 		end)
 	end
+end
+
+function ConvertLayoutToString(Layout)
+	local Cost = 0
+	local FullLayout = HTTP:JSONDecode(Layout.Value)
+	local ConvertedLayout = {}
+	for i, Item in pairs(FullLayout) do
+		local RealItem = findItem(Item.ItemId)
+		local Tycoon = Player.PlayerTycoon.Value
+		local TycoonBase = Tycoon.Base
+
+		local TycoonTopLeft = TycoonBase.CFrame * CFrame.new(Vector3.new(TycoonBase.Size.x/2, 0, TycoonBase.Size.z/2))        
+
+		local px = tonumber(Item.Position[1])
+		local py = tonumber(Item.Position[2])
+		local pz = tonumber(Item.Position[3])
+
+		local Position = TycoonTopLeft * Vector3.new(px, py, pz)
+		local lookVector = Vector3.new(Item.Position[4], Item.Position[5], Item.Position[6])
+		local CoordinateFrame = CFrame.new(Position, Position + (lookVector * 5))
+
+	
+		local NewPos = CoordinateFrame - TycoonBase.Position
+		local components = {NewPos:GetComponents()}
+		local matrixString = table.concat(components, ", ")
+
+		local Tab = {RealItem.Name, matrixString}
+		table.insert(ConvertedLayout, Tab)
+		if RealItem:FindFirstChild("Cost") then
+			Cost = Cost + RealItem.Cost.Value
+		end
+	end
+	local String = HTTP:JSONEncode(ConvertedLayout)
+
+	setclipboard(String)
+end
+
+
+function ConvertBaseToString(Tycoon)--Converts The players current base to a layout string to be shared
+	local Cost = 0
+	local FullLayout = {}
+	for i,v in pairs(Tycoon:GetChildren()) do 
+		if v:FindFirstChild("ItemId") then
+			if v.ItemType.Value >0 and v.ItemType.Value <5 and v:FindFirstChild("Cost") then
+				Cost += v.Cost.Value 
+			end 
+			local Tab = {v.Name,tostring(v.Hitbox.CFrame-Tycoon.Base.Position)}
+			table.insert(FullLayout,Tab)
+		end
+	end
+	local String = HTTP:JSONEncode(FullLayout)
+	setclipboard(String)
 end
 
 function SaveLayout(Layout)
@@ -630,6 +729,10 @@ function LoadPlayersLayouts(SelectedPlayer)
 		Frame.Missing.MouseButton1Click:Connect(function()
 			FindMissing(layoutItems)
 		end)
+		Frame.String.MouseButton1Click:Connect(function()
+			ConvertLayoutToString(Layout)
+		end)
+
 	end
 	pcall(function()
 		local Frame = LayoutTemplate:Clone()
@@ -678,6 +781,9 @@ function LoadPlayersLayouts(SelectedPlayer)
 		end)
 		Frame.Missing.MouseButton1Click:Connect(function()
 			FindBaseMissing(Base)
+		end)
+		Frame.String.MouseButton1Click:Connect(function()
+			ConvertBaseToString(Base)
 		end)
 	end)
 	PlayerLoaded = SelectedPlayer
