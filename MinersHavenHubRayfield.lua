@@ -143,6 +143,7 @@ local FastOreBoost = false
 local FarmBoxes = false
 local UpgradeLoopCount = 1
 local AutoDrop = false
+local externalLayoutString = ""
 
 
 local GUi = Instance.new("BillboardGui")
@@ -282,12 +283,44 @@ local function LoadExternlLayout(Layout)--Converts a shared layout string to a p
 		for i,v in pairs(Layout) do
 			spawn(function()
 				local Item = game.ReplicatedStorage.Items:FindFirstChild(v["Name"])
-				local P = string.split(v["Pos"],",")
+				local P = string.split(v[2],",")
 				local Pos = CFrame.new(P[1],P[2],P[3],P[4],P[5],P[6],P[7],P[8],P[9],P[10],P[11],P[12])
 				if Item.ItemType.Value >=1 and Item.ItemType.Value <5  then
 					if Player.PlayerGui.GUI.Money.Value >= Item.Cost.Value then
 						buyItem:InvokeServer(Item.Name,1)
-						PlaceItem:InvokeServer(v.Name,  Pos+Player.PlayerTycoon.Value.Base.Position, {Player.PlayerTycoon.Value.Base}) 
+						PlaceItem:InvokeServer(Item.Name,  Pos+Player.PlayerTycoon.Value.Base.Position, {Player.PlayerTycoon.Value.Base}) 
+					else
+						print("Cant buy item :(")
+					end
+				else
+					PlaceItem:InvokeServer(Item.Name,  Pos+Player.PlayerTycoon.Value.Base.Position, {Player.PlayerTycoon.Value.Base}) 
+				end
+			end)
+		end
+		return 
+	else
+		return nil
+	end 
+end
+
+local function LoadStringLayout(String)
+	print("Loading String layout")
+	local Layout = game.HttpService:JSONDecode(String)
+	if Layout then 
+		print("has converted to table")
+		print(#Layout,"Items")
+		local PlaceTable = {}
+		for i,v in pairs(Layout) do
+			spawn(function()
+				local Item = game.ReplicatedStorage.Items:FindFirstChild(v[1])
+
+				local P = string.split(v[2],",")
+				local Pos = CFrame.new(P[1],P[2],P[3],P[4],P[5],P[6],P[7],P[8],P[9],P[10],P[11],P[12])
+				print(Item.Name,"Pos",Pos,"Place Pos",Pos+Player.PlayerTycoon.Value.Base.Position)
+				if Item.ItemType.Value >=1 and Item.ItemType.Value <5  then
+					if Player.PlayerGui.GUI.Money.Value >= Item.Cost.Value then
+						buyItem:InvokeServer(Item.Name,1)
+						PlaceItem:InvokeServer(Item.Name,  Pos+Player.PlayerTycoon.Value.Base.Position, {Player.PlayerTycoon.Value.Base}) 
 					else
 						print("Cant buy item :(")
 					end
@@ -301,7 +334,6 @@ local function LoadExternlLayout(Layout)--Converts a shared layout string to a p
 		return nil
 	end 
 end
-
 local function AddBoxTrack(Box)
 	local Ui = GUi:Clone()
 	Ui.Box.Text = Box.Name
@@ -772,6 +804,30 @@ local FirstLife = BoostPage:CreateButton({
 		LoadExternlLayout(ELayout)
 	end,
 })
+
+local LayoutStringBox = BoostPage:CreateInput({
+	Name = "Layout load String ",
+	CurrentValue = "",
+	PlaceholderText = "String",
+	RemoveTextAfterFocusLost = false,
+	Flag = "",
+	Callback = function(Text)
+		externalLayoutString = Text
+	end,
+})
+
+local LoadStringLayoutButton = BoostPage:CreateButton({
+	Name = "Load a layout from the inputed string",
+	Callback = function()
+		if TestingMode then
+			print("Loading Basic First Life Layout.")
+		end
+		ClearBase:InvokeServer()
+		LoadStringLayout(externalLayoutString)
+	end,
+})
+
+
 
 local VendorsPage = MainUi:CreateTab("Vendors",6031097225)
 local GuiInteractions = VendorsPage:CreateSection("GUI's")
@@ -1943,4 +1999,3 @@ task.spawn(function()
 		end
 	end
 end)
-
