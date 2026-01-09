@@ -2,6 +2,7 @@ local HTTP = game:GetService("HttpService")
 
 local LayoutsStealer = Instance.new("ScreenGui")
 local MainFrame = Instance.new("Frame")
+local Dragger = Instance.new("UIDragDetector")
 local Players = Instance.new("Frame")
 local UICorner = Instance.new("UICorner")
 local UIListLayout = Instance.new("UIListLayout")
@@ -49,6 +50,7 @@ local UIPadding_4 = Instance.new("UIPadding")
 local Close = Instance.new("TextButton")
 local UICorner_16 = Instance.new("UICorner")
 
+
 LayoutsStealer.Name = "LayoutsStealer"
 LayoutsStealer.Parent = game:GetService("CoreGui")
 LayoutsStealer.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
@@ -57,9 +59,10 @@ MainFrame.Name = "MainFrame"
 MainFrame.Parent = LayoutsStealer
 MainFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 MainFrame.BackgroundTransparency = 1.000
-MainFrame.Draggable = true
 MainFrame.Position = UDim2.new(0.25, 0, 0.25, 0)
 MainFrame.Size = UDim2.new(0.300000012, 0, 0.300000012, 0)
+
+Dragger.Parent = MainFrame
 
 Players.Name = "Players"
 Players.Parent = MainFrame
@@ -361,6 +364,7 @@ Close.TextWrapped = true
 
 UICorner_16.Parent = Close
 
+
 local HasItem = game.ReplicatedStorage.HasItem
 local Withdraw = game.ReplicatedStorage.DestroyAll
 local PlaceItem = game.ReplicatedStorage.PlaceItem 
@@ -384,6 +388,7 @@ Count2.Parent = MissingItems
 
 local Player = game.Players.LocalPlayer
 local PlayerLoaded = nil
+
 
 local Suffixes = { "k", "M", "B", "T", "qd", "Qn", "sx", "Sp", "O", "N", "de", "Ud",
 	"DD", "tdD", "qdD", "QnD", "sxD", "SpD", "OcD", "NvD", "Vgn", "UVg", "DVg", "TVg",
@@ -531,11 +536,14 @@ function ConvertLayoutToString(Layout)
 	local Cost = 0
 	local FullLayout = HTTP:JSONDecode(Layout.Value)
 	local ConvertedLayout = {}
+
+	-- Removed spawn() so the loop finishes BEFORE encoding
 	for i, Item in pairs(FullLayout) do
 		local RealItem = findItem(Item.ItemId)
 		local Tycoon = Player.PlayerTycoon.Value
 		local TycoonBase = Tycoon.Base
 
+		-- Calculate the relative position [cite: 1]
 		local TycoonTopLeft = TycoonBase.CFrame * CFrame.new(Vector3.new(TycoonBase.Size.x/2, 0, TycoonBase.Size.z/2))        
 
 		local px = tonumber(Item.Position[1])
@@ -546,13 +554,16 @@ function ConvertLayoutToString(Layout)
 		local lookVector = Vector3.new(Item.Position[4], Item.Position[5], Item.Position[6])
 		local CoordinateFrame = CFrame.new(Position, Position + (lookVector * 5))
 
-	
+		-- To match Converted.txt, we need the 12-component string 
 		local NewPos = CoordinateFrame - TycoonBase.Position
 		local components = {NewPos:GetComponents()}
 		local matrixString = table.concat(components, ", ")
 
+		-- Add to table 
 		local Tab = {RealItem.Name, matrixString}
 		table.insert(ConvertedLayout, Tab)
+
+		-- Update total cost (ensure your RealItem has a Cost value)
 		if RealItem:FindFirstChild("Cost") then
 			Cost = Cost + RealItem.Cost.Value
 		end
