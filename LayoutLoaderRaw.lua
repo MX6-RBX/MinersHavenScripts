@@ -458,8 +458,9 @@ function PositionConvert(Item)
 	return PlacePos
 end
 
-function Message(Text)
+function Message(Text,Color)
 	local SafeText = LoaddingMessage.Text
+	LoaddingMessage.BackgroundColor3 = Color or Color3.fromRGB(255, 90, 90)
 	LoaddingMessage.Text = Text
 	LoaddingMessage.Visible = true
 	wait(5)
@@ -664,7 +665,7 @@ function SaveBase(Base)
 			end
 		end)
 	end
-	Message("Loading Finnished. Check F9/Dev menu for item that didnt get placed")
+	Message("Loading Finnished. Check F9/Dev menu for item that didnt get placed",Color3.fromRGB(255, 170, 127))
 end
 
 function ClearLayoutsFrame()
@@ -738,7 +739,7 @@ function LoadPlayersLayouts(SelectedPlayer)
 			if Player:FindFirstChild("BaseDataLoaded") then
 				SaveLayout(layoutItems)
 			else
-				Message("You have to load in to the game first.")
+				Message("You have to load in to the game first.",Color3.fromRGB(255, 90, 90))
 			end
 
 		end)
@@ -791,7 +792,7 @@ function LoadPlayersLayouts(SelectedPlayer)
 			if Player:FindFirstChild("BaseDataLoaded") then
 				SaveBase(Base)
 			else
-				Message("You have to load in to the game first.")
+				Message("You have to load in to the game first.",Color3.fromRGB(255, 90, 90))
 			end
 
 		end)
@@ -802,8 +803,12 @@ function LoadPlayersLayouts(SelectedPlayer)
 			ConvertBaseToString(Base)
 		end)
 	end)
+	local Add = ""
+	if SelectedPlayer:FindFirstChild("Executive") then
+		Add = "Player has Executive Base"
+	end
 	PlayerLoaded = SelectedPlayer
-	Message("Loading is complete enjoy stealing:)")
+	Message("Loading is complete enjoy stealing:) "..Add,Color3.fromRGB(100,200,100))
 end
 
 function GetPlayers()
@@ -821,7 +826,7 @@ function GetPlayers()
 			if v:FindFirstChild("BaseDataLoaded") then
 				LoadPlayersLayouts(v)
 			else
-				Message("Players is not loaded in please select another player")
+				Message("Players is not loaded in please select another player",Color3.fromRGB(255, 90, 90))
 
 			end
 		end)
