@@ -99,7 +99,7 @@ Layouts.BorderSizePixel = 0
 Layouts.Size = UDim2.new(1, 0, 1, 0)
 Layouts.CanvasSize = UDim2.new(0, 0, 0, 0)
 Layouts.ScrollBarThickness = 6
-Layouts.AutomaticCanvasSize Enum.AutomaticSize.Y
+Layouts.AutomaticCanvasSize = Enum.AutomaticSize.Y
 
 
 UIListLayout_2.Parent = Layouts
