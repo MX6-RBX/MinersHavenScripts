@@ -1,5 +1,5 @@
-local Chat = game:GetService("TextChatService")
-local channel = Chat:WaitForChild('TextChannels').RBXGeneral
+Chat = game:GetService("TextChatService")
+channel = Chat:WaitForChild('TextChannels').RBXGeneral
 local Player = game.Players.LocalPlayer
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 local MainUi = Rayfield:CreateWindow({
@@ -89,61 +89,58 @@ if not Player:FindFirstChild("BaseDataLoaded") then
 		Image = 4483362458,
 	})
 end
-local Tycoon = Player.PlayerTycoon.Value
-local ActiveTycoon = Player.ActiveTycoon.Value
-local AdjustSpeed = Tycoon.AdjustSpeed
-local Ores = game.Workspace.DroppedParts:FindFirstChild(Tycoon.Name)
-local GUI = Player.PlayerGui:WaitForChild("GUI")
-local PlaceItem = game.ReplicatedStorage.PlaceItem 
-local buyItem = game.ReplicatedStorage.BuyItem 
-local RemoteDrop = game.ReplicatedStorage.RemoteDrop
-local ClearBase = game.ReplicatedStorage.DestroyAll
-local Money = GUI:FindFirstChild("Money")
-local Boxes = game.Workspace.Boxes
-local Layout1 = "Layout1"
-local Layout2 = "None"
-local MinWait = 20
-local LayoutWaitTime = 10
-local AutoRebirth = false
-local Rebirthing = false
-local UsingMoneyLoop = false
-local OreBoost = false
-local OreBoostActive = false
-local AutoDrop = false
-local Furnace = nil
-local IndMine = nil
-local OreTracking = false
-local FarmRp = false
-local TrackBoxes = false
-local TestingMode = false
-local AddRandomness = false
-local Fuel = false
-local WalkSpeed = 16
-local JumpPower = 50
 
-local WaitToRebirth = false
-local Skips = 0
-local CollectingBoxes = false
-local Blur = true
-local WithdrawBase = false
-local OpenBoxes = false
-local UseCloversValue = Player:FindFirstChild("UseClover")
-local UseClovers = UseCloversValue
-local SelectedBox = "Regular"
-local UpgraderSize = 1
-local SingleItemUpgrade = ""
-local Slipstream = ""
-local ConveyorSpeed = 5
-local FakeName = ""
-local CTag = "[MX6]"
-local SpoofLife =false
-local SpoofName = false
-local LifeVal = 0 
-local FastOreBoost = false
-local FarmBoxes = false
-local UpgradeLoopCount = 1
-local AutoDrop = false
-local externalLayoutString = ""
+Tycoon = Player.PlayerTycoon.Value
+ActiveTycoon = Player.ActiveTycoon.Value
+AdjustSpeed = Tycoon.AdjustSpeed
+Ores = game.Workspace.DroppedParts:FindFirstChild(Tycoon.Name)
+GUI = Player.PlayerGui:WaitForChild("GUI")
+PlaceItem = game.ReplicatedStorage.PlaceItem 
+buyItem = game.ReplicatedStorage.BuyItem 
+RemoteDrop = game.ReplicatedStorage.RemoteDrop
+ClearBase = game.ReplicatedStorage.DestroyAll
+Money = GUI:FindFirstChild("Money")
+Boxes = game.Workspace.Boxes
+Layout1 = "Layout1"
+Layout2 = "None"
+MinWait = 20
+LayoutWaitTime = 10
+AutoRebirth = false
+Rebirthing = false
+UsingMoneyLoop = false
+OreBoost = false
+OreBoostActive = false
+AutoDrop = false
+Furnace = nil
+IndMine = nil
+OreTracking = false
+FarmRp = false
+TrackBoxes = false
+TestingMode = false
+AddRandomness = false
+Fuel = false
+WalkSpeed = 16
+JumpPower = 50
+WaitToRebirth = false
+Skips = 0
+CollectingBoxes = false
+Blur = true
+WithdrawBase = false
+OpenBoxes = false
+UseCloversValue = Player:FindFirstChild("UseClover")
+UseClovers = UseCloversValue
+SelectedBox = "Regular"
+UpgraderSize = 1
+SingleItemUpgrade = ""
+Slipstream = ""
+ConveyorSpeed = 5
+FastOreBoost = false
+FarmBoxes = false
+UpgradeLoopCount = 1
+AutoDrop = false
+externalLayoutString = ""
+BlueprintCount = 0
+BlueprintsCost = 0
 
 
 local GUi = Instance.new("BillboardGui")
@@ -172,7 +169,7 @@ Box.TextScaled = true
 Box.BackgroundTransparency = 1
 
 UICorner.Parent = Box
-local Suffixes = { "k", "M", "B", "T", "qd", "Qn", "sx", "Sp", "O", "N", "de", "Ud", "DD", "tdD", "qdD", "QnD", "sxD", "SpD", "OcD", "NvD", 
+Suffixes = { "k", "M", "B", "T", "qd", "Qn", "sx", "Sp", "O", "N", "de", "Ud", "DD", "tdD", "qdD", "QnD", "sxD", "SpD", "OcD", "NvD", 
 	"Vgn", "UVg", "DVg", "TVg", "qtV", "QnV", "SeV", "SPG", "OVG", "NVG", "TGN", "UTG", "DTG", "tsTG", "qtTG", "QnTG", "ssTG", "SpTG", "OcTG", 
 	"NoTG", "QdDR", "uQDR", "dQDR", "tQDR", "qdQDR", "QnQDR", "sxQDR", "SpQDR", "OQDDr", "NQDDr", "qQGNT", "uQGNT", "dQGNT", "tQGNT", "qdQGNT", 
 	"QnQGNT", "sxQGNT", "SpQGNT", "OQQGNT", "NQQGNT", "SXGNTL", "USXGNTL", "DSXGNTL", "TSXGNTL", "QTSXGNTL", "QNSXGNTL", "SXSXGNTL", "SPSXGNTL", 
@@ -185,7 +182,7 @@ if game:GetService("MarketplaceService"):UserOwnsGamePassAsync(Player.UserId,130
 	print("Box Wait changed")
 end
 
-local function shorten(Input)
+function shorten(Input)
 	local Negative = Input < 0
 	Input = math.abs(Input)
 
@@ -210,7 +207,7 @@ local function shorten(Input)
 	return Input
 end
 
-local MoneyLoopables = {
+MoneyLoopables = {
 	["Large Ore Upgarder"] ={Cap = 50e+3,Effect = nil,MinVal = nil},
 	["Solar Large Upgrader"]={Cap = 50e+3,Effect = nil,MinVal = nil},
 	["Precision Refiner"]= {Cap = 1e+8,Effect = "Fire",MinVal = nil},
@@ -245,14 +242,14 @@ local MoneyLoopables = {
 
 }
 --⭐ Ornate Sinister Sepulcher ⭐     Renegade Sinister Sepulcher      Sinister Sepulcher
-local EffectRemovers = {
+EffectRemovers = {
 	"Wild Spore", 
 	"Deadly Spore", 
 	"Azure Spore", 
 	"The Death Cap"
 }
 
-local ResettersNames = {
+ResettersNames = {
 	"Tesla Resetter",
 	"Tesla Refuter",
 	"Black Dwarf",
@@ -265,19 +262,30 @@ local ResettersNames = {
 	"⭐ Spooky Tesla Resetter ⭐"
 }
 
-local Slipstreams = {"None"}	
-local OreTrackers = {}
-local BoxTrackers = {}
-local ELayout = loadstring(game:HttpGet('https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/BasicFirstLife.lua'))()
-local UILib = loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX/UiLib/refs/heads/main/UiLib.lua"))()
+Slipstreams = {"None"}	
+Blueprints = {}
+OreTrackers = {}
+BoxTrackers = {}
+ELayout = loadstring(game:HttpGet('https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/BasicFirstLife.lua'))()
+
+Rayfield:Notify({
+	Title = "Waiting on Blueprint Calculation",
+	Content = "Script is calculating the cost of blueprints and the amount of blueprints you can afford. This may take a while.",
+	Duration = 5,
+	Image = nil,
+})
 
 for i,v in  game.ReplicatedStorage.Items:GetChildren() do
 	if v.Tier.Value == 78 then
 		table.insert(Slipstreams,v.Name)
+	elseif v:FindFirstChild("BlueprintPrice") then 
+		local Id = v.ItemId.Value
+		local Data = {Id,v.BlueprintPrice.Value}
+		table.insert(Blueprints,Data)
 	end
 end
 
-local function LoadExternlLayout(Layout)--Converts a shared layout string to a placeable layout
+function LoadExternlLayout(Layout)--Converts a shared layout string to a placeable layout
 	if Layout then 
 		local PlaceTable = {}
 		for i,v in pairs(Layout) do
@@ -303,7 +311,7 @@ local function LoadExternlLayout(Layout)--Converts a shared layout string to a p
 	end 
 end
 
-local function LoadStringLayout(String)
+function LoadStringLayout(String)
 	if typeof(String) ~= "string" then return end
 
 	print("Loading String layout")
@@ -338,7 +346,7 @@ local function LoadStringLayout(String)
 		return nil
 	end 
 end
-local function AddBoxTrack(Box)
+function AddBoxTrack(Box)
 	local Ui = GUi:Clone()
 	Ui.Box.Text = Box.Name
 	Ui.AlwaysOnTop = true
@@ -357,7 +365,7 @@ local function AddBoxTrack(Box)
 	table.insert(BoxTrackers,Ui)
 end
 
-local function CollectBoxes()
+function CollectBoxes()
 	if not CollectingBoxes then
 		local Pos = Player.Character.HumanoidRootPart.CFrame 
 		CollectingBoxes = true
@@ -377,7 +385,7 @@ local function CollectBoxes()
 	end
 end
 
-local function AddTracker(ore)
+function AddTracker(ore)
 	repeat wait() until ore:FindFirstChild("Cash")
 	local Ui = GUi:Clone()
 	Ui.Box.Text = "$"..shorten(ore.Cash.Value)
@@ -395,14 +403,14 @@ local function AddTracker(ore)
 	end)
 end
 
-local function ToggleBoxTrack(Val)
+function ToggleBoxTrack(Val)
 	TrackBoxes = Val
 	for i,v in BoxTrackers do 
 		v.Enabled = TrackBoxes
 	end
 end
 
-local function ToggleOreTrack(Val)
+function ToggleOreTrack(Val)
 	OreTracking = Val
 
 	for i,v in OreTrackers do
@@ -412,7 +420,7 @@ local function ToggleOreTrack(Val)
 	end
 end
 
-local function ResizeUpgraders()
+function ResizeUpgraders()
 	for i,v in Tycoon:GetChildren() do
 		if v:FindFirstChild("ItemId") and v:FindFirstChild("Plane")  then
 			if not v:FindFirstChild("Model") then continue end
@@ -432,7 +440,7 @@ local function ResizeUpgraders()
 		end
 	end
 end
-local function RezieSingleUpgrader(Name)
+function RezieSingleUpgrader(Name)
 	--print("Resizing: ",Name)
 	local Item = Tycoon:FindFirstChild(Name)
 	if Item then
@@ -454,7 +462,7 @@ local function RezieSingleUpgrader(Name)
 	end
 end
 
-local function ChangeUi(Name)
+function ChangeUi(Name)
 	if GUI.FocusWindow.Value then  
 		GUI.FocusWindow.Value.Visible = false
 		wait(0.01)
@@ -470,12 +478,13 @@ local function ChangeUi(Name)
 	end
 end
 
-local function comma(Value)
+function comma(Value)
+	print("Converting", Value)
 	local v3, v4, v5 = string.match(tostring(Value), "^([^%d]*%d)(%d*)(.-)$");
 	return v3 .. v4:reverse():gsub("(%d%d%d)", "%1,"):reverse() .. v5;
 end
 
-local function HandleLife(Life)
+function HandleLife(Life)
 	local Suffix
 	local LastDigit = tonumber(string.sub(tostring(Life),string.len(tostring(Life))))
 	local SendLastDigit = tonumber(string.sub(tostring(Life),string.len(tostring(Life-1))))
@@ -493,10 +502,21 @@ local function HandleLife(Life)
 	return tostring(comma(Life))..Suffix
 end
 
-local function KillOres()
+function KillOres()
 	for i,v in Ores:GetChildren() do
 		if v and v:IsA("Part") then
 			v.CFrame = Tycoon.Base.CFrame
+		end
+	end
+end
+
+function BuyBlueprints()
+	for i,v in Blueprints do
+		if game.ReplicatedStorage.CraftsmanEvents:InvokeServer("type:hasblueprint", v[1]) then continue end
+		local Bought = game.ReplicatedStorage.CraftsmanEvents:InvokeServer("type:buyblueprint", v[1])
+		if Bought then 
+			BlueprintsCost -= v[2]
+			BlueprintCount -= 1
 		end
 	end
 end
@@ -919,6 +939,25 @@ local BaseTP = VendorsPage:CreateButton({
 		Player.Character.HumanoidRootPart.CFrame = Tycoon.Base.CFrame + Vector3.new(0,10,0)
 	end,
 })
+--
+task.spawn(function()
+	for i,v in Blueprints do
+		if not game.ReplicatedStorage.CraftsmanEvents:InvokeServer("type:hasblueprint",v[1])  then
+			BlueprintCount += 1
+			BlueprintsCost += v[2]
+		end
+	end
+	local Paragraph = VendorsPage:CreateParagraph({Title = '<font color="rgb(0,0,170)"><b>Blueprints</b></font>', Content = "You have "..BlueprintCount.."/"..#Blueprints.." Left to buy. It will cost "..comma(BlueprintsCost).."RP to buy them all"})
+
+	local BuyAllBlueprints = VendorsPage:CreateButton({
+		Name = "Buy Craftsman Blueprints(Uses RP)",
+		Callback = function()
+			BuyBlueprints()
+			Paragraph:Set({Title = '<font color="rgb(0,0,170)"><b>Blueprints</b></font>', Content = "You have "..BlueprintCount.."/"..#Blueprints.." Left to buy. It will cost "..comma(BlueprintsCost).."RP to buy them all"})
+		end,
+	})
+end)
+
 
 local BoxSection = VendorsPage:CreateSection("Box Opening")
 local BoxSelectDropdown = VendorsPage:CreateDropdown({
@@ -960,6 +999,7 @@ local OpenBoxToggle = VendorsPage:CreateToggle({
 	end,
 })
 
+local BPSection = VendorsPage:CreateSection("Blue prints")
 local OtherOptionsPage = MainUi:CreateTab("Other Options",6023426938)
 local TestSection = OtherOptionsPage:CreateSection("Testing")
 local TestingToggle = OtherOptionsPage:CreateToggle({
@@ -1076,80 +1116,8 @@ local ItemTracker = OtherOptionsPage:CreateButton({
 	end,
 })
 
-local SpoofPage = MainUi:CreateTab("Spoofer",6031215978)
-local InfoSection = SpoofPage:CreateSection("Info")
-local Paragraph = SpoofPage:CreateParagraph({Title = "<b>!WARNING!</b>", Content = "Spoofed Chats are local, Other player will seen tham as your roblox name."})
-
-local SpoofSection = SpoofPage:CreateSection("Spoof Info")
-local SpoofNameText = SpoofPage:CreateInput({
-	Name = "Fake Name",
-	CurrentValue = "",
-	PlaceholderText = "Fake Name",
-	RemoveTextAfterFocusLost = false,
-	Flag = "FakeName",
-	Callback = function(Text)
-		if TestingMode then
-			print("Fake Name set to",Text)
-		end
-		FakeName =Text or Player.Name
-	end,
-})
-
-local SpoofedNameToggle = SpoofPage:CreateToggle({
-	Name = "Spoof Name",
-	CurrentValue = false,
-	Flag = "SpoofName", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
-	Callback = function(Value)
-		if TestingMode then
-			print("Toggled Name Spoofing:",Value)
-		end
-		SpoofName = Value
-	end,
-})
-
-local CutsomTagText = SpoofPage:CreateInput({
-	Name = "Custom Chat Tag(Rich Text Compatible)",
-	CurrentValue = "[MX6]",
-	PlaceholderText = "[MX6]",
-	RemoveTextAfterFocusLost = false,
-	Flag = "FakeTag",
-	Callback = function(Text)
-		if TestingMode then
-			print("Fake Tag set to",Text)
-		end
-		CTag =Text
-	end,
-})
-
-local LifeRandomness = SpoofPage:CreateSlider({
-	Name = "Additional Lifes",
-	Range = {0, 5000},
-	Increment = 1,
-	Suffix = "Lives",
-	CurrentValue = 0,
-	Flag = "AddLives", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
-	Callback = function(Value)
-		if TestingMode then
-			print("Exta Lives set to:",Value)
-		end
-		LifeVal = Value or 0
-	end,
-})
-
-local SpoofedLifeToggle = SpoofPage:CreateToggle({
-	Name = "Spoof Rebirtrhs",
-	CurrentValue = false,
-	Flag = "SpoofLife", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
-	Callback = function(Value)
-		if TestingMode then
-			print("Spoof Lives toggle: ",Value)
-		end
-		SpoofLife = Value
-	end,
-})
-
 local Options = MainUi:CreateTab("UI Options",6031280882)
-local UiOptionsSection = SpoofPage:CreateSection("UI Theme")
+local UiOptionsSection = Options:CreateSection("UI Theme")
 local ThemeDropdown = Options:CreateDropdown({
 	Name = "GUI Theme",
 	Options = {"Default","AmberGlow","Amethyst","Bloom","DarkBlue","Green","Light","Ocean","Serenity","Custom"},
@@ -1488,8 +1456,8 @@ local ApplyCustomThemeButton = Options:CreateButton({
 
 
 
-local MaxRebirthPrice = 1e241 -- 10 * 10^240 = 10^241
-local function RebornPrice(Player)
+MaxRebirthPrice = 1e241 -- 10 * 10^240 = 10^241
+function RebornPrice(Player)
 	local Life = Player.Rebirths.Value+1
 	local REBIRTH_PRICE_CAP = 1e241 -- 10NVSPTGNTL
 	local REBIRTH_CAP_LIFE = 80351
@@ -1925,38 +1893,6 @@ game.Lighting.Blur:GetPropertyChangedSignal("Enabled"):Connect(function()
 	game.Lighting.Blur.Enabled = Blur
 end)
 
-Chat.OnIncomingMessage = function(Message)
-	if Message then
-		if Message.Text and not Message.TextSource then
-			local NewText = Message.Text
-			if string.find(Message.Text, Player.Name)  then 
-				if SpoofName then
-					NewText = string.gsub(NewText,Player.Name,FakeName)
-				end
-			end
-			if string.find(Message.Text,"was born")then
-				local CurrentLifeText = comma(Player.Rebirths.Value+1)
-				local NewLife = HandleLife(tonumber(Player.Rebirths.Value+LifeVal))
-				if SpoofLife then
-					NewText = string.gsub(NewText,CurrentLifeText.."(..)",NewLife)
-				end
-				Message.Text = NewText
-			end
-		elseif Message.TextSource then 
-			if string.find(Message.PrefixText, tostring(Player.Name)) then 
-				if SpoofName then
-					Message.PrefixText = string.gsub(Message.PrefixText,tostring(Player.Name),CTag..FakeName)
-				end
-			elseif not string.find(Message.PrefixText, tostring(Player.Name)) and  string.find(Message.Text, Player.Name) then 
-				local NewText = Message.Text
-				if SpoofName then
-					NewText = string.gsub(NewText,Player.Name,FakeName)
-				end
-				Message.Text = NewText
-			end
-		end
-	end
-end
 
 local VS = game:GetService("VirtualUser")
 game.Players.LocalPlayer.Idled:Connect(function()
