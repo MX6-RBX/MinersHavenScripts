@@ -305,7 +305,7 @@ end
 
 local function LoadStringLayout(String)
 	if typeof(String) ~= "string" then return end
-	
+
 	print("Loading String layout")
 	local Layout,error = pcall(function()
 		game.HttpService:JSONDecode(String)
@@ -317,7 +317,7 @@ local function LoadStringLayout(String)
 		for i,v in pairs(Layout) do
 			spawn(function()
 				local Item = game.ReplicatedStorage.Items:FindFirstChild(v[1])
-				
+
 				local P = string.split(v[2],",")
 				local Pos = CFrame.new(P[1],P[2],P[3],P[4],P[5],P[6],P[7],P[8],P[9],P[10],P[11],P[12])
 				print(Item.Name,"Pos",Pos,"Place Pos",Pos+Player.PlayerTycoon.Value.Base.Position)
@@ -1529,17 +1529,18 @@ function BoostOre(Ore)
 		if MoneyLoopables[v.Name] or table.find(ResettersNames,v.Name) then continue end--Passes money loops and resetters
 		if v:FindFirstChild("ItemId") and v:FindFirstChild("Plane")  then
 			if not v:FindFirstChild("Model") then continue end
-			if v.Model:FindFirstChild("Upgrade") then
+			local UpgradePart = v.Model:FindFirstChild("Upgrade") or v.Model:FindFirstChild("Upgrader") or v.Model:FindFirstChild("Scan")
+			if UpgradePart then
 				if FastOreBoost then
 					print(Ore)
 					print(v.Model.Upgrade)
-					firetouchinterest(Ore,v.Model.Upgrade,0) 
+					firetouchinterest(UpgradePart,0) 
 					wait(0.01)
-					firetouchinterest(Ore,v.Model.Upgrade,1)
+					firetouchinterest(UpgradePart,1)
 				else
 					for a = 1,UpgradeLoopCount do
 						if v and v:FindFirstChild("Model")  then
-							Ore.CFrame =v.Model.Upgrade.CFrame 
+							Ore.CFrame = UpgradePart.CFrame 
 							wait(0.01)
 						end
 					end
