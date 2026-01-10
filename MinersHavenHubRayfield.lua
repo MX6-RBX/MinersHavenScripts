@@ -141,6 +141,7 @@ AutoDrop = false
 externalLayoutString = ""
 BlueprintCount = 0
 BlueprintsCost = 0
+SelectedPlayer = game.Players.LocalPlayer
 
 
 local GUi = Instance.new("BillboardGui")
@@ -420,6 +421,11 @@ function ToggleOreTrack(Val)
 	end
 end
 
+function TeleportToBase(SP)
+	local Base = SP.PlayerTycoon.Value
+	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Base.Base.CFrame + Vector3.new(0,10,0)
+end
+ 
 function ResizeUpgraders()
 	for i,v in Tycoon:GetChildren() do
 		if v:FindFirstChild("ItemId") and v:FindFirstChild("Plane")  then
@@ -910,7 +916,6 @@ local EventMenu = VendorsPage:CreateButton({
 		ChangeUi("EventMenu")
 	end,
 })
-
 local GiftExchange = VendorsPage:CreateButton({
 	Name = "Open Gift Exchange/Present Santa",
 	Callback = function()
@@ -927,6 +932,25 @@ local GiftExchange = VendorsPage:CreateButton({
 			})
 		end
 
+	end,
+})
+
+local PlayerBaseSection = VendorsPage:CreateSection("Player Base Teleport")
+local PlayerSelectDropdown = VendorsPage:CreateDropdown({
+	Name = "Select Player",
+	Options = game.Players:GetChildren(),
+	CurrentOption = {game.Players.LocalPlayer},
+	MultipleOptions = false,
+	Flag = "PlayerSelect", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+	Callback = function(Options)
+		SelectedPlayer = Options[1]
+		
+	end,
+})
+local PlayerBaseTpButton = VendorsPage:CreateButton({
+	Name = "Teleport to selected players base",
+	Callback = function()
+		TeleportToBase(SelectedPlayer)
 	end,
 })
 
@@ -1901,7 +1925,9 @@ game.Players.LocalPlayer.Idled:Connect(function()
 end)
 Rayfield:LoadConfiguration()
 --Keep at bottom of script
-
+game.Players.Changed:Connect(function()
+	PlayerSelectDropdown:Refresh(game.Players:GetChildren()) 
+end)
 task.spawn(function()
 	while true do
 		wait()
