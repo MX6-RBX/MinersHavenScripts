@@ -388,7 +388,7 @@ local function AddTracker(ore)
 	table.insert(OreTrackers,Ui)
 	ore.Cash.Changed:Connect(function()
 		local Val = 0
-		if ore and ore.Cash then
+		if ore and ore:FindFirstChild("Cash") then
 			Val = ore.Cash.Value or 0
 		end
 		Ui.Box.Text = "$"..shorten(Val)
