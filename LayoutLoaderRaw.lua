@@ -99,6 +99,8 @@ Layouts.BorderSizePixel = 0
 Layouts.Size = UDim2.new(1, 0, 1, 0)
 Layouts.CanvasSize = UDim2.new(0, 0, 0, 0)
 Layouts.ScrollBarThickness = 6
+Layouts.AutomaticCanvasSize Enum.AutomaticSize.Y
+
 
 UIListLayout_2.Parent = Layouts
 UIListLayout_2.SortOrder = Enum.SortOrder.LayoutOrder
@@ -232,6 +234,7 @@ Items.Size = UDim2.new(1, 0, 0.850000024, -10)
 Items.ZIndex = 2
 Items.CanvasSize = UDim2.new(0, 0, 0, 0)
 Items.ScrollBarThickness = 5
+Items.AutomaticCanvasSize = Enum.AutomaticSize.Y
 
 UIGridLayout.Parent = Items
 UIGridLayout.SortOrder = Enum.SortOrder.LayoutOrder
@@ -331,6 +334,7 @@ MissingItems.Position = UDim2.new(1, -310, 0.5, 0)
 MissingItems.Size = UDim2.new(0, 300, 0, 500)
 MissingItems.Visible = false
 
+
 UICorner_15.Parent = MissingItems
 
 Items_2.Name = "Items"
@@ -341,6 +345,7 @@ Items_2.BackgroundTransparency = 1.000
 Items_2.BorderSizePixel = 0
 Items_2.Size = UDim2.new(1, 0, 1, 0)
 Items_2.CanvasSize = UDim2.new(0, 0, 0, 0)
+Items_2.AutomaticCanvasSize = Enum.AutomaticSize.Y
 
 UIGridLayout_2.Parent = Items_2
 UIGridLayout_2.SortOrder = Enum.SortOrder.LayoutOrder
