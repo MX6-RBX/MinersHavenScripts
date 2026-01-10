@@ -1533,7 +1533,7 @@ function BoostOre(Ore)
 			if UpgradePart then
 				if FastOreBoost then
 					print(Ore)
-					print(v.Model.Upgrade)
+					print(UpgradePart)
 					firetouchinterest(UpgradePart,0) 
 					wait(0.01)
 					firetouchinterest(UpgradePart,1)
