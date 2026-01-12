@@ -89,6 +89,8 @@ if not Player:FindFirstChild("BaseDataLoaded") then
 		Image = 4483362458,
 	})
 end
+
+
 local Tycoon = Player.PlayerTycoon.Value
 local ActiveTycoon = Player.ActiveTycoon.Value
 local AdjustSpeed = Tycoon.AdjustSpeed
@@ -100,52 +102,56 @@ local RemoteDrop = game.ReplicatedStorage.RemoteDrop
 local ClearBase = game.ReplicatedStorage.DestroyAll
 local Money = GUI:FindFirstChild("Money")
 local Boxes = game.Workspace.Boxes
-local Layout1 = "Layout1"
-local Layout2 = "None"
-local MinWait = 20
-local LayoutWaitTime = 10
-local AutoRebirth = false
-local Rebirthing = false
-local UsingMoneyLoop = false
-local OreBoost = false
-local OreBoostActive = false
-local AutoDrop = false
-local Furnace = nil
-local IndMine = nil
-local OreTracking = false
-local FarmRp = false
-local TrackBoxes = false
-local TestingMode = false
-local AddRandomness = false
-local Fuel = false
-local WalkSpeed = 16
-local JumpPower = 50
 
-local WaitToRebirth = false
-local Skips = 0
-local CollectingBoxes = false
-local Blur = true
-local WithdrawBase = false
-local OpenBoxes = false
-local UseCloversValue = Player:FindFirstChild("UseClover")
-local UseClovers = UseCloversValue
-local SelectedBox = "Regular"
-local UpgraderSize = 1
-local SingleItemUpgrade = ""
-local Slipstream = ""
-local ConveyorSpeed = 5
-local FakeName = ""
-local CTag = "[MX6]"
-local SpoofLife =false
-local SpoofName = false
-local LifeVal = 0 
-local FastOreBoost = false
-local FarmBoxes = false
-local UpgradeLoopCount = 1
-local AutoDrop = false
-local externalLayoutString = ""
-local BlueprintCount = 0
-local BlueprintsCost = 0
+local Set = {
+	Layout1 = "Layout1",
+	Layout2 = "None",
+	MinWait = 20,
+	LayoutWaitTime = 10,
+	AutoRebirth = false,
+	Rebirthing = false,
+	UsingMoneyLoop = false,
+	OreBoost = false,
+	OreBoostActive = false,
+	AutoDrop = false,
+	Furnace = nil,
+	IndMine = nil,
+	OreTracking = false,
+	FarmRp = false,
+	TrackBoxes = false,
+	TestingMode = false,
+	AddRandomness = false,
+	Fuel = false,
+	WalkSpeed = 16,
+	JumpPower = 50,
+	WaitToRebirth = false,
+	Skips = 0,
+	CollectingBoxes = false,
+	Blur = true,
+	WithdrawBase = false,
+	OpenBoxes = false,
+	UseCloversValue = Player:FindFirstChild("UseClover"),
+	SelectedBox = "Regular",
+	UpgraderSize = 1,
+	SingleItemUpgrade = "",
+	Slipstream = "",
+	ConveyorSpeed = 5,
+	FakeName = "",
+	CTag = "[MX6]",
+	SpoofLife =false,
+	SpoofName = false,
+	LifeVal = 0 ,
+	FastOreBoost = false,
+	FarmBoxes = false,
+	UpgradeLoopCount = 1,
+	externalLayoutString = "",
+	BlueprintCount = 0,
+	BlueprintsCost = 0,
+	SelectedPlayer = game.Players.LocalPlayer.Name
+	
+}
+
+local UseClovers = Set.UseCloversValue
 
 
 local GUi = Instance.new("BillboardGui")
@@ -183,7 +189,7 @@ local Suffixes = { "k", "M", "B", "T", "qd", "Qn", "sx", "Sp", "O", "N", "de", "
 	"UNONGNTL", "DNONGNTL", "TNONGNTL", "QTNONGNTL", "QNNONGNTL", "SXNONGNTL", "SPNONGNTL", "OTNONGNTL", "NONONGNTL", "CENT", "UNCENT","inf" }  
 
 if game:GetService("MarketplaceService"):UserOwnsGamePassAsync(Player.UserId,13046381) then
-	BoxWait = 4
+	Set.BoxWait = 4
 	print("Box Wait changed")
 end
 
@@ -267,7 +273,7 @@ local ResettersNames = {
 	"⭐ Spooky Tesla Resetter ⭐"
 }
 
-local Slipstreams = {"None"}	
+local Slipstreams = {"None"}
 local Blueprints = {}
 local OreTrackers = {}
 local BoxTrackers = {}
@@ -281,13 +287,8 @@ for i,v in  game.ReplicatedStorage.Items:GetChildren() do
 		local Id = v.ItemId.Value
 		local Data = {Id,v.BlueprintPrice.Value}
 		table.insert(Blueprints,Data)
-		if not game.ReplicatedStorage.CraftsmanEvents:InvokeServer("type:hasblueprint",Id)  then
-			BlueprintCount += 1
-			BlueprintsCost += v.BlueprintPrice.Value
-		end
 	end
 end
-
 local function LoadExternlLayout(Layout)--Converts a shared layout string to a placeable layout
 	if Layout then 
 		local PlaceTable = {}
@@ -364,14 +365,14 @@ local function AddBoxTrack(Box)
 		Ui.Parent = Box
 		Ui.Adornee = Box
 	end
-	Ui.Enabled = TrackBoxes
+	Ui.Enabled = Set.TrackBoxes
 	table.insert(BoxTrackers,Ui)
 end
 
 local function CollectBoxes()
-	if not CollectingBoxes then
+	if not Set.CollectingBoxes then
 		local Pos = Player.Character.HumanoidRootPart.CFrame 
-		CollectingBoxes = true
+		Set.CollectingBoxes = true
 
 		for i,v in Boxes:GetChildren() do
 			if v:IsA("Model") and v:FindFirstChild("Crate") then
@@ -381,7 +382,7 @@ local function CollectBoxes()
 			end
 			wait(0.5)
 		end
-		CollectingBoxes = false
+		Set.CollectingBoxes = false
 		Player.Character.HumanoidRootPart.AssemblyLinearVelocity = Vector3.new(0,0,0)
 		Player.Character.HumanoidRootPart.AssemblyAngularVelocity = Vector3.new(0,0,0)
 		Player.Character.HumanoidRootPart.CFrame = Pos
@@ -395,7 +396,7 @@ local function AddTracker(ore)
 	Ui.AlwaysOnTop = true
 	Ui.Parent = ore
 	Ui.Adornee = ore
-	Ui.Enabled = OreTracking
+	Ui.Enabled = Set.OreTracking
 	table.insert(OreTrackers,Ui)
 	ore.Cash.Changed:Connect(function()
 		local Val = 0
@@ -407,20 +408,26 @@ local function AddTracker(ore)
 end
 
 local function ToggleBoxTrack(Val)
-	TrackBoxes = Val
+	Set.TrackBoxes = Val
 	for i,v in BoxTrackers do 
-		v.Enabled = TrackBoxes
+		v.Enabled = Set.TrackBoxes
 	end
 end
 
 local function ToggleOreTrack(Val)
-	OreTracking = Val
+	Set.OreTracking = Val
 
 	for i,v in OreTrackers do
 		if v and v.Parent then
-			v.Enabled = OreTracking
+			v.Enabled = Set.OreTracking
 		end
 	end
+end
+
+function TeleportToBase(SP)
+	local RealPlayer = game.Players:FindFirstChild(SP)
+	local Base = RealPlayer.PlayerTycoon.Value
+	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Base.Base.CFrame + Vector3.new(0,10,0)
 end
 
 local function ResizeUpgraders()
@@ -435,10 +442,10 @@ local function ResizeUpgraders()
 					BS.Parent = v.Model.Upgrade
 					wait(0.1)
 				end
-				if TestingMode then
-					print(v.Name, "Resized to ",UpgraderSize)
+				if Set.TestingMode then
+					print(v.Name, "Resized to ",Set.UpgraderSize)
 				end
-				v.Model.Upgrade.Size = v.Model.Upgrade.BaseSize.Value * UpgraderSize
+				v.Model.Upgrade.Size = v.Model.Upgrade.BaseSize.Value * Set.UpgraderSize
 			end
 		end
 	end
@@ -457,10 +464,10 @@ local function RezieSingleUpgrader(Name)
 				BS.Parent = Item.Model.Upgrade
 				wait(0.1)
 			end
-			if TestingMode then
-				print(Item.Name, "Resized to ",UpgraderSize)
+			if Set.TestingMode then
+				print(Item.Name, "Resized to ",Set.UpgraderSize)
 			end
-			Item.Model.Upgrade.Size = Item.Model.Upgrade.BaseSize.Value * UpgraderSize
+			Item.Model.Upgrade.Size = Item.Model.Upgrade.BaseSize.Value * Set.UpgraderSize
 		end
 	end
 end
@@ -475,7 +482,7 @@ local function ChangeUi(Name)
 	if Ui then
 		Ui.Visible = true
 		GUI.FocusWindow.Value = Ui
-		if TestingMode then
+		if Set.TestingMode then
 			print("Toggled: "..Name)
 		end
 	end
@@ -512,12 +519,13 @@ local function KillOres()
 	end
 end
 
-local function BuyBlueprints()
+function BuyBlueprints()
 	for i,v in Blueprints do
+		if game.ReplicatedStorage.CraftsmanEvents:InvokeServer("type:hasblueprint", v[1]) then continue end
 		local Bought = game.ReplicatedStorage.CraftsmanEvents:InvokeServer("type:buyblueprint", v[1])
 		if Bought then 
-			BlueprintsCost -= v[2]
-			BlueprintCount -=1
+			Set.BlueprintsCost -= v[2]
+			Set.BlueprintCount -= 1
 		end
 	end
 end
@@ -529,8 +537,8 @@ local AutoRebithToggle = BoostPage:CreateToggle({
 	CurrentValue = false,
 	Flag = "Auto Rebirth",
 	Callback = function(Value)
-		AutoRebirth = Value or false
-		if TestingMode then
+		Set.AutoRebirth = Value or false
+		if Set.TestingMode then
 			print("Auto Rebirth:",Value)
 		end
 	end,
@@ -544,8 +552,8 @@ local WaitForSkips = BoostPage:CreateSlider({
 	CurrentValue = 0,
 	Flag = "Skips", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
 	Callback = function(Value)
-		Skips = Value or 0
-		if TestingMode then
+		Set.Skips = Value or 0
+		if Set.TestingMode then
 			print(" Wait for Skips:",Value)
 		end
 	end,
@@ -558,8 +566,8 @@ local MinWaitTime = BoostPage:CreateInput({
 	RemoveTextAfterFocusLost = false,
 	Flag = "MinWait",
 	Callback = function(Text)
-		MinWait = tonumber(Text) or 20
-		if TestingMode then
+		Set.MinWait = tonumber(Text) or 20
+		if Set.TestingMode then
 			print("Min Wait Time:",Text)
 		end
 	end,
@@ -570,8 +578,8 @@ local WaitRandom = BoostPage:CreateToggle({
 	CurrentValue = false,
 	Flag = "WaitRandomnes", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
 	Callback = function(Value)
-		AddRandomness = Value
-		if TestingMode then
+		Set.AddRandomness = Value
+		if Set.TestingMode then
 			print("Add Wait Randomness:",Value)
 		end
 	end,
@@ -585,7 +593,7 @@ local SlipsteamDropDown = BoostPage:CreateDropdown({
 	Flag = "StopOnSlipsteam", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
 	Callback = function(Options)
 		Slipstream = Options[1]
-		if TestingMode then	
+		if Set.TestingMode then	
 			print("Stop on Slipstream:",Options[1])
 		end
 	end,
@@ -598,8 +606,8 @@ local Layout1Dropdown = BoostPage:CreateDropdown({
 	MultipleOptions = false,
 	Flag = "Layout1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
 	Callback = function(Options)
-		Layout1 = Options[1]
-		if TestingMode then	
+		Set.Layout1 = Options[1]
+		if Set.TestingMode then	
 			print("First Layout:",Options[1])
 		end
 	end,
@@ -612,8 +620,8 @@ local LayoutWaitBox = BoostPage:CreateInput({
 	RemoveTextAfterFocusLost = false,
 	Flag = "LayoutLoadWait",
 	Callback = function(Text)
-		LayoutWaitTime = tonumber(Text) or 5
-		if TestingMode then
+		Set.LayoutWaitTime = tonumber(Text) or 5
+		if Set.TestingMode then
 			print("Layout 2 Load Wait:",Text)
 		end
 	end,
@@ -624,8 +632,8 @@ local WithdrawLayoutToggle = BoostPage:CreateToggle({
 	CurrentValue = false,
 	Flag = "WithdrawBase", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
 	Callback = function(Value)
-		WithdrawBase = Value
-		if TestingMode then
+		Set.WithdrawBase = Value
+		if Set.TestingMode then
 			print("Add Wait Randomness:",Value)
 		end
 	end,
@@ -638,8 +646,8 @@ local Layout2Dropdown = BoostPage:CreateDropdown({
 	MultipleOptions = false,
 	Flag = "Layout2", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
 	Callback = function(Options)
-		Layout2 = Options[1]
-		if TestingMode then	
+		Set.Layout2 = Options[1]
+		if Set.TestingMode then	
 			print("Second Layout:",Options[1])
 		end
 	end,
@@ -650,8 +658,8 @@ local AutoDropToggle = BoostPage:CreateToggle({
 	CurrentValue = false,
 	Flag = "AutoDrop", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
 	Callback = function(Value)
-		AutoDrop = Value
-		if TestingMode then
+		Set.AutoDrop = Value
+		if Set.TestingMode then
 			print("Auto Drop:",Value)
 		end
 	end,
@@ -663,9 +671,9 @@ local BoostToggle = BoostPage:CreateToggle({
 	CurrentValue = false,
 	Flag = "OreBoost", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
 	Callback = function(Value)
-		OreBoost = Value
-		OreBoostActive = Value
-		if TestingMode then
+		Set.OreBoost = Value
+		Set.OreBoostActive = Value
+		if Set.TestingMode then
 			print("Ore Boost:",Value)
 		end
 	end,
@@ -680,19 +688,21 @@ local LoopCountSlider = BoostPage:CreateSlider({
 	CurrentValue = 0,
 	Flag = "UpgradeLoopCount", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
 	Callback = function(Value)
-		UpgradeLoopCount = Value or 1
-		if TestingMode then
+		Set.UpgradeLoopCount = Value or 1
+		if Set.TestingMode then
 			print("Upgrade Loop Count:",Value)
 		end
 	end,
 })
 
-local IgnoreFuleToggle = BoostPage:CreateToggle({
+local Ignore
+
+Toggle = BoostPage:CreateToggle({
 	Name = "Using Ind Mine",
 	CurrentValue = false,
 	Flag = "IndMine", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
 	Callback = function(Value) 
-		Fuel = true
+		Set.Fuel = true
 	end,
 })
 
@@ -701,8 +711,8 @@ local MoneyLoopToggle = BoostPage:CreateToggle({
 	CurrentValue = false,
 	Flag = "MoneyLoopables", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
 	Callback = function(Value)
-		UsingMoneyLoop = Value
-		if TestingMode then
+		Set.UsingMoneyLoop = Value
+		if Set.TestingMode then
 			print("Money Loopables: ",Value)
 		end 
 	end,
@@ -713,15 +723,15 @@ local FarmRpToggle = BoostPage:CreateToggle({
 	CurrentValue = false,
 	Flag = "FarmRp", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
 	Callback = function(Value)
-		FarmRp = Value
-		if OreBoost then
+		Set.FarmRp = Value
+		if Set.OreBoost then
 			BoostToggle:Set(false)
 			AutoRebithToggle:Set(false)
-			OreBoost = false
-			OreBoostActive = false
-			AutoRebirth = false
+			Set.OreBoost = false
+			Set.OreBoostActive = false
+			Set.AutoRebirth = false
 		end
-		if TestingMode then
+		if Set.TestingMode then
 			print("Farm Rp: ",Value)
 		end 
 	end,
@@ -734,8 +744,8 @@ local FastOreBoostToggle = BoostPage:CreateToggle({
 	CurrentValue = false,
 	Flag = "FastOreBoost", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
 	Callback = function(Value)
-		FastOreBoost = Value
-		if TestingMode then
+		Set.FastOreBoost = Value
+		if Set.TestingMode then
 			print("Fast Ore Boost: ",Value)
 		end 
 	end,
@@ -752,10 +762,10 @@ local ConveyorSpeedSlider = BoostPage:CreateSlider({
 	CurrentValue = 5,
 	Flag = "ConveyorSpeed", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
 	Callback = function(Value)
-		ConveyorSpeed = Value or 5
-		AdjustSpeed.Value = ConveyorSpeed/5
-		if TestingMode then
-			print("Conveyor Speed:",ConveyorSpeed)
+		Set.ConveyorSpeed = Value or 5
+		AdjustSpeed.Value = Set.ConveyorSpeed/5
+		if Set.TestingMode then
+			print("Conveyor Speed:",Set.ConveyorSpeed)
 		end 
 	end,
 })
@@ -768,7 +778,7 @@ local UpgSizeSlider = BoostPage:CreateSlider({
 	CurrentValue = 1,
 	Flag = "UpgraderSize", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
 	Callback = function(Value)
-		UpgraderSize = Value or 1
+		Set.UpgraderSize = Value or 1
 	end,
 })
 
@@ -779,8 +789,8 @@ local UpgarderNameTextBox = BoostPage:CreateInput({
 	RemoveTextAfterFocusLost = false,
 	Flag = "ItemName",
 	Callback = function(Text)
-		SingleItemUpgrade = Text
-		if TestingMode then
+		Set.SingleItemUpgrade = Text
+		if Set.TestingMode then
 			print("Upgrader Name:",Text)
 		end
 	end,
@@ -789,7 +799,7 @@ local UpgarderNameTextBox = BoostPage:CreateInput({
 local RezieAllButton = BoostPage:CreateButton({
 	Name = "Resize All",
 	Callback = function()
-		if TestingMode then
+		if Set.TestingMode then
 			print("Resizing all upgraders")
 		end
 		ResizeUpgraders()
@@ -799,7 +809,7 @@ local RezieAllButton = BoostPage:CreateButton({
 local KillOresButton = BoostPage:CreateButton({
 	Name = "Kill Ores",
 	Callback = function()
-		if TestingMode then
+		if Set.TestingMode then
 			print("Killing all ores")
 		end
 		KillOres()
@@ -813,7 +823,7 @@ local OreTrackToggle = BoostPage:CreateToggle({
 	Flag = "TrackOreValue", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
 	Callback = function(Value)
 		ToggleOreTrack(Value)
-		if TestingMode then
+		if Set.TestingMode then
 			print("Track Ore Value: ",Value)
 		end 
 	end,
@@ -822,7 +832,7 @@ local OreTrackToggle = BoostPage:CreateToggle({
 local FirstLife = BoostPage:CreateButton({
 	Name = "Load Basic First Life Setup(15qd-390qd, Warning loud)",
 	Callback = function()
-		if TestingMode then
+		if Set.TestingMode then
 			print("Loading Basic First Life Layout.")
 		end
 		ClearBase:InvokeServer()
@@ -837,18 +847,18 @@ local LayoutStringBox = BoostPage:CreateInput({
 	RemoveTextAfterFocusLost = false,
 	Flag = "",
 	Callback = function(Text)
-		externalLayoutString = Text
+		Set.externalLayoutString = Text
 	end,
 })
 
 local LoadStringLayoutButton = BoostPage:CreateButton({
 	Name = "Load a layout from the inputed string",
 	Callback = function()
-		if TestingMode then
+		if Set.TestingMode then
 			print("Loading Basic First Life Layout.")
 		end
 		ClearBase:InvokeServer()
-		LoadStringLayout(externalLayoutString)
+		LoadStringLayout(Set.externalLayoutString)
 	end,
 })
 
@@ -930,25 +940,29 @@ local GiftExchange = VendorsPage:CreateButton({
 
 	end,
 })
-
-local Paragraph = VendorsPage:CreateParagraph({Title = "<b>Blueprints</b>", Content = "You have "..BlueprintCount.." Left to buy. It will cost "..comma(BlueprintsCost).."RP to buy them all"})
-
-local BuyAllBlueprints = VendorsPage:CreateButton({
-	Name = "Buy Craftsman Blueprints(Uses RP)",
-	Callback = function()
-		BuyBlueprints()
-		Paragraph:Set({Title = "<b>Blueprints</b>", Content = "You have "..BlueprintCount.." Left to buy. It will cost "..comma(BlueprintsCost).."RP to buy them all"})
+local PlayerList = {}
+for i,v in game.Players:GetChildren() do
+	table.insert(PlayerList,v.Name)
+end
+local PlayerBaseSection = VendorsPage:CreateSection("Player Base Teleport")
+local PlayerSelectDropdown = VendorsPage:CreateDropdown({
+	Name = "Select Player",
+	Options = PlayerList,
+	CurrentOption = { game.Players.LocalPlayer.Name},
+	MultipleOptions = false,
+	Flag = "PlayerSelect", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+	Callback = function(Options)
+		Set.SelectedPlayer = Options[1]
 	end,
 })
-
 
 local BaseTP = VendorsPage:CreateButton({
 	Name = "Teleport To Base",
 	Callback = function()
-		if TestingMode then
+		if Set.TestingMode then
 			print("Teleporting to base")
 		end
-		Player.Character.HumanoidRootPart.CFrame = Tycoon.Base.CFrame + Vector3.new(0,10,0)
+		TeleportToBase(Set.SelectedPlayer)
 	end,
 })
 
@@ -960,8 +974,8 @@ local BoxSelectDropdown = VendorsPage:CreateDropdown({
 	MultipleOptions = false,
 	Flag = "BoxSelected", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
 	Callback = function(Options)
-		SelectedBox = Options[1]
-		if TestingMode then	
+		Set.SelectedBox = Options[1]
+		if Set.TestingMode then	
 			print("Seletced Box:",Options[1])
 		end
 	end,
@@ -972,7 +986,7 @@ local UseCloverToggle = VendorsPage:CreateToggle({
 	CurrentValue = UseClovers,
 	Flag = nil, -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
 	Callback = function(Value)
-		if TestingMode then
+		if Set.TestingMode then
 			print("Toggled Clovers:",Value)
 		end
 		game.ReplicatedStorage.ToggleBoxItem:InvokeServer("Clover")
@@ -982,15 +996,33 @@ local UseCloverToggle = VendorsPage:CreateToggle({
 
 local OpenBoxToggle = VendorsPage:CreateToggle({
 	Name = "Auto Open Selected box",
-	CurrentValue = OpenBoxes,
+	CurrentValue = Set.OpenBoxes,
 	Flag = "OpenBoxes", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
 	Callback = function(Value)
-		if TestingMode then
+		if Set.TestingMode then
 			print("Toggle auto Box:",Value)
 		end
-		OpenBoxes = Value
+		Set.OpenBoxes = Value
 	end,
 })
+local BoxSection = VendorsPage:CreateSection("Blueprints")
+task.spawn(function()
+	for i,v in Blueprints do
+		if not game.ReplicatedStorage.CraftsmanEvents:InvokeServer("type:hasblueprint",v[1])  then
+			Set.BlueprintCount += 1
+			Set.BlueprintsCost += v[2]
+		end
+	end
+	local Paragraph = VendorsPage:CreateParagraph({Title = '<font color="rgb(0,0,170)"><b>Blueprints</b></font>', Content = "You have "..Set.BlueprintCount.."/"..#Blueprints.." Left to buy. It will cost "..comma(Set.BlueprintsCost).."RP to buy them all"})
+
+	local BuyAllBlueprints = VendorsPage:CreateButton({
+		Name = "Buy Craftsman Blueprints(Uses RP)",
+		Callback = function()
+			BuyBlueprints()
+			Paragraph:Set({Title = '<font color="rgb(0,0,170)"><b>Blueprints</b></font>', Content = "You have "..Set.BlueprintCount.."/"..#Blueprints.." Left to buy. It will cost "..comma(Set.BlueprintsCost).."RP to buy them all"})
+		end,
+	})
+end)
 
 local OtherOptionsPage = MainUi:CreateTab("Other Options",6023426938)
 local TestSection = OtherOptionsPage:CreateSection("Testing")
@@ -1001,7 +1033,7 @@ local TestingToggle = OtherOptionsPage:CreateToggle({
 	Callback = function(Value)
 		local MessageEnd  = Value and "Enabled" or "Disabled"
 		print("Testing mode",MessageEnd)
-		TestingMode = Value
+		Set.TestingMode = Value
 	end,
 })
 
@@ -1012,7 +1044,7 @@ local BoxTrackToggle = OtherOptionsPage:CreateToggle({
 	Flag = "TrackBoxes", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
 	Callback = function(Value)
 		ToggleBoxTrack(Value)
-		if TestingMode then
+		if Set.TestingMode then
 			print("Dropped Crate ESP: ",Value)
 		end 
 	end,
@@ -1021,7 +1053,7 @@ local BoxTrackToggle = OtherOptionsPage:CreateToggle({
 local BoxTeleport = OtherOptionsPage:CreateButton({
 	Name = "Single Collect Boxes(High ban chance in public Servers)",
 	Callback = function()
-		if TestingMode then
+		if Set.TestingMode then
 			print("Collecting Boxes")
 		end 
 		CollectBoxes()
@@ -1032,8 +1064,8 @@ local AutoBoxTeleportToggle = OtherOptionsPage:CreateToggle({
 	CurrentValue = false,
 	Flag = "AutoFarmBoxes", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
 	Callback = function(Value)
-		FarmBoxes = Value
-		if TestingMode then
+		Set.FarmBoxes = Value
+		if Set.TestingMode then
 			print("Box Farming: ",Value)
 		end 
 	end,
@@ -1044,11 +1076,11 @@ local BlurToggle = OtherOptionsPage:CreateToggle({
 	CurrentValue = false,
 	Flag = "GameBlur", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
 	Callback = function(Value)
-		if TestingMode then
+		if Set.TestingMode then
 			print("game Blur toggle:", Value)
 		end 
-		Blur = not Value
-		game.Lighting.Blur.Enabled = Blur
+		Set.Blur = not Value
+		game.Lighting.Blur.Enabled = Set.Blur
 	end,
 })
 
@@ -1061,11 +1093,11 @@ local CharSpeed = OtherOptionsPage:CreateSlider({
 	CurrentValue = 16,
 	Flag = "WalkSpeed", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
 	Callback = function(Value)
-		if TestingMode then
+		if Set.TestingMode then
 			print("Player Walk Speed set to",Value)
 		end
 		Player.Character.Humanoid.WalkSpeed = Value
-		WalkSpeed = Value
+		Set.WalkSpeed = Value
 	end,
 })
 
@@ -1077,11 +1109,11 @@ local CharJump = OtherOptionsPage:CreateSlider({
 	CurrentValue = 50,
 	Flag = "JumpPower", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
 	Callback = function(Value)
-		if TestingMode then
+		if Set.TestingMode then
 			print("Player Jump set to",Value)
 		end
 		Player.Character.Humanoid.JumpPower = Value
-		JumpPower = Value
+		Set.JumpPower = Value
 	end,
 })
 
@@ -1089,7 +1121,7 @@ local ExternalSection = OtherOptionsPage:CreateSection("Useful Scripts")
 local LayoutStealer = OtherOptionsPage:CreateButton({
 	Name = "Layout Stealer(Keybind N)",
 	Callback = function()
-		if TestingMode then
+		if Set.TestingMode then
 			print("Loading External Script: Layout Stealer")
 		end
 		if game.CoreGui:FindFirstChild("LayoutsStealer") then return end
@@ -1100,7 +1132,7 @@ local LayoutStealer = OtherOptionsPage:CreateButton({
 local ItemTracker = OtherOptionsPage:CreateButton({
 	Name = "Item Tracker(Keybnd T)",
 	Callback = function()
-		if TestingMode then
+		if Set.TestingMode then
 			print("Loading External Script: Item Tracker")
 		end
 		if game.CoreGui:FindFirstChild("ItemTracker") then return end
@@ -1120,10 +1152,10 @@ local SpoofNameText = SpoofPage:CreateInput({
 	RemoveTextAfterFocusLost = false,
 	Flag = "FakeName",
 	Callback = function(Text)
-		if TestingMode then
+		if Set.TestingMode then
 			print("Fake Name set to",Text)
 		end
-		FakeName =Text or Player.Name
+		Set.FakeName =Text or Player.Name
 	end,
 })
 
@@ -1132,10 +1164,10 @@ local SpoofedNameToggle = SpoofPage:CreateToggle({
 	CurrentValue = false,
 	Flag = "SpoofName", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
 	Callback = function(Value)
-		if TestingMode then
+		if Set.TestingMode then
 			print("Toggled Name Spoofing:",Value)
 		end
-		SpoofName = Value
+		Set.SpoofName = Value
 	end,
 })
 
@@ -1146,10 +1178,10 @@ local CutsomTagText = SpoofPage:CreateInput({
 	RemoveTextAfterFocusLost = false,
 	Flag = "FakeTag",
 	Callback = function(Text)
-		if TestingMode then
+		if Set.TestingMode then
 			print("Fake Tag set to",Text)
 		end
-		CTag =Text
+		Set.CTag =Text
 	end,
 })
 
@@ -1161,10 +1193,10 @@ local LifeRandomness = SpoofPage:CreateSlider({
 	CurrentValue = 0,
 	Flag = "AddLives", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
 	Callback = function(Value)
-		if TestingMode then
+		if Set.TestingMode then
 			print("Exta Lives set to:",Value)
 		end
-		LifeVal = Value or 0
+		Set.LifeVal = Value or 0
 	end,
 })
 
@@ -1173,15 +1205,15 @@ local SpoofedLifeToggle = SpoofPage:CreateToggle({
 	CurrentValue = false,
 	Flag = "SpoofLife", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
 	Callback = function(Value)
-		if TestingMode then
+		if Set.TestingMode then
 			print("Spoof Lives toggle: ",Value)
 		end
-		SpoofLife = Value
+		Set.SpoofLife = Value
 	end,
 })
 
 local Options = MainUi:CreateTab("UI Options",6031280882)
-local UiOptionsSection = SpoofPage:CreateSection("UI Theme")
+local UiOptionsSection = Options:CreateSection("UI Theme")
 local ThemeDropdown = Options:CreateDropdown({
 	Name = "GUI Theme",
 	Options = {"Default","AmberGlow","Amethyst","Bloom","DarkBlue","Green","Light","Ocean","Serenity","Custom"},
@@ -1551,11 +1583,11 @@ local function RebornPrice(Player)
 end
 
 function BoostOre(Ore) 
-	if TestingMode then
+	if Set.TestingMode then
 		print("Ore boost Start")
 	end 
 	for i,v in Tycoon:GetChildren() do
-		if OreBoostActive == false then break end--Oreboost not active
+		if Set.OreBoostActive == false then break end--Oreboost not active
 		if not Ore then break end 
 		if not v  then break end 
 		if MoneyLoopables[v.Name] or table.find(ResettersNames,v.Name) then continue end--Passes money loops and resetters
@@ -1563,14 +1595,14 @@ function BoostOre(Ore)
 			if not v:FindFirstChild("Model") then continue end
 			local UpgradePart = v.Model:FindFirstChild("Upgrade") or v.Model:FindFirstChild("Upgrader") or v.Model:FindFirstChild("Scan")
 			if UpgradePart then
-				if FastOreBoost then
+				if Set.FastOreBoost then
 					print(Ore)
 					print(UpgradePart)
 					firetouchinterest(UpgradePart,0) 
 					wait(0.01)
 					firetouchinterest(UpgradePart,1)
 				else
-					for a = 1,UpgradeLoopCount do
+					for a = 1,Set.UpgradeLoopCount do
 						if v and v:FindFirstChild("Model")  then
 							Ore.CFrame = UpgradePart.CFrame 
 							wait(0.01)
@@ -1580,18 +1612,18 @@ function BoostOre(Ore)
 
 			elseif v.Model:FindFirstChild("Lava") and not v.Model:FindFirstChild("TeleportSend") then
 				if v and v:FindFirstChild("Model") and v.Model:FindFirstChild("Lava") and not v.Model.Lava:FindFirstChild("TeleportSend") then
-					if TestingMode then
+					if Set.TestingMode then
 						print("Has Lava, not a tp")
 					end
-					if not v.Model:FindFirstChild("Drop") and  (Furnace == nil or Furnace:FindFirstChild("Model") == nil or Furnace.Model:FindFirstChild("Lava") == nil) then 
-						Furnace = v	
-						if TestingMode then
+					if not v.Model:FindFirstChild("Drop") and  (Set.Furnace == nil or Set.Furnace:FindFirstChild("Model") == nil or Set.Furnace.Model:FindFirstChild("Lava") == nil) then 
+						Set.Furnace = v	
+						if Set.TestingMode then
 							print("Furnace set to",v.Name)
 						end
 					end
-					if v.Model:FindFirstChild("Drop") and v.Model:FindFirstChild("Lava") and  (IndMine == nil or IndMine:FindFirstChild("Model") == nil )  then
-						IndMine = v
-						if TestingMode then
+					if v.Model:FindFirstChild("Drop") and v.Model:FindFirstChild("Lava") and  (Set.IndMine == nil or Set.IndMine:FindFirstChild("Model") == nil )  then
+						Set.IndMine = v
+						if Set.TestingMode then
 							print("Industrial Mine set to",v.Name)
 						end
 					end
@@ -1599,7 +1631,7 @@ function BoostOre(Ore)
 			end
 		end
 	end
-	if TestingMode then
+	if Set.TestingMode then
 		print("Ore boost End")
 	end 
 end
@@ -1610,16 +1642,16 @@ function Reset(Ore)
 	local Star = Tycoon:FindFirstChild("Void Star") or Tycoon:FindFirstChild("Black Dwarf")
 	local Tes = Tycoon:FindFirstChild("Tesla Resetter")or Tycoon:FindFirstChild("⭐ Advanced Tesla Resetter ⭐") or Tycoon:FindFirstChild("⭐ Spooky Tesla Resetter ⭐") or Tycoon:FindFirstChild("Tesla Refuter") or Tycoon:FindFirstChild("⭐ Advanced Tesla Refuter ⭐") 
 	BoostOre(Ore)
-	if Dae and Ore and OreBoostActive then --checks if Daestrophe is on the base
-		if TestingMode then
+	if Dae and Ore and Set.OreBoostActive then --checks if Daestrophe is on the base
+		if Set.TestingMode then
 			print("Found Daestrophe")
 		end 
-		if FastOreBoost then
+		if Set.FastOreBoost then
 			firetouchinterest(Ore,Dae.Model.Upgrade,0)
 			wait(0.01)
 			firetouchinterest(Ore,Dae.Model.Upgrade,1)
 		else
-			for a = 1,UpgradeLoopCount do
+			for a = 1,Set.UpgradeLoopCount do
 				if Dae and Dae:FindFirstChild("Model") then
 					Ore.CFrame = Dae.Model.Upgrade.CFrame
 					wait(0.01)
@@ -1629,21 +1661,21 @@ function Reset(Ore)
 
 		BoostOre(Ore)
 	else
-		if TestingMode then
+		if Set.TestingMode then
 			print("Daestrophe Not found")
 		end
 	end
-	if Sac and Ore and OreBoostActive then  --Checks if either of the sacrifice resetters are on the base 
-		if TestingMode then
+	if Sac and Ore and Set.OreBoostActive then  --Checks if either of the sacrifice resetters are on the base 
+		if Set.TestingMode then
 			print("Found", Sac.Name)
 		end 
 
-		if FastOreBoost then
+		if Set.FastOreBoost then
 			firetouchinterest(Ore,Sac.Model.Upgrade,0)
 			wait(0.01)
 			firetouchinterest(Ore,Sac.Model.Upgrade,1)
 		else
-			for a = 1,UpgradeLoopCount do
+			for a = 1,Set.UpgradeLoopCount do
 				if Sac and Sac:FindFirstChild("Model") then
 					Ore.CFrame = Sac.Model.Upgrade.CFrame
 					wait(0.01)
@@ -1652,20 +1684,20 @@ function Reset(Ore)
 		end
 		BoostOre(Ore)
 	else
-		if TestingMode then
+		if Set.TestingMode then
 			print("Sacrifice resetter Not found")
 		end				
 	end
-	if Star and Ore and OreBoostActive then --Checks if black dwarf or void star is on the base 
-		if TestingMode then
+	if Star and Ore and Set.OreBoostActive then --Checks if black dwarf or void star is on the base 
+		if Set.TestingMode then
 			print("Found", Star.Name)
 		end 
-		if FastOreBoost then
+		if Set.FastOreBoost then
 			firetouchinterest(Ore,Star.Model.Upgrade,0)
 			wait(0.01)
 			firetouchinterest(Ore,Star.Model.Upgrade,1)
 		else
-			for a = 1,UpgradeLoopCount do
+			for a = 1,Set.UpgradeLoopCount do
 				if Star and Star:FindFirstChild("Model") then
 					Ore.CFrame = Star.Model.Upgrade.CFrame
 					wait(0.01)
@@ -1674,20 +1706,20 @@ function Reset(Ore)
 		end
 		BoostOre(Ore)
 	else
-		if TestingMode then
+		if Set.TestingMode then
 			print("Void star/black dwarf Not found")
 		end
 	end
-	if Tes and Ore and OreBoostActive then --Checks if either tesla is on the base
-		if TestingMode then
+	if Tes and Ore and Set.OreBoostActive then --Checks if either tesla is on the base
+		if Set.TestingMode then
 			print("Found", Tes.Name)
 		end 
-		if FastOreBoost then
+		if Set.FastOreBoost then
 			firetouchinterest(Ore,Tes.Model.Upgrade,0)
 			wait()
 			firetouchinterest(Ore,Tes.Model.Upgrade,1)
 		else
-			for a = 1,UpgradeLoopCount do
+			for a = 1,Set.UpgradeLoopCount do
 				if Tes and Tes:FindFirstChild("Model") then
 					Ore.CFrame = Tes.Model.Upgrade.CFrame
 					wait(0.01)
@@ -1696,7 +1728,7 @@ function Reset(Ore)
 		end
 		BoostOre(Ore)
 	else
-		if TestingMode then
+		if Set.TestingMode then
 			print("Tesla Not found")
 		end
 	end
@@ -1705,25 +1737,25 @@ end
 function GetFurnace()
 	for i,v in Tycoon:GetChildren() do
 		if v and v:FindFirstChild("Model") and v.Model:FindFirstChild("Lava") and not v.Model.Lava:FindFirstChild("TeleportSend") then
-			if not v.Model:FindFirstChild("Drop") and  (Furnace == nil or Furnace:FindFirstChild("Model") == nil or Furnace.Model:FindFirstChild("Lava") == nil) then 
-				Furnace = v	
+			if not v.Model:FindFirstChild("Drop") and  (Set.Furnace == nil or Set.Furnace:FindFirstChild("Model") == nil or Set.Furnace.Model:FindFirstChild("Lava") == nil) then 
+				Set.Furnace = v	
 			end
-			if v.Model:FindFirstChild("Drop") and v.Model:FindFirstChild("Lava") and  (IndMine == nil or IndMine:FindFirstChild("Model") == nil )  then
-				IndMine = v
+			if v.Model:FindFirstChild("Drop") and v.Model:FindFirstChild("Lava") and  (Set.IndMine == nil or Set.IndMine:FindFirstChild("Model") == nil )  then
+				Set.IndMine = v
 			end
 		end
 	end
 end
 
 function Sell(Ore)
-	if Furnace == nil or Furnace:FindFirstChild("Model") == nil or Furnace.Model:FindFirstChild("Lava")then 
+	if Set.Furnace == nil or Set.Furnace:FindFirstChild("Model") == nil or Set.Furnace.Model:FindFirstChild("Lava")then 
 		GetFurnace()
 	end
-	Ore.CFrame = Furnace.Model.Lava.CFrame + Vector3.new(0,1,0)
+	Ore.CFrame = Set.Furnace.Model.Lava.CFrame + Vector3.new(0,1,0)
 end
 
 function StartOreBoost(Ore)
-	if TestingMode then
+	if Set.TestingMode then
 		print("Ore Boost Setting up")
 	end 
 	Ore.Anchored = true
@@ -1736,15 +1768,15 @@ function StartOreBoost(Ore)
 	local MoneyLoop = nil
 	local LooperStats 
 	local Protect
-	if not FastOreBoost then
+	if not Set.FastOreBoost then
 		Ore.Anchored = false
 	end
 
-	if TestingMode then
+	if Set.TestingMode then
 		print("Ore Boost finished setting up")
 	end 
-	if UsingMoneyLoop then
-		if TestingMode then
+	if Set.UsingMoneyLoop then
+		if Set.TestingMode then
 			print("Using Money cap Items")
 		end 
 		for i,v in MoneyLoopables do
@@ -1759,7 +1791,7 @@ function StartOreBoost(Ore)
 			end
 		end
 		if MoneyLoop then
-			if TestingMode then
+			if Set.TestingMode then
 				print("Found Money Loop item:",MoneyLoop)
 			end 
 			local Info = MoneyLoopables[MoneyLoop.Name]
@@ -1767,8 +1799,8 @@ function StartOreBoost(Ore)
 				if not Ore or (Info.MinVal and  Ore.Cash.Value < Info.MinVal) then
 					break
 				end
-				if OreBoost == false or OreBoostActive == false then break end
-				if FastOreBoost then
+				if Set.OreBoost == false or Set.OreBoostActive == false then break end
+				if Set.FastOreBoost then
 					firetouchinterest(Ore,MoneyLoop.Model.Upgrade,0)
 					wait(0.01)
 					firetouchinterest(Ore,MoneyLoop.Model.Upgrade,1)
@@ -1778,7 +1810,7 @@ function StartOreBoost(Ore)
 						firetouchinterest(Ore,Protect.Model.Upgrade,1)
 					end
 				else
-					for a = 1,UpgradeLoopCount do
+					for a = 1,Set.UpgradeLoopCount do
 						Ore.CFrame = MoneyLoop.Model.Upgrade.CFrame
 						wait(Info.MinWait or 0.01)
 						if LooperStats.Effect ~= nil and Protect ~= nil then
@@ -1789,34 +1821,34 @@ function StartOreBoost(Ore)
 
 				wait(0.05)
 			until Ore == nil or MoneyLoop == nil or MoneyLoop:FindFirstChild("Model") == nil or Ore:FindFirstChild("Cash") == nil or Ore.Cash.Value >= Info.Cap
-			if TestingMode then
+			if Set.TestingMode then
 				print("Money Loop Finished")
 			end 	
 		end
 	end
 
-	if OreBoostActive then
+	if Set.OreBoostActive then
 		Reset(Ore)
 	end
 
 	if Ore then
-		if TestingMode then
+		if Set.TestingMode then
 			print("Selling Ore")
 		end 
 		Ore.AssemblyAngularVelocity = Vector3.new(0,0,0)
 		Ore.AssemblyLinearVelocity = Vector3.new(0,0,0)
-		if Furnace and Furnace:FindFirstChild("Model") then
-			if FastOreBoost then
-				firetouchinterest(Ore,Furnace.Model.Lava,0)
+		if Set.Furnace and Set.Furnace:FindFirstChild("Model") then
+			if Set.FastOreBoost then
+				firetouchinterest(Ore,Set.Furnace.Model.Lava,0)
 				wait(0.01)
-				firetouchinterest(Ore,Furnace.Model.Lava,1)
+				firetouchinterest(Ore,Set.Furnace.Model.Lava,1)
 			else
 				Ore.Anchored = false
-				Ore.CFrame = Furnace.Model.Lava.CFrame + Vector3.new(0,2,0)
+				Ore.CFrame = Set.Furnace.Model.Lava.CFrame + Vector3.new(0,2,0)
 			end
 
 		else
-			if TestingMode then
+			if Set.TestingMode then
 				print("No Furnace found, sending ore to spawn location")
 			end 
 			Ore.Anchored = false
@@ -1826,37 +1858,37 @@ function StartOreBoost(Ore)
 end
 
 function Load()
-	if TestingMode then
+	if Set.TestingMode then
 		print("Start Layout Loading")
 	end 
-	if OreBoost then
-		OreBoostActive = true
+	if Set.OreBoost then
+		Set.OreBoostActive = true
 	end
 	game.ReplicatedStorage.DestroyAll:InvokeServer()
 	wait(0.1)
-	if TestingMode then
+	if Set.TestingMode then
 		print("Load First Layout")
 	end 
-	game.ReplicatedStorage.Layouts:InvokeServer("Load",Layout1)
-	if Layout2 ~= "None" then
-		if TestingMode then
+	game.ReplicatedStorage.Layouts:InvokeServer("Load",Set.Layout1)
+	if Set.Layout2 ~= "None" then
+		if Set.TestingMode then
 			print("Using Second Layout")
 		end 
-		wait(LayoutWaitTime)
-		OreBoostActive = false
+		wait(Set.LayoutWaitTime)
+		Set.OreBoostActive = false
 		wait(0.3)
-		if WithdrawBase then
+		if Set.WithdrawBase then
 			game.ReplicatedStorage.DestroyAll:InvokeServer()
 			wait(0.1)
 		end
 
-		if TestingMode then
+		if Set.TestingMode then
 			print("Load Second Layout")
 		end 
-		game.ReplicatedStorage.Layouts:InvokeServer("Load",Layout2)
+		game.ReplicatedStorage.Layouts:InvokeServer("Load",Set.Layout2)
 		wait(0.1)
-		if OreBoost then
-			OreBoostActive = true
+		if Set.OreBoost then
+			Set.OreBoostActive = true
 		end
 	end
 end
@@ -1865,15 +1897,15 @@ GetFurnace()
 if Ores then
 	Ores.ChildAdded:Connect(function(Child)
 		AddTracker(Child)
-		if OreBoost then
-			if Child:FindFirstChild("Fuel") and Fuel then
-				if IndMine and IndMine:FindFirstChild("Model") then
-					Child.CFrame = IndMine.Model.Lava.CFrame + Vector3.new(0,1,0)
+		if Set.OreBoost then
+			if Child:FindFirstChild("Fuel") and Set.Fuel then
+				if Set.IndMine and Set.IndMine:FindFirstChild("Model") then
+					Child.CFrame = Set.IndMine.Model.Lava.CFrame + Vector3.new(0,1,0)
 				end
 				return 
 			end 
 			StartOreBoost(Child)
-		elseif FarmRp then
+		elseif Set.FarmRp then
 			Sell(Child)
 		end
 	end)
@@ -1883,32 +1915,32 @@ local rebirthing  = false
 local LastRebirth = os.time()
 local WaitTime = 0
 Money.Changed:Connect(function()
-	if TestingMode then
+	if Set.TestingMode then
 		print("Money Updated")
 	end 
-	local RB = RebornPrice(Player) * (1000^Skips)
-	WaitTime= MinWait + math.random(1,20) * (AddRandomness and 1 or 0)
-	if TestingMode then
+	local RB = RebornPrice(Player) * (1000^Set.Skips)
+	WaitTime= Set.MinWait + math.random(1,20) * (Set.AddRandomness and 1 or 0)
+	if Set.TestingMode then
 		print("Wait Time: ",WaitTime)
 	end 
-	if TestingMode then
+	if Set.TestingMode then
 		print("Rebirth Price: ",RB)
 	end 
 
-	if AutoRebirth and not rebirthing and Money.Value > RB and os.time()-LastRebirth >= WaitTime and Tycoon == ActiveTycoon then
-		if TestingMode then
+	if Set.AutoRebirth and not rebirthing and Money.Value > RB and os.time()-LastRebirth >= WaitTime and Tycoon == ActiveTycoon then
+		if Set.TestingMode then
 			print("Is on their tycoon")
 		end 
 		rebirthing = true
-		OreBoostActive = false
+		Set.OreBoostActive = false
 		wait(0.1)
 		game.ReplicatedStorage.Rebirth:InvokeServer()
 		wait(1)
 		rebirthing = false
 		LastRebirth = os.time()
 		WaitTime = 0
-		if AutoRebirth then
-			if TestingMode then
+		if Set.AutoRebirth then
+			if Set.TestingMode then
 				print("Rebirthed")
 			end 
 			Load()
@@ -1922,8 +1954,8 @@ end
 
 game.ReplicatedStorage.ItemObtained.OnClientEvent:Connect(function(Item,Amount)
 	if Item.Tier.Value == 78 and Item.Name == Slipstream then
-		AutoRebirth = false
-		OreBoostActive = false
+		Set.AutoRebirth = false
+		Set.OreBoostActive = false
 	end
 end)
 
@@ -1935,54 +1967,59 @@ Player.CharacterAdded:Connect(function(character)
 	local humanoid = character:WaitForChild("Humanoid")
 
 	-- Set initial properties
-	humanoid.WalkSpeed = WalkSpeed
-	humanoid.JumpPower = JumpPower
+	humanoid.WalkSpeed = Set.WalkSpeed
+	humanoid.JumpPower = Set.JumpPower
 
 	-- Re-connect the property change signals
 	humanoid:GetPropertyChangedSignal("WalkSpeed"):Connect(function()
-		if humanoid.WalkSpeed < WalkSpeed then
-			humanoid.WalkSpeed = WalkSpeed
+		if humanoid.WalkSpeed < Set.WalkSpeed then
+			humanoid.WalkSpeed = Set.WalkSpeed
 		end
 	end)
 
 	humanoid:GetPropertyChangedSignal("JumpPower"):Connect(function()
-		if humanoid.JumpPower < JumpPower then
-			humanoid.JumpPower = JumpPower
+		if humanoid.JumpPower < Set.JumpPower then
+			humanoid.JumpPower = Set.JumpPower
 		end
 	end)
 end)
 
 
 game.Lighting.Blur:GetPropertyChangedSignal("Enabled"):Connect(function()
-	game.Lighting.Blur.Enabled = Blur
+	game.Lighting.Blur.Enabled = Set.Blur
 end)
 
 Chat.OnIncomingMessage = function(Message)
 	if Message then
 		if Message.Text and not Message.TextSource then
 			local NewText = Message.Text
+			if string.find(Message.Text, Player.DisplayName)  then 
+				if Set.SpoofName then
+					NewText = string.gsub(NewText,Player.DisplayName,Set.FakeName)
+				end
+			end
 			if string.find(Message.Text, Player.Name)  then 
-				if SpoofName then
-					NewText = string.gsub(NewText,Player.Name,FakeName)
+				if Set.SpoofName then
+					NewText = string.gsub(NewText,Player.Name,Set.FakeName)
 				end
 			end
 			if string.find(Message.Text,"was born")then
 				local CurrentLifeText = comma(Player.Rebirths.Value+1)
-				local NewLife = HandleLife(tonumber(Player.Rebirths.Value+LifeVal))
-				if SpoofLife then
+				local NewLife = HandleLife(tonumber(Player.Rebirths.Value+Set.LifeVal))
+				if Set.SpoofLife then
 					NewText = string.gsub(NewText,CurrentLifeText.."(..)",NewLife)
 				end
 				Message.Text = NewText
 			end
 		elseif Message.TextSource then 
-			if string.find(Message.PrefixText, tostring(Player.Name)) then 
-				if SpoofName then
-					Message.PrefixText = string.gsub(Message.PrefixText,tostring(Player.Name),CTag..FakeName)
+			if string.find(Message.PrefixText, tostring(Player.DisplayName)) then 
+				if Set.SpoofName then
+					Message.PrefixText = string.gsub(Message.PrefixText,tostring(Player.DisplayName),Set.CTag..Set.FakeName)
 				end
-			elseif not string.find(Message.PrefixText, tostring(Player.Name)) and  string.find(Message.Text, Player.Name) then 
+			elseif not string.find(Message.PrefixText, tostring(Player.DisplayName)) and  string.find(Message.Text, Player.DisplayName) then 
 				local NewText = Message.Text
-				if SpoofName then
-					NewText = string.gsub(NewText,Player.Name,FakeName)
+				if Set.SpoofName then
+					NewText = string.gsub(NewText,Player.DisplayName,Set.FakeName)
 				end
 				Message.Text = NewText
 			end
@@ -2001,7 +2038,7 @@ Rayfield:LoadConfiguration()
 task.spawn(function()
 	while true do
 		wait()
-		if FarmBoxes then
+		if Set.FarmBoxes then
 			local Pos = Player.Character.HumanoidRootPart.CFrame 
 			for i,v in Boxes:GetChildren() do
 				if v:IsA("Model") and v:FindFirstChild("Crate") then
@@ -2020,10 +2057,10 @@ end)
 
 task.spawn(function()
 	while true do
-		wait(BoxWait)
-		local BoxName = SelectedBox or "Regular"
-		local Box = Player.Crates:FindFirstChild(SelectedBox)
-		if OpenBoxes and  Box and Box.Value >0  then
+		wait(Set.BoxWait)
+		local BoxName = Set.SelectedBox or "Regular"
+		local Box = Player.Crates:FindFirstChild(Set.SelectedBox)
+		if Set.OpenBoxes and  Box and Box.Value >0  then
 			game.ReplicatedStorage.MysteryBox:InvokeServer(Box.Name)	
 		end 
 	end
@@ -2031,10 +2068,8 @@ end)
 task.spawn(function()
 	while true do
 		wait()
-		if AutoDrop then 
+		if Set.AutoDrop then 
 			RemoteDrop:FireServer()
 		end
 	end
 end)
-
-
