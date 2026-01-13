@@ -319,7 +319,7 @@ local function LoadStringLayout(String)
 	if typeof(String) ~= "string" then return end
 
 	print("Loading String layout")
-	local Layout,error = pcall(function()
+	local Success,Layout = pcall(function()
 		game.HttpService:JSONDecode(String)
 	end)
 	if Layout then 
@@ -347,6 +347,7 @@ local function LoadStringLayout(String)
 		end
 		return 
 	else
+		print(Layout)
 		return nil
 	end 
 end
