@@ -6,6 +6,7 @@ local UIS = game:GetService("UserInputService")
 
 local ItemTracker = Instance.new("ScreenGui")
 local Main = Instance.new("Frame")
+local Dragger = Instance.new("UIDragDetector")
 local ItemsFrame = Instance.new("Frame")
 local Items = Instance.new("ScrollingFrame")
 local ItemTemplate = Instance.new("TextButton")
@@ -66,6 +67,8 @@ Main.Draggable = true
 Main.Position = UDim2.new(0.5, 0, 0.5, 0)
 Main.Selectable = true
 Main.Size = UDim2.new(0.25, 0, 0.330000013, 0)
+
+Dragger.Parent = Main
 
 ItemsFrame.Name = "ItemsFrame"
 ItemsFrame.Parent = Main
