@@ -1487,6 +1487,8 @@ local ApplyCustomThemeButton = Options:CreateButton({
 })
 
 
+print("MX6 Miners Haven Hub Loaded. Thanks for Using my script.")
+Print("Using Rayfield UI")
 
 local MaxRebirthPrice = 1e241 -- 10 * 10^240 = 10^241
 local function RebornPrice(Player)
