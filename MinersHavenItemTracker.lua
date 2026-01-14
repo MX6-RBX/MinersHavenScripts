@@ -1,8 +1,4 @@
 local UIS = game:GetService("UserInputService")
--- (VOID) : Gui to Lua
--- Version: 1.4
-
--- Instances:
 
 local ItemTracker = Instance.new("ScreenGui")
 local Main = Instance.new("Frame")
@@ -51,19 +47,15 @@ local TierTemplate = Instance.new("TextButton")
 local UICorner_6 = Instance.new("UICorner")
 local UIStroke = Instance.new("UIStroke")
 
-
---Properties:
-
 ItemTracker.Name = "ItemTracker"
-ItemTracker.Parent = game.CoreGui
+ItemTracker.Parent = game.StarterGui
 ItemTracker.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
 Main.Name = "Main"
 Main.Parent = ItemTracker
 Main.Active = true
 Main.AnchorPoint = Vector2.new(0.5, 0.5)
-Main.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-Main.Draggable = true			
+Main.BackgroundColor3 = Color3.fromRGB(50, 50, 50)		
 Main.Position = UDim2.new(0.5, 0, 0.5, 0)
 Main.Selectable = true
 Main.Size = UDim2.new(0.25, 0, 0.330000013, 0)
@@ -149,8 +141,9 @@ LastObtained.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 LastObtained.BackgroundTransparency = 1.000
 LastObtained.Position = UDim2.new(0, 60, 0.5, 0)
 LastObtained.Size = UDim2.new(1, -60, 0.5, 0)
-LastObtained.Font = Enum.Font.ArialBold
-LastObtained.Text = "Last Obtained - S+5678"
+LastObtained.Font = Enum.Font.Arial
+LastObtained.RichText = true
+LastObtained.Text = "<b>Last Obtained</b> - S+5678"
 LastObtained.TextColor3 = Color3.fromRGB(255, 255, 255)
 LastObtained.TextScaled = true
 LastObtained.TextSize = 14.000
@@ -192,8 +185,9 @@ Start.BackgroundTransparency = 1.000
 Start.LayoutOrder = 1
 Start.Position = UDim2.new(0, 0, 0.0500000007, 0)
 Start.Size = UDim2.new(1, 0, 0.100000001, 0)
-Start.Font = Enum.Font.ArialBold
-Start.Text = "Start Life - 53789"
+Start.Font = Enum.Font.Arial
+Start.Text = "<b>Start Life</b> - 53789"
+Start.RichText = true
 Start.TextColor3 = Color3.fromRGB(255, 255, 255)
 Start.TextScaled = true
 Start.TextSize = 14.000
@@ -209,8 +203,9 @@ Current.BackgroundTransparency = 1.000
 Current.LayoutOrder = 2
 Current.Position = UDim2.new(0, 0, 0.200000003, 0)
 Current.Size = UDim2.new(1, 0, 0.100000001, 0)
-Current.Font = Enum.Font.ArialBold
-Current.Text = "Current Life - 53789"
+Current.Font = Enum.Font.Arial
+Current.RichText = true
+Current.Text = "<b>Current Life</b> - 53789"
 Current.TextColor3 = Color3.fromRGB(255, 255, 255)
 Current.TextScaled = true
 Current.TextSize = 14.000
@@ -226,8 +221,9 @@ LastItem.BackgroundTransparency = 1.000
 LastItem.LayoutOrder = 4
 LastItem.Position = UDim2.new(0, 0, 0.349999994, 0)
 LastItem.Size = UDim2.new(1, 0, 0.100000001, 0)
-LastItem.Font = Enum.Font.ArialBold
-LastItem.Text = "Last  Item - ClockWork"
+LastItem.Font = Enum.Font.Arial
+LastItem.RichText = true
+LastItem.Text = "<b>Last  Item</b> - ClockWork"
 LastItem.TextColor3 = Color3.fromRGB(255, 255, 255)
 LastItem.TextScaled = true
 LastItem.TextSize = 14.000
@@ -243,8 +239,9 @@ ElapseTime.BackgroundTransparency = 1.000
 ElapseTime.LayoutOrder = 6
 ElapseTime.Position = UDim2.new(0, 0, 0.649999976, 0)
 ElapseTime.Size = UDim2.new(1, 0, 0.100000001, 0)
-ElapseTime.Font = Enum.Font.ArialBold
-ElapseTime.Text = "Elapse Time - 00:00:00"
+ElapseTime.Font = Enum.Font.Arial
+ElapseTime.RichText = true
+ElapseTime.Text = "<b>Elapse Time</b> - 00:00:00"
 ElapseTime.TextColor3 = Color3.fromRGB(255, 255, 255)
 ElapseTime.TextScaled = true
 ElapseTime.TextSize = 14.000
@@ -260,8 +257,9 @@ AvrageTime.BackgroundTransparency = 1.000
 AvrageTime.LayoutOrder = 7
 AvrageTime.Position = UDim2.new(0, 0, 0.649999976, 0)
 AvrageTime.Size = UDim2.new(1, 0, 0.100000001, 0)
-AvrageTime.Font = Enum.Font.ArialBold
-AvrageTime.Text = "Avrage Time - 00:00:00"
+AvrageTime.Font = Enum.Font.Arial
+AvrageTime.RichText = true
+AvrageTime.Text = "<b>Avrage Time</b> - 00:00:00"
 AvrageTime.TextColor3 = Color3.fromRGB(255, 255, 255)
 AvrageTime.TextScaled = true
 AvrageTime.TextSize = 14.000
@@ -277,8 +275,9 @@ LivesAdvancedText.BackgroundTransparency = 1.000
 LivesAdvancedText.LayoutOrder = 3
 LivesAdvancedText.Position = UDim2.new(0, 0, 0.5, 0)
 LivesAdvancedText.Size = UDim2.new(1, 0, 0.100000001, 0)
-LivesAdvancedText.Font = Enum.Font.ArialBold
-LivesAdvancedText.Text = "Lifes Advanced - 10000"
+LivesAdvancedText.Font = Enum.Font.Arial
+LivesAdvancedText.RichText = true
+LivesAdvancedText.Text = "<b>Lifes Advanced</b> - 10000"
 LivesAdvancedText.TextColor3 = Color3.fromRGB(255, 255, 255)
 LivesAdvancedText.TextScaled = true
 LivesAdvancedText.TextSize = 14.000
@@ -301,8 +300,9 @@ ItemCount.BackgroundTransparency = 1.000
 ItemCount.LayoutOrder = 4
 ItemCount.Position = UDim2.new(0, 0, 0.349999994, 0)
 ItemCount.Size = UDim2.new(1, 0, 0.100000001, 0)
-ItemCount.Font = Enum.Font.ArialBold
-ItemCount.Text = "Total Item Obtained - 0"
+ItemCount.Font = Enum.Font.Arial
+ItemCount.RichText = true
+ItemCount.Text = "<b>Total Item Obtained</b> - 0"
 ItemCount.TextColor3 = Color3.fromRGB(255, 255, 255)
 ItemCount.TextScaled = true
 ItemCount.TextSize = 14.000
@@ -382,6 +382,7 @@ UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 UIStroke.Color = Color3.fromRGB(97, 162, 93)
 UIStroke.Thickness = 3.000
 UIStroke.Parent = TierTemplate
+
 local ButtonCount = Instance.new("IntValue")
 ButtonCount.Name ="Count"
 ButtonCount.Value = 0
@@ -398,6 +399,30 @@ TierValue.Parent = TierTemplate
 
 local Player = game.Players.LocalPlayer
 local Tiers = game.ReplicatedStorage:FindFirstChild("Tiers")
+
+local function comma(Value)
+	local v3, v4, v5 = string.match(tostring(Value), "^([^%d]*%d)(%d*)(.-)$");
+	return v3 .. v4:reverse():gsub("(%d%d%d)", "%1,"):reverse() .. v5;
+end
+
+local function HandleLife(Life)
+	local Suffix
+	local LastDigit = tonumber(string.sub(tostring(Life),string.len(tostring(Life))))
+	local SendLastDigit = tonumber(string.sub(tostring(Life),string.len(tostring(Life-1))))
+	if Life <= 20 and Life >= 10 then
+		Suffix = "th"
+	elseif LastDigit == 1 then
+		Suffix = "st"
+	elseif LastDigit == 2 and SendLastDigit ~= 1 then
+		Suffix = "nd"
+	elseif LastDigit == 3 then
+		Suffix = "rd"
+	else
+		Suffix = "th"
+	end
+	return tostring(comma(Life))..Suffix
+end
+
 function GetSuffix()--puts the sac tag next to the life in the gui
 	if Player:FindFirstChild("SecondSacrifice") then
 		return "S+"
@@ -408,18 +433,13 @@ function GetSuffix()--puts the sac tag next to the life in the gui
 	end
 end
 
-
-
 local GUI = Player.PlayerGui:WaitForChild("GUI")
 local Life = Player.Rebirths
 local StartLife = Life.Value + 1
-
 local SelectedTiers = {30,33,36,38,157}--Filtered Item Tracking defualt Reborns, Advanced Reborns, Shinies, Limited Shinies
 local LastLife = Player.Rebirths.Value
 local OverAllTime = 0
 local LivesAdvanced = 0
-local LogShinysOnly = false
-local LogAll = false
 local TotalItems = 0
 local HoldingCTRL = false
 
@@ -439,7 +459,6 @@ local function ToggleTier(Ui)
 	print(SelectedTiers)
 end
 
-
 for i,v in Tiers:GetChildren() do
 	local Tier = tonumber(v.Name)
 	local Ui = TierTemplate:Clone()
@@ -458,15 +477,13 @@ for i,v in Tiers:GetChildren() do
 	end)
 end
 
-
 Items.ScrollBarThickness = 6
-Start.Text = "Start Life - "..GetSuffix()..StartLife
-Current.Text = "Current Life - "..GetSuffix()..StartLife
-LivesAdvancedText.Text = "Lifes Advanced - 0"
-LastItem.Text = "Last Item - NAN"
+Start.Text = "<b>Start Life</b> - "..GetSuffix()..HandleLife(StartLife)
+Current.Text = "<b>Current Life</b> - "..GetSuffix()..HandleLife(StartLife)
+LivesAdvancedText.Text = "<b>Lifes Advanced</b> - 0"
+LastItem.Text = "<b>Last Item</b> - None"
 
 function HandleTime(t)--converts the time in seconds into the HH:MM:SS format
-
 	local seconds = t % 60
 	local minutes = math.floor(t / 60) % 60
 	local hours = math.floor(t / 3600) % 24
@@ -515,21 +532,21 @@ local function AddNewButton(Item,Amount)
 		Clone.ImageLabel.Image = "rbxassetid://"..Item.ThumbnailId.Value
 		Clone.Amount.Value = Amount
 		Clone.ItemAmount.Text = "X"..Clone.Amount.Value
-		Clone.LastObtained.Text = "Last Obtained - "..GetSuffix()..Life.Value+1
+		Clone.LastObtained.Text = "<b>Last Obtained</b> - "..GetSuffix()..HandleLife(Life.Value+1)
 		Clone.ItemName.Text = Item.Name.." ("..Tier.TierName.Value..")"
 		Clone.Parent = Items
-
 
 		if TierId == 36 or TierId == 38 then
 			local UiS = UIStroke:Clone()
 			UiS.Parent = Clone
-			UiS.Color = Color3.fromRGB(125, 125, 62)		
+			UiS.Color = Color3.fromRGB(255,50,50)
+			UiS.Thickness = 3
 		end  
 		ButtonCount.Value  +=1
 		if Item:FindFirstChild("RebornChance") and tonumber(Item.RebornChance.Value) < 1 then
 			local Stroke = Instance.new("UIStroke")
 			Stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-			Stroke.Color = Color3.fromRGB(255, 0, 255)
+			Stroke.Color = Color3.fromRGB(50, 255, 50)
 			Stroke.Parent = Clone
 			Stroke.Thickness = 3
 		end
@@ -544,11 +561,11 @@ local function AddNewButton(Item,Amount)
 		ItemFrame.Amount.Value = ItemFrame.Amount.Value +Amount
 		ItemFrame.ItemAmount.Text = "X"..ItemFrame.Amount.Value
 		ItemFrame.LayoutOrder = ItemFrame.LayoutOrder -  ItemFrame.Amount.Value
-		ItemFrame.LastObtained.Text = "Last Obtained - "..GetSuffix()..Life.Value+1
+		ItemFrame.LastObtained.Text = "<b>Last Obtained</b> - "..GetSuffix()..HandleLife(Life.Value+1)
 	end
-	LastItem.Text = "Last Item - "..Item.Name
+	LastItem.Text = "<b>Last Item</b> - "..Item.Name
 	TotalItems +=1 
-	ItemCount.Text = "Total Items Obtained - "..TotalItems
+	ItemCount.Text = "<b>Total Items Obtained</b> - "..TotalItems
 end
 
 game.ReplicatedStorage.ItemObtained.OnClientEvent:Connect(function(Item,Amount)
@@ -560,15 +577,14 @@ game.ReplicatedStorage.ItemObtained.OnClientEvent:Connect(function(Item,Amount)
 		LivesAdvanced = LivesAdvanced + LifeChange
 		LastLife = Life.Value
 	end
-	LivesAdvancedText.Text = "Lifes Advanced - " ..tostring(LivesAdvanced)
-	Current.Text = "Current Life - "..GetSuffix()..Life.Value+1
+	LivesAdvancedText.Text = "<b>Lifes Advanced</b> - " ..tostring(LivesAdvanced)
+	Current.Text = "<b>Current Life</b> - "..GetSuffix()..HandleLife(Life.Value+1)
 	local average = LivesAdvanced > 0 and (OverAllTime / LivesAdvanced) or 0
 	average = math.floor(average*100)/100
-	AvrageTime.Text = "Avrage Time - " .. HandleTime(average)
+	AvrageTime.Text = "<b>Avrage Time</b> - " .. HandleTime(average)
 end)
-
 
 while wait(1) do--Elaspe time loop
 	OverAllTime = OverAllTime +1
-	ElapseTime.Text = "Elapse Time - ".. HandleTime(OverAllTime)
+	ElapseTime.Text = "<b>Elapse Time</b> - ".. HandleTime(OverAllTime)
 end
