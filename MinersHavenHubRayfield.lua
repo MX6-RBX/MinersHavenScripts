@@ -1978,7 +1978,7 @@ task.spawn(function()
 				else
 					Player.Character.HumanoidRootPart.CFrame = v.CFrame	
 				end
-				wait(0.5)
+				wait(0.05)
 			end
 			Player.Character.HumanoidRootPart.AssemblyLinearVelocity = Vector3.new(0,0,0)
 			Player.Character.HumanoidRootPart.AssemblyAngularVelocity = Vector3.new(0,0,0)
