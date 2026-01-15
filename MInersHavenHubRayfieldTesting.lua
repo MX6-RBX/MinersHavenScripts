@@ -218,76 +218,79 @@ local function shorten(Input)
 	end
 	return Input
 end
+local Data = {
+	MoneyLoopables = {
+		["Large Ore Upgarder"] ={Cap = 50e+3,Effect = nil,MinVal = nil},
+		["Solar Large Upgrader"]={Cap = 50e+3,Effect = nil,MinVal = nil},
+		["Precision Refiner"]= {Cap = 1e+8,Effect = "Fire",MinVal = nil},
+		["Rainbow Upgrader"] ={Cap = 1e+8,Effect = nil,MinVal = nil},
+		["Way-Up-High Upgrader"]={Cap =1e+9,Effect = nil,MinVal = nil},
+		["Digital Ore Cleaner"]={Cap = 10e+9,Effect = nil,MinVal = nil},
+		["Freon-Blast Upgrader"]= {Cap = 125e+9,Effect = nil,MinVal = nil},
+		["Radioactive Refiner"]={Cap = 500e+9,Effect = nil,MinVal = nil},
+		["Fire-Blast Upgrader"]={Cap = 64e+9,Effect = "Fire",MinVal = nil},
+		["Serpentine Upgrader"]={Cap = 1e+12,Effect = nil,MinVal = nil,},
+		["Suspended Refiner"]={Cap = 1e+18,Effect = nil,MinVal = nil},
+		["Molten Upgrader"]={ Cap = 50e+18,Effect = nil,MinVal = 1e+12},
+		["Advanced Ore Atomizer"]={ Cap = 1e+21,Effect = nil,MinVal = nil},
+		["Freon Suppressor"]={Cap = 100e+21,Effect = nil,MinVal = nil},
+		["Horizon Centrifuge"]={Cap = 1e+24,Effect = nil,MinVal = 1e+21},
+		["Ore Thermocrusher"]={ Cap = 100e+24,Effect = nil,MinVal = nil},
+		["Suspended Lava Refiner"]={ Cap = 1e+27,Effect = nil,MinVal = nil},
+		["Ore Transistor"]={Cap = 1e+30,Effect = nil,MinVal = 1e+24},
+		["Ore Transponder"]={ Cap = 1e+33,Effect = nil,MinVal = nil},
+		["Morning Star"]={ Cap = 1e+30,Effect = "Fire",MinVal = nil,MinWait = 1.5},
+		["⭐ Celestial Morning Star ⭐"]={Cap = 1e+30,Effect = "Fire",MinVal = nil,MinWait = 1.5},
+		["Red Giant"]={ Cap = 1e+60,Effect = "Fire",MinVal = nil,MinWait = 1.5},
+		["⭐ Wholesome Red Giant ⭐"]={ Cap = 1e+60,Effect = "Fire",MinVal = nil,MinWait = 1.5},
+		["Catalyzed Star"]={ Cap = 1e+60,Effect = "Fire",MinVal = nil,MinWait = 1.5},
+		["Neutron Star"]={ Cap = 1e+72,Effect = "Fire",MinVal = nil,MinWait = 1.5},
+		["⭐ Wholesome Neutron Star ⭐"]={ Cap = 1e+72,Effect = "Fire",MinVal = nil,MinWait = 1.5},
+		["Blue Supergiant"]={ Cap = 1e+90,Effect = "Fire",MinVal = nil,MinWait = 1.5},
+		["⭐ Hypergiant Blue Supergiant ⭐"]={ Cap = 1e+90,Effect = "Fire",MinVal = nil,MinWait = 1.5},
+		["Sinister Sepulcher"]={ Cap = 1e+99,Effect = nil,MinVal = nil,MinWait = nil},
+		["Renegade Sinister Sepulcher"]={ Cap = 1e+99,Effect = nil,MinVal = nil,MinWait = nil},
+		["⭐ Ornate Sinister Sepulcher ⭐"]={ Cap = 1e+99,Effect = nil,MinVal = nil,MinWait = nil},
 
-local MoneyLoopables = {
-	["Large Ore Upgarder"] ={Cap = 50e+3,Effect = nil,MinVal = nil},
-	["Solar Large Upgrader"]={Cap = 50e+3,Effect = nil,MinVal = nil},
-	["Precision Refiner"]= {Cap = 1e+8,Effect = "Fire",MinVal = nil},
-	["Rainbow Upgrader"] ={Cap = 1e+8,Effect = nil,MinVal = nil},
-	["Way-Up-High Upgrader"]={Cap =1e+9,Effect = nil,MinVal = nil},
-	["Digital Ore Cleaner"]={Cap = 10e+9,Effect = nil,MinVal = nil},
-	["Freon-Blast Upgrader"]= {Cap = 125e+9,Effect = nil,MinVal = nil},
-	["Radioactive Refiner"]={Cap = 500e+9,Effect = nil,MinVal = nil},
-	["Fire-Blast Upgrader"]={Cap = 64e+9,Effect = "Fire",MinVal = nil},
-	["Serpentine Upgrader"]={Cap = 1e+12,Effect = nil,MinVal = nil,},
-	["Suspended Refiner"]={Cap = 1e+18,Effect = nil,MinVal = nil},
-	["Molten Upgrader"]={ Cap = 50e+18,Effect = nil,MinVal = 1e+12},
-	["Advanced Ore Atomizer"]={ Cap = 1e+21,Effect = nil,MinVal = nil},
-	["Freon Suppressor"]={Cap = 100e+21,Effect = nil,MinVal = nil},
-	["Horizon Centrifuge"]={Cap = 1e+24,Effect = nil,MinVal = 1e+21},
-	["Ore Thermocrusher"]={ Cap = 100e+24,Effect = nil,MinVal = nil},
-	["Suspended Lava Refiner"]={ Cap = 1e+27,Effect = nil,MinVal = nil},
-	["Ore Transistor"]={Cap = 1e+30,Effect = nil,MinVal = 1e+24},
-	["Ore Transponder"]={ Cap = 1e+33,Effect = nil,MinVal = nil},
-	["Morning Star"]={ Cap = 1e+30,Effect = "Fire",MinVal = nil,MinWait = 1.5},
-	["⭐ Celestial Morning Star ⭐"]={Cap = 1e+30,Effect = "Fire",MinVal = nil,MinWait = 1.5},
-	["Red Giant"]={ Cap = 1e+60,Effect = "Fire",MinVal = nil,MinWait = 1.5},
-	["⭐ Wholesome Red Giant ⭐"]={ Cap = 1e+60,Effect = "Fire",MinVal = nil,MinWait = 1.5},
-	["Catalyzed Star"]={ Cap = 1e+60,Effect = "Fire",MinVal = nil,MinWait = 1.5},
-	["Neutron Star"]={ Cap = 1e+72,Effect = "Fire",MinVal = nil,MinWait = 1.5},
-	["⭐ Wholesome Neutron Star ⭐"]={ Cap = 1e+72,Effect = "Fire",MinVal = nil,MinWait = 1.5},
-	["Blue Supergiant"]={ Cap = 1e+90,Effect = "Fire",MinVal = nil,MinWait = 1.5},
-	["⭐ Hypergiant Blue Supergiant ⭐"]={ Cap = 1e+90,Effect = "Fire",MinVal = nil,MinWait = 1.5},
-	["Sinister Sepulcher"]={ Cap = 1e+99,Effect = nil,MinVal = nil,MinWait = nil},
-	["Renegade Sinister Sepulcher"]={ Cap = 1e+99,Effect = nil,MinVal = nil,MinWait = 0.03},
-	["⭐ Ornate Sinister Sepulcher ⭐"]={ Cap = 1e+99,Effect = nil,MinVal = nil,MinWait = 0.03},
-
+	},
+	ResettersNames = {
+		"Tesla Resetter",
+		"Tesla Refuter",
+		"Black Dwarf",
+		"Void Star",
+		"The Ultimate Sacrifice",
+		"The Final Upgrader",
+		"Daestrophe",
+		"⭐ Advanced Tesla Refuter ⭐",
+		"⭐ Advanced Tesla Resetter ⭐",
+		"⭐ Spooky Tesla Resetter ⭐",
+		"⭐ Stargazed Void Star ⭐", 
+		"⭐ Beloved Black Dwarf ⭐",
+		"⭐ Stargazed Black Dwarf ⭐",
+	},
+	EffectRemovers = {
+		"Wild Spore", 
+		"Deadly Spore", 
+		"Azure Spore", 
+		"The Death Cap"
+	},
+	Slipstreams = {"None"},
+	Blueprints = {},
+	OreTrackers = {},
+	BoxTrackers = {},
 }
---⭐ Ornate Sinister Sepulcher ⭐     Renegade Sinister Sepulcher      Sinister Sepulcher
-local EffectRemovers = {
-	"Wild Spore", 
-	"Deadly Spore", 
-	"Azure Spore", 
-	"The Death Cap"
-}
 
-local ResettersNames = {
-	"Tesla Resetter",
-	"Tesla Refuter",
-	"Black Dwarf",
-	"Void Star",
-	"The Ultimate Sacrifice",
-	"The Final Upgrader",
-	"Daestrophe",
-	"⭐ Advanced Tesla Refuter ⭐",
-	"⭐ Advanced Tesla Resetter ⭐",
-	"⭐ Spooky Tesla Resetter ⭐"
-}
 
-local Slipstreams = {"None"}
-local Blueprints = {}
-local OreTrackers = {}
-local BoxTrackers = {}
 local ELayout = loadstring(game:HttpGet('https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/BasicFirstLife.lua'))()
 local UILib = loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX/UiLib/refs/heads/main/UiLib.lua"))()
 
 for i,v in  game.ReplicatedStorage.Items:GetChildren() do
 	if v.Tier.Value == 78 then
-		table.insert(Slipstreams,v.Name)
+		table.insert(Data.Slipstreams,v.Name)
 	elseif v:FindFirstChild("BlueprintPrice") then 
 		local Id = v.ItemId.Value
 		local Data = {Id,v.BlueprintPrice.Value}
-		table.insert(Blueprints,Data)
+		table.insert(Data.Blueprints,Data)
 	end
 end
 local function LoadExternlLayout(Layout)--Converts a shared layout string to a placeable layout
@@ -320,7 +323,7 @@ local function LoadStringLayout(String)
 	if typeof(String) ~= "string" then return end
 
 	print("Loading String layout")
-	local Layout,error = pcall(function()
+	local Success,Layout = pcall(function()
 		game.HttpService:JSONDecode(String)
 	end)
 	if Layout then 
@@ -367,7 +370,7 @@ local function AddBoxTrack(Box)
 		Ui.Adornee = Box
 	end
 	Ui.Enabled = Set.TrackBoxes
-	table.insert(BoxTrackers,Ui)
+	table.insert(Data.BoxTrackers,Ui)
 end
 
 local function CollectBoxes()
@@ -398,7 +401,7 @@ local function AddTracker(ore)
 	Ui.Parent = ore
 	Ui.Adornee = ore
 	Ui.Enabled = Set.OreTracking
-	table.insert(OreTrackers,Ui)
+	table.insert(Data.OreTrackers,Ui)
 	ore.Cash.Changed:Connect(function()
 		local Val = 0
 		if ore and ore:FindFirstChild("Cash") then
@@ -410,7 +413,7 @@ end
 
 local function ToggleBoxTrack(Val)
 	Set.TrackBoxes = Val
-	for i,v in BoxTrackers do 
+	for i,v in Data.BoxTrackers do 
 		v.Enabled = Set.TrackBoxes
 	end
 end
@@ -418,7 +421,7 @@ end
 local function ToggleOreTrack(Val)
 	Set.OreTracking = Val
 
-	for i,v in OreTrackers do
+	for i,v in Data.OreTrackers do
 		if v and v.Parent then
 			v.Enabled = Set.OreTracking
 		end
@@ -452,12 +455,9 @@ local function ResizeUpgraders()
 	end
 end
 local function RezieSingleUpgrader(Name)
-	--print("Resizing: ",Name)
 	local Item = Tycoon:FindFirstChild(Name)
 	if Item then
-		--print("Found")
 		if Item:FindFirstChild("Model") and Item.Model:FindFirstChild("Upgrade") then
-			--print("Is Item and upgrader")
 			if not Item.Model.Upgrade:FindFirstChild("BaseSize") then
 				local BS = Instance.new("Vector3Value")
 				BS.Value = Item.Model.Upgrade.Size
@@ -521,7 +521,7 @@ local function KillOres()
 end
 
 function BuyBlueprints()
-	for i,v in Blueprints do
+	for i,v in Data.Blueprints do
 		if game.ReplicatedStorage.CraftsmanEvents:InvokeServer("type:hasblueprint", v[1]) then continue end
 		local Bought = game.ReplicatedStorage.CraftsmanEvents:InvokeServer("type:buyblueprint", v[1])
 		if Bought then 
@@ -551,7 +551,7 @@ local WaitForSkips = BoostPage:CreateSlider({
 	Increment = 1,
 	Suffix = "Skips",
 	CurrentValue = 0,
-	Flag = "Skips", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+	Flag = "Skips",
 	Callback = function(Value)
 		Set.Skips = Value or 0
 		if Set.TestingMode then
@@ -577,7 +577,7 @@ local MinWaitTime = BoostPage:CreateInput({
 local WaitRandom = BoostPage:CreateToggle({
 	Name = "Add Wait Randomnes",
 	CurrentValue = false,
-	Flag = "WaitRandomnes", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+	Flag = "WaitRandomnes", 
 	Callback = function(Value)
 		Set.AddRandomness = Value
 		if Set.TestingMode then
@@ -588,10 +588,10 @@ local WaitRandom = BoostPage:CreateToggle({
 
 local SlipsteamDropDown = BoostPage:CreateDropdown({
 	Name = "Stop on Slipstream",
-	Options = Slipstreams,
+	Options = Data.Slipstreams,
 	CurrentOption = {"None"},
 	MultipleOptions = false,
-	Flag = "StopOnSlipsteam", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+	Flag = "StopOnSlipsteam",  
 	Callback = function(Options)
 		Slipstream = Options[1]
 		if Set.TestingMode then	
@@ -605,7 +605,7 @@ local Layout1Dropdown = BoostPage:CreateDropdown({
 	Options = {"Layout1","Layout2","Layout3"},
 	CurrentOption = {"Layout1"},
 	MultipleOptions = false,
-	Flag = "Layout1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+	Flag = "Layout1",  
 	Callback = function(Options)
 		Set.Layout1 = Options[1]
 		if Set.TestingMode then	
@@ -631,7 +631,7 @@ local LayoutWaitBox = BoostPage:CreateInput({
 local WithdrawLayoutToggle = BoostPage:CreateToggle({
 	Name = "Withdraw between layouts",
 	CurrentValue = false,
-	Flag = "WithdrawBase", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+	Flag = "WithdrawBase",  
 	Callback = function(Value)
 		Set.WithdrawBase = Value
 		if Set.TestingMode then
@@ -645,7 +645,7 @@ local Layout2Dropdown = BoostPage:CreateDropdown({
 	Options = {"None" ,"Layout1","Layout2","Layout3"},
 	CurrentOption = {"None"},
 	MultipleOptions = false,
-	Flag = "Layout2", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+	Flag = "Layout2",  
 	Callback = function(Options)
 		Set.Layout2 = Options[1]
 		if Set.TestingMode then	
@@ -657,7 +657,7 @@ local Layout2Dropdown = BoostPage:CreateDropdown({
 local AutoDropToggle = BoostPage:CreateToggle({
 	Name = "Auto Remote drops",
 	CurrentValue = false,
-	Flag = "AutoDrop", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+	Flag = "AutoDrop",  
 	Callback = function(Value)
 		Set.AutoDrop = Value
 		if Set.TestingMode then
@@ -670,7 +670,7 @@ local BoostSection = BoostPage:CreateSection("Auto Upgrade")
 local BoostToggle = BoostPage:CreateToggle({
 	Name = "Ore Boost",
 	CurrentValue = false,
-	Flag = "OreBoost", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+	Flag = "OreBoost",  
 	Callback = function(Value)
 		Set.OreBoost = Value
 		Set.OreBoostActive = Value
@@ -687,7 +687,7 @@ local LoopCountSlider = BoostPage:CreateSlider({
 	Increment = 1,
 	Suffix = "Loop Count",
 	CurrentValue = 0,
-	Flag = "UpgradeLoopCount", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+	Flag = "UpgradeLoopCount",  
 	Callback = function(Value)
 		Set.UpgradeLoopCount = Value or 1
 		if Set.TestingMode then
@@ -701,7 +701,7 @@ local Ignore
 Toggle = BoostPage:CreateToggle({
 	Name = "Using Ind Mine",
 	CurrentValue = false,
-	Flag = "IndMine", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+	Flag = "IndMine",  
 	Callback = function(Value) 
 		Set.Fuel = true
 		if Set.TestingMode then
@@ -713,7 +713,7 @@ Toggle = BoostPage:CreateToggle({
 local MoneyLoopToggle = BoostPage:CreateToggle({
 	Name = "Use Money Loopables",
 	CurrentValue = false,
-	Flag = "MoneyLoopables", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+	Flag = "MoneyLoopables",  
 	Callback = function(Value)
 		Set.UsingMoneyLoop = Value
 		if Set.TestingMode then
@@ -725,7 +725,7 @@ local MoneyLoopToggle = BoostPage:CreateToggle({
 local FarmRpToggle = BoostPage:CreateToggle({
 	Name = "Farm RP(Disables oreboost and auto rebirth)",
 	CurrentValue = false,
-	Flag = "FarmRp", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+	Flag = "FarmRp",  
 	Callback = function(Value)
 		Set.FarmRp = Value
 		if Set.OreBoost then
@@ -746,7 +746,7 @@ local Paragraph = BoostPage:CreateParagraph({Title = "Fast Ore Boost", Content =
 local FastOreBoostToggle = BoostPage:CreateToggle({
 	Name = "Enable Fast boost method",
 	CurrentValue = false,
-	Flag = "FastOreBoost", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+	Flag = "FastOreBoost",  
 	Callback = function(Value)
 		Set.FastOreBoost = Value
 		if Set.TestingMode then
@@ -764,7 +764,7 @@ local ConveyorSpeedSlider = BoostPage:CreateSlider({
 	Increment = 1,
 	Suffix = "Conveyor Speed",
 	CurrentValue = 5,
-	Flag = "ConveyorSpeed", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+	Flag = "ConveyorSpeed",  
 	Callback = function(Value)
 		Set.ConveyorSpeed = Value or 5
 		AdjustSpeed.Value = Set.ConveyorSpeed/5
@@ -780,7 +780,7 @@ local UpgSizeSlider = BoostPage:CreateSlider({
 	Increment = 1,
 	Suffix = "Upgrader Size",
 	CurrentValue = 1,
-	Flag = "UpgraderSize", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+	Flag = "UpgraderSize",  
 	Callback = function(Value)
 		Set.UpgraderSize = Value or 1
 		if Set.TestingMode then
@@ -827,7 +827,7 @@ local AutoSection = BoostPage:CreateSection("Other Options")
 local OreTrackToggle = BoostPage:CreateToggle({
 	Name = "Track Ore Value",
 	CurrentValue = false,
-	Flag = "TrackOreValue", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+	Flag = "TrackOreValue",  
 	Callback = function(Value)
 		ToggleOreTrack(Value)
 		if Set.TestingMode then
@@ -957,7 +957,7 @@ local PlayerSelectDropdown = VendorsPage:CreateDropdown({
 	Options = PlayerList,
 	CurrentOption = { game.Players.LocalPlayer.Name},
 	MultipleOptions = false,
-	Flag = "PlayerSelect", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+	Flag = "PlayerSelect",  
 	Callback = function(Options)
 		Set.SelectedPlayer = Options[1]
 	end,
@@ -979,7 +979,7 @@ local IslandSelectDropdown = VendorsPage:CreateDropdown({
 	Options = {"Default","Executive","Mars","Sporest","Void"},
 	CurrentOption = {"Default"},
 	MultipleOptions = false,
-	Flag = "IslandSelected", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+	Flag = "IslandSelected",  
 	Callback = function(Options)
 		Set.SelectedIsland = Options[1]
 		if Set.TestingMode then	
@@ -1002,7 +1002,7 @@ local BoxSelectDropdown = VendorsPage:CreateDropdown({
 	Options = {"Regular","Unreal","Inferno","Red-Banded","Spectral","Pumpkin","Luxury","Festive","Magnificent","Twitch","Birthday","Heavenly","Easter","Cake Raffle"},
 	CurrentOption = {"Regular"},
 	MultipleOptions = false,
-	Flag = "BoxSelected", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+	Flag = "BoxSelected",  
 	Callback = function(Options)
 		Set.SelectedBox = Options[1]
 		if Set.TestingMode then	
@@ -1014,7 +1014,7 @@ local BoxSelectDropdown = VendorsPage:CreateDropdown({
 local UseCloverToggle = VendorsPage:CreateToggle({
 	Name = "Use Clovers",
 	CurrentValue = UseClovers,
-	Flag = nil, -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+	Flag = nil,  
 	Callback = function(Value)
 		if Set.TestingMode then
 			print("Toggled Clovers:",Value)
@@ -1027,7 +1027,7 @@ local UseCloverToggle = VendorsPage:CreateToggle({
 local OpenBoxToggle = VendorsPage:CreateToggle({
 	Name = "Auto Open Selected box",
 	CurrentValue = Set.OpenBoxes,
-	Flag = "OpenBoxes", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+	Flag = "OpenBoxes",  
 	Callback = function(Value)
 		if Set.TestingMode then
 			print("Toggle auto Box:",Value)
@@ -1037,19 +1037,19 @@ local OpenBoxToggle = VendorsPage:CreateToggle({
 })
 local BoxSection = VendorsPage:CreateSection("Blueprints")
 task.spawn(function()
-	for i,v in Blueprints do
+	for i,v in Data.Blueprints do
 		if not game.ReplicatedStorage.CraftsmanEvents:InvokeServer("type:hasblueprint",v[1])  then
 			Set.BlueprintCount += 1
 			Set.BlueprintsCost += v[2]
 		end
 	end
-	local Paragraph = VendorsPage:CreateParagraph({Title = '<font color="rgb(0,0,170)"><b>Blueprints</b></font>', Content = "You have "..Set.BlueprintCount.."/"..#Blueprints.." Left to buy. It will cost "..comma(Set.BlueprintsCost).."RP to buy them all"})
+	local Paragraph = VendorsPage:CreateParagraph({Title = '<font color="rgb(0,0,170)"><b>Blueprints</b></font>', Content = "You have "..Set.BlueprintCount.."/"..#Data.Blueprints.." Left to buy. It will cost "..comma(Set.BlueprintsCost).."RP to buy them all"})
 
 	local BuyAllBlueprints = VendorsPage:CreateButton({
 		Name = "Buy Craftsman Blueprints(Uses RP)",
 		Callback = function()
 			BuyBlueprints()
-			Paragraph:Set({Title = '<font color="rgb(0,0,170)"><b>Blueprints</b></font>', Content = "You have "..Set.BlueprintCount.."/"..#Blueprints.." Left to buy. It will cost "..comma(Set.BlueprintsCost).."RP to buy them all"})
+			Paragraph:Set({Title = '<font color="rgb(0,0,170)"><b>Blueprints</b></font>', Content = "You have "..Set.BlueprintCount.."/"..#Data.Blueprints.." Left to buy. It will cost "..comma(Set.BlueprintsCost).."RP to buy them all"})
 		end,
 	})
 end)
@@ -1059,7 +1059,7 @@ local TestSection = OtherOptionsPage:CreateSection("Testing")
 local TestingToggle = OtherOptionsPage:CreateToggle({
 	Name = "Testing Mode(set ore limit to 1 and check F9)",
 	CurrentValue = false,
-	Flag = "TestingMode", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+	Flag = "TestingMode",  
 	Callback = function(Value)
 		local MessageEnd  = Value and "Enabled" or "Disabled"
 		print("Testing mode",MessageEnd)
@@ -1071,7 +1071,7 @@ local VisualSection = OtherOptionsPage:CreateSection("Visual Options")
 local BoxTrackToggle = OtherOptionsPage:CreateToggle({
 	Name = "Track Dropped Boxes",
 	CurrentValue = false,
-	Flag = "TrackBoxes", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+	Flag = "TrackBoxes",  
 	Callback = function(Value)
 		ToggleBoxTrack(Value)
 		if Set.TestingMode then
@@ -1092,7 +1092,7 @@ local BoxTeleport = OtherOptionsPage:CreateButton({
 local AutoBoxTeleportToggle = OtherOptionsPage:CreateToggle({
 	Name = "Farm Boxes",
 	CurrentValue = false,
-	Flag = "AutoFarmBoxes", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+	Flag = "AutoFarmBoxes",  
 	Callback = function(Value)
 		Set.FarmBoxes = Value
 		if Set.TestingMode then
@@ -1104,7 +1104,7 @@ local AutoBoxTeleportToggle = OtherOptionsPage:CreateToggle({
 local BlurToggle = OtherOptionsPage:CreateToggle({
 	Name = "Disable Game Blur",
 	CurrentValue = false,
-	Flag = "GameBlur", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+	Flag = "GameBlur",  
 	Callback = function(Value)
 		if Set.TestingMode then
 			print("game Blur toggle:", Value)
@@ -1121,7 +1121,7 @@ local CharSpeed = OtherOptionsPage:CreateSlider({
 	Increment = 1,
 	Suffix = "Walk Speed",
 	CurrentValue = 16,
-	Flag = "WalkSpeed", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+	Flag = "WalkSpeed",  
 	Callback = function(Value)
 		if Set.TestingMode then
 			print("Player Walk Speed set to",Value)
@@ -1137,7 +1137,7 @@ local CharJump = OtherOptionsPage:CreateSlider({
 	Increment = 1,
 	Suffix = "Jump Power",
 	CurrentValue = 50,
-	Flag = "JumpPower", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+	Flag = "JumpPower",  
 	Callback = function(Value)
 		if Set.TestingMode then
 			print("Player Jump set to",Value)
@@ -1192,7 +1192,7 @@ local SpoofNameText = SpoofPage:CreateInput({
 local SpoofedNameToggle = SpoofPage:CreateToggle({
 	Name = "Spoof Name",
 	CurrentValue = false,
-	Flag = "SpoofName", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+	Flag = "SpoofName",  
 	Callback = function(Value)
 		if Set.TestingMode then
 			print("Toggled Name Spoofing:",Value)
@@ -1221,7 +1221,7 @@ local LifeRandomness = SpoofPage:CreateSlider({
 	Increment = 1,
 	Suffix = "Lives",
 	CurrentValue = 0,
-	Flag = "AddLives", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+	Flag = "AddLives",  
 	Callback = function(Value)
 		if Set.TestingMode then
 			print("Exta Lives set to:",Value)
@@ -1233,7 +1233,7 @@ local LifeRandomness = SpoofPage:CreateSlider({
 local SpoofedLifeToggle = SpoofPage:CreateToggle({
 	Name = "Spoof Rebirtrhs",
 	CurrentValue = false,
-	Flag = "SpoofLife", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+	Flag = "SpoofLife",  
 	Callback = function(Value)
 		if Set.TestingMode then
 			print("Spoof Lives toggle: ",Value)
@@ -1249,7 +1249,7 @@ local ThemeDropdown = Options:CreateDropdown({
 	Options = {"Default","AmberGlow","Amethyst","Bloom","DarkBlue","Green","Light","Ocean","Serenity","Custom"},
 	CurrentOption = {"Default"},
 	MultipleOptions = false,
-	Flag = "GUITheme", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+	Flag = "GUITheme",  
 	Callback = function(Options)
 		print(Options)
 		if Options[1] == "Custom" then
@@ -1582,10 +1582,10 @@ local ApplyCustomThemeButton = Options:CreateButton({
 
 
 
-local MaxRebirthPrice = 1e241 -- 10 * 10^240 = 10^241
+local MaxRebirthPrice = 1e241
 local function RebornPrice(Player)
 	local Life = Player.Rebirths.Value+1
-	local REBIRTH_PRICE_CAP = 1e241 -- 10NVSPTGNTL
+	local REBIRTH_PRICE_CAP = 1e241 --10NVSPTGNTL
 	local REBIRTH_CAP_LIFE = 80351
 
 	if Life >= 80351 then
@@ -1620,7 +1620,7 @@ function BoostOre(Ore)
 		if Set.OreBoostActive == false then break end--Oreboost not active
 		if not Ore then break end 
 		if not v  then break end 
-		if MoneyLoopables[v.Name] or table.find(ResettersNames,v.Name) then continue end--Passes money loops and resetters
+		if Data.MoneyLoopables[v.Name] or table.find(Data.ResettersNames,v.Name) then continue end--Passes money loops and resetters
 		if v:FindFirstChild("ItemId") and v:FindFirstChild("Plane")  then
 			if not v:FindFirstChild("Model") then continue end
 			local UpgradePart = v.Model:FindFirstChild("Upgrade") or v.Model:FindFirstChild("Upgrader") or v.Model:FindFirstChild("Scan")
@@ -1665,7 +1665,6 @@ function BoostOre(Ore)
 		print("Ore boost End")
 	end 
 end
---BaseDataLoaded  ⭐ Stargazed Void Star ⭐ ⭐ Beloved Black Dwarf ⭐ ⭐ Stargazed Black Dwarf ⭐
 function Reset(Ore)
 	local Dae = Tycoon:FindFirstChild("Daestrophe") 
 	local Sac =  Tycoon:FindFirstChild("The Final Upgrader") or Tycoon:FindFirstChild("The Ultimate Sacrifice")  
@@ -1809,13 +1808,13 @@ function StartOreBoost(Ore)
 		if Set.TestingMode then
 			print("Using Money cap Items")
 		end 
-		for i,v in MoneyLoopables do
+		for i,v in Data.MoneyLoopables do
 			if Tycoon:FindFirstChild(i) then 
 				MoneyLoop = Tycoon:FindFirstChild(i)
 				LooperStats = i
 			end
 		end
-		for i,v in EffectRemovers do
+		for i,v in Data.EffectRemovers do
 			if Tycoon:FindFirstChild(i) then 
 				Protect = Tycoon:FindFirstChild(i)
 			end
@@ -1824,7 +1823,7 @@ function StartOreBoost(Ore)
 			if Set.TestingMode then
 				print("Found Money Loop item:",MoneyLoop)
 			end 
-			local Info = MoneyLoopables[MoneyLoop.Name]
+			local Info = Data.MoneyLoopables[MoneyLoop.Name]
 			repeat 
 				if not Ore or (Info.MinVal and  Ore.Cash.Value < Info.MinVal) then
 					break
@@ -1996,7 +1995,6 @@ end)
 Player.CharacterAdded:Connect(function(character)
 	local humanoid = character:WaitForChild("Humanoid")
 
-	-- Re-connect the property change signals
 	humanoid:GetPropertyChangedSignal("WalkSpeed"):Connect(function()
 		if humanoid.WalkSpeed < Set.WalkSpeed then
 			humanoid.WalkSpeed = Set.WalkSpeed
@@ -2080,7 +2078,6 @@ task.spawn(function()
 		end
 	end
 end)
-
 task.spawn(function()
 	while true do
 		wait(Set.BoxWait)
