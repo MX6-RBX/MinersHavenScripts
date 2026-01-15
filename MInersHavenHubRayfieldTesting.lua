@@ -988,7 +988,7 @@ local IslandSelectDropdown = VendorsPage:CreateDropdown({
 	end,
 })
 local IslandTP = VendorsPage:CreateButton({
-	Name = "Teleport To Base",
+	Name = "Teleport To Solo Island",
 	Callback = function()
 		if Set.TestingMode then
 			print("Teleporting to Solo Island",Set.SelectedIsland)
