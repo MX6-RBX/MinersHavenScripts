@@ -147,7 +147,8 @@ local Set = {
 	externalLayoutString = "",
 	BlueprintCount = 0,
 	BlueprintsCost = 0,
-	SelectedPlayer = game.Players.LocalPlayer.Name
+	SelectedPlayer = game.Players.LocalPlayer.Name,
+	SelectedIsland = "Default",
 	
 }
 
@@ -319,7 +320,7 @@ local function LoadStringLayout(String)
 	if typeof(String) ~= "string" then return end
 
 	print("Loading String layout")
-	local Success,Layout = pcall(function()
+	local Layout,error = pcall(function()
 		game.HttpService:JSONDecode(String)
 	end)
 	if Layout then 
@@ -347,7 +348,6 @@ local function LoadStringLayout(String)
 		end
 		return 
 	else
-		print(Layout)
 		return nil
 	end 
 end
@@ -704,6 +704,9 @@ Toggle = BoostPage:CreateToggle({
 	Flag = "IndMine", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
 	Callback = function(Value) 
 		Set.Fuel = true
+		if Set.TestingMode then
+			print("Using Industrial Mine: ",Value)
+		end 
 	end,
 })
 
@@ -780,6 +783,9 @@ local UpgSizeSlider = BoostPage:CreateSlider({
 	Flag = "UpgraderSize", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
 	Callback = function(Value)
 		Set.UpgraderSize = Value or 1
+		if Set.TestingMode then
+			print("Upgrader Size: ",Value)
+		end 
 	end,
 })
 
@@ -964,6 +970,21 @@ local BaseTP = VendorsPage:CreateButton({
 			print("Teleporting to base")
 		end
 		TeleportToBase(Set.SelectedPlayer)
+	end,
+})
+
+local IsnaldSection = VendorsPage:CreateSection("Solo Island")
+local IslandSelectDropdown = VendorsPage:CreateDropdown({
+	Name = "Select Island Type",
+	Options = {"Default","Executive","Mars","Sporest","Void"},
+	CurrentOption = {"Default"},
+	MultipleOptions = false,
+	Flag = "IslandSelected", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+	Callback = function(Options)
+		Set.SelectedIsland = Options[1]
+		if Set.TestingMode then	
+			print("Seletced Island:",Options[1])
+		end
 	end,
 })
 
@@ -1636,11 +1657,11 @@ function BoostOre(Ore)
 		print("Ore boost End")
 	end 
 end
---BaseDataLoaded
+--BaseDataLoaded  ⭐ Stargazed Void Star ⭐ ⭐ Beloved Black Dwarf ⭐ ⭐ Stargazed Black Dwarf ⭐
 function Reset(Ore)
 	local Dae = Tycoon:FindFirstChild("Daestrophe") 
 	local Sac =  Tycoon:FindFirstChild("The Final Upgrader") or Tycoon:FindFirstChild("The Ultimate Sacrifice")  
-	local Star = Tycoon:FindFirstChild("Void Star") or Tycoon:FindFirstChild("Black Dwarf")
+	local Star = Tycoon:FindFirstChild("Void Star") or Tycoon:FindFirstChild("Black Dwarf") or Tycoon:FindFirstChild("⭐ Stargazed Black Dwarf ⭐") or Tycoon:FindFirstChild("⭐ Beloved Black Dwarf ⭐") or Tycoon:FindFirstChild("⭐ Stargazed Void Star ⭐")
 	local Tes = Tycoon:FindFirstChild("Tesla Resetter")or Tycoon:FindFirstChild("⭐ Advanced Tesla Resetter ⭐") or Tycoon:FindFirstChild("⭐ Spooky Tesla Resetter ⭐") or Tycoon:FindFirstChild("Tesla Refuter") or Tycoon:FindFirstChild("⭐ Advanced Tesla Refuter ⭐") 
 	BoostOre(Ore)
 	if Dae and Ore and Set.OreBoostActive then --checks if Daestrophe is on the base
@@ -1967,6 +1988,11 @@ end)
 Player.CharacterAdded:Connect(function(character)
 	local humanoid = character:WaitForChild("Humanoid")
 
+	-- Set initial properties
+	humanoid.WalkSpeed = Set.WalkSpeed
+	humanoid.JumpPower = Set.JumpPower
+
+	-- Re-connect the property change signals
 	humanoid:GetPropertyChangedSignal("WalkSpeed"):Connect(function()
 		if humanoid.WalkSpeed < Set.WalkSpeed then
 			humanoid.WalkSpeed = Set.WalkSpeed
