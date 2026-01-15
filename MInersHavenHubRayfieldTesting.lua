@@ -987,7 +987,15 @@ local IslandSelectDropdown = VendorsPage:CreateDropdown({
 		end
 	end,
 })
-
+local IslandTP = VendorsPage:CreateButton({
+	Name = "Teleport To Base",
+	Callback = function()
+		if Set.TestingMode then
+			print("Teleporting to Solo Island",Set.SelectedIsland)
+		end
+		game.ReplicatedStorage.PlaySolo:InvokeServer(Set.SelectedIsland)
+	end,
+})
 local BoxSection = VendorsPage:CreateSection("Box Opening")
 local BoxSelectDropdown = VendorsPage:CreateDropdown({
 	Name = "Select Box",
