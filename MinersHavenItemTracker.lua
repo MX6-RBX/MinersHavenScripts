@@ -48,7 +48,7 @@ local UICorner_6 = Instance.new("UICorner")
 local UIStroke = Instance.new("UIStroke")
 
 ItemTracker.Name = "ItemTracker"
-ItemTracker.Parent = game.StarterGui
+ItemTracker.Parent = game.CoreGui
 ItemTracker.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
 Main.Name = "Main"
