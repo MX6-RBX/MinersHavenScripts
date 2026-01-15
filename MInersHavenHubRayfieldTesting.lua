@@ -1967,11 +1967,6 @@ end)
 Player.CharacterAdded:Connect(function(character)
 	local humanoid = character:WaitForChild("Humanoid")
 
-	-- Set initial properties
-	humanoid.WalkSpeed = Set.WalkSpeed
-	humanoid.JumpPower = Set.JumpPower
-
-	-- Re-connect the property change signals
 	humanoid:GetPropertyChangedSignal("WalkSpeed"):Connect(function()
 		if humanoid.WalkSpeed < Set.WalkSpeed then
 			humanoid.WalkSpeed = Set.WalkSpeed
