@@ -289,8 +289,8 @@ for i,v in  game.ReplicatedStorage.Items:GetChildren() do
 		table.insert(Data.Slipstreams,v.Name)
 	elseif v:FindFirstChild("BlueprintPrice") then 
 		local Id = v.ItemId.Value
-		local Data = {Id,v.BlueprintPrice.Value}
-		table.insert(Data.Blueprints,Data)
+		local BPData = {Id,v.BlueprintPrice.Value}
+		table.insert(Data.Blueprints,BPData)
 	end
 end
 local function LoadExternlLayout(Layout)--Converts a shared layout string to a placeable layout
