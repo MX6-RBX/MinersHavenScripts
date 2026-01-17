@@ -307,9 +307,7 @@ local function LoadStringLayout(String)
 	if typeof(String) ~= "string" then return end
 	
 	print("Loading String layout")
-	local Success,Layout = pcall(function()
-		game.HttpService:JSONDecode(String)
-	end)
+	local Layout = game.HttpService:JSONDecode(String)
 	if Layout then 
 		print("has converted to table")
 		print(#Layout,"Items")
