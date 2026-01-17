@@ -5,7 +5,7 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 local MainUi = Rayfield:CreateWindow({
 	Name = "MX6 Miners Haven Hub",
 	Icon = 0,
-	LoadingTitle = "MX6 Miners Haven Hub Testing",
+	LoadingTitle = "MX6 Miners Haven Hub",
 	LoadingSubtitle = "by MX6",
 	ShowText = "Using Rayfield UI",
 	Theme = "Default", 
@@ -289,8 +289,8 @@ for i,v in  game.ReplicatedStorage.Items:GetChildren() do
 		table.insert(Data.Slipstreams,v.Name)
 	elseif v:FindFirstChild("BlueprintPrice") then 
 		local Id = v.ItemId.Value
-		local BPData = {Id,v.BlueprintPrice.Value}
-		table.insert(Data.Blueprints,BPData)
+		local Data = {Id,v.BlueprintPrice.Value}
+		table.insert(Data.Blueprints,Data)
 	end
 end
 local function LoadExternlLayout(Layout)--Converts a shared layout string to a placeable layout
@@ -323,7 +323,7 @@ local function LoadStringLayout(String)
 	if typeof(String) ~= "string" then return end
 
 	print("Loading String layout")
-	local Success,Layout = pcall(function()
+	local Layout,error = pcall(function()
 		game.HttpService:JSONDecode(String)
 	end)
 	if Layout then 
@@ -351,6 +351,12 @@ local function LoadStringLayout(String)
 		end
 		return 
 	else
+		Rayfield:Notify({
+			Title = "Layout string Loading erorr",
+			Content = "Layout String Can't load. "..Layout,
+			Duration = 10,
+			Image = nil,
+		})
 		return nil
 	end 
 end
@@ -602,7 +608,7 @@ local SlipsteamDropDown = BoostPage:CreateDropdown({
 
 local Layout1Dropdown = BoostPage:CreateDropdown({
 	Name = "First Layout",
-	Options = {"Layout1","Layout2","Layout3"},
+	Options = {"Layout1","Layout2","Layout3","Layout String"},
 	CurrentOption = {"Layout1"},
 	MultipleOptions = false,
 	Flag = "Layout1",  
@@ -642,7 +648,7 @@ local WithdrawLayoutToggle = BoostPage:CreateToggle({
 
 local Layout2Dropdown = BoostPage:CreateDropdown({
 	Name = "Second Layout",
-	Options = {"None" ,"Layout1","Layout2","Layout3"},
+	Options = {"None" ,"Layout1","Layout2","Layout3","Layout String"},
 	CurrentOption = {"None"},
 	MultipleOptions = false,
 	Flag = "Layout2",  
@@ -1898,7 +1904,22 @@ function Load()
 	if Set.TestingMode then
 		print("Load First Layout")
 	end 
-	game.ReplicatedStorage.Layouts:InvokeServer("Load",Set.Layout1)
+	if Set.Layout1 == "Layout String" then
+		if Set.externalLayoutString and Set.externalLayoutString ~= "" then
+			LoadStringLayout(Set.externalLayoutString)
+		else
+			Rayfield:Notify({
+				Title = "Layout string erorr",
+				Content = "Layout String missing, cant load from layout string",
+				Duration = 10,
+				Image = nil,
+			})
+		end
+		
+	else
+		game.ReplicatedStorage.Layouts:InvokeServer("Load",Set.Layout1)
+	end
+	
 	if Set.Layout2 ~= "None" then
 		if Set.TestingMode then
 			print("Using Second Layout")
@@ -1914,7 +1935,22 @@ function Load()
 		if Set.TestingMode then
 			print("Load Second Layout")
 		end 
-		game.ReplicatedStorage.Layouts:InvokeServer("Load",Set.Layout2)
+		if Set.Layout2 == "Layout String" then
+			if Set.externalLayoutString and Set.externalLayoutString ~= "" then
+				LoadStringLayout(Set.externalLayoutString)
+			else
+				Rayfield:Notify({
+					Title = "Layout string erorr",
+					Content = "Layout String missing, cant load from layout string",
+					Duration = 10,
+					Image = nil,
+				})
+			end
+
+		else
+			game.ReplicatedStorage.Layouts:InvokeServer("Load",Set.Layout2)
+		end
+		--game.ReplicatedStorage.Layouts:InvokeServer("Load",Set.Layout2)
 		wait(0.1)
 		if Set.OreBoost then
 			Set.OreBoostActive = true
