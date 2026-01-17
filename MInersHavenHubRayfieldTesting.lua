@@ -335,15 +335,9 @@ end
 
 local function LoadStringLayout(String)
 	if typeof(String) ~= "string" then return end
-	print(String)
-	String = ''..String..''
-	print("Loading String layout")
 	local Layout = game.HttpService:JSONDecode(String)
-	
-	print(Layout)
 	if Layout then 
-		print("has converted to table")
-		print(#Layout,"Items")
+	
 		local PlaceTable = {}
 		for i,v in pairs(Layout) do
 			spawn(function()
@@ -351,13 +345,11 @@ local function LoadStringLayout(String)
 
 				local P = string.split(v[2],",")
 				local Pos = CFrame.new(P[1],P[2],P[3],P[4],P[5],P[6],P[7],P[8],P[9],P[10],P[11],P[12])
-				print(Item.Name,"Pos",Pos,"Place Pos",Pos+Player.PlayerTycoon.Value.Base.Position)
+				--print(Item.Name,"Pos",Pos,"Place Pos",Pos+Player.PlayerTycoon.Value.Base.Position)
 				if Item.ItemType.Value >=1 and Item.ItemType.Value <5  then
 					if Player.PlayerGui.GUI.Money.Value >= Item.Cost.Value then
 						buyItem:InvokeServer(Item.Name,1)
 						PlaceItem:InvokeServer(Item.Name,  Pos+Player.PlayerTycoon.Value.Base.Position, {Player.PlayerTycoon.Value.Base}) 
-					else
-						print("Cant buy item :(")
 					end
 				else
 					PlaceItem:InvokeServer(Item.Name,  Pos+Player.PlayerTycoon.Value.Base.Position, {Player.PlayerTycoon.Value.Base}) 
