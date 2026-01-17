@@ -293,6 +293,22 @@ for i,v in  game.ReplicatedStorage.Items:GetChildren() do
 		table.insert(Data.Blueprints,Data)
 	end
 end
+
+function ConvertBaseToString(PT)--Converts The players current base to a layout string to be shared
+	local FullLayout = {}
+	for i,v in pairs(PT:GetChildren()) do 
+		if v:FindFirstChild("ItemId") then
+			if v.ItemType.Value >0 and v.ItemType.Value <5 and v:FindFirstChild("Cost") then
+				Cost += v.Cost.Value 
+			end 
+			local Tab = {v.Name,tostring(v.Hitbox.CFrame-PT.Base.Position)}
+			table.insert(FullLayout,Tab)
+		end
+	end
+	local String = game.HttpService:JSONEncode(FullLayout)
+	Set.externalLayoutString = String
+	setclipbard(String)
+end
 local function LoadExternlLayout(Layout)--Converts a shared layout string to a placeable layout
 	if Layout then 
 		local PlaceTable = {}
@@ -872,6 +888,17 @@ local LoadStringLayoutButton = BoostPage:CreateButton({
 		end
 		ClearBase:InvokeServer()
 		LoadStringLayout(Set.externalLayoutString)
+	end,
+})
+
+local SetBaseToLayoutStringButton = BoostPage:CreateButton({
+	Name = "Makes the Layout string your current base(Also set clipboard to)",
+	Callback = function()
+		if Set.TestingMode then
+			print("Loading Basic First Life Layout.")
+		end
+		--ClearBase:InvokeServer()
+		ConvertBaseToString(Tycoon)
 	end,
 })
 
