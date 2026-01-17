@@ -293,21 +293,19 @@ for i,v in  game.ReplicatedStorage.Items:GetChildren() do
 		table.insert(Data.Blueprints,BPData)
 	end
 end
-
+--
 function ConvertBaseToString(PT)--Converts The players current base to a layout string to be shared
 	local FullLayout = {}
 	for i,v in pairs(PT:GetChildren()) do 
 		if v:FindFirstChild("ItemId") then
-			if v.ItemType.Value >0 and v.ItemType.Value <5 and v:FindFirstChild("Cost") then
-				Cost += v.Cost.Value 
-			end 
 			local Tab = {v.Name,tostring(v.Hitbox.CFrame-PT.Base.Position)}
 			table.insert(FullLayout,Tab)
 		end
 	end
 	local String = game.HttpService:JSONEncode(FullLayout)
+	String = tostring(String)
 	Set.externalLayoutString = String
-	setclipbard(String)
+	setclipboard(String)
 end
 local function LoadExternlLayout(Layout)--Converts a shared layout string to a placeable layout
 	if Layout then 
@@ -337,11 +335,12 @@ end
 
 local function LoadStringLayout(String)
 	if typeof(String) ~= "string" then return end
-
+	print(String)
+	String = ''..String..''
 	print("Loading String layout")
-	local Success,Layout = pcall(function()
-		game.HttpService:JSONDecode(String)
-	end)
+	local Layout = game.HttpService:JSONDecode(String)
+	
+	print(Layout)
 	if Layout then 
 		print("has converted to table")
 		print(#Layout,"Items")
@@ -369,7 +368,7 @@ local function LoadStringLayout(String)
 	else
 		Rayfield:Notify({
 			Title = "Layout string Loading erorr",
-			Content = "Layout String Can't load. "..Layout,
+			Content = "Layout String Can't load. ",
 			Duration = 10,
 			Image = nil,
 		})
@@ -899,6 +898,8 @@ local SetBaseToLayoutStringButton = BoostPage:CreateButton({
 		end
 		--ClearBase:InvokeServer()
 		ConvertBaseToString(Tycoon)
+		wait(3)
+		LayoutStringBox:Set(Set.externalLayoutString) 
 	end,
 })
 
