@@ -566,7 +566,7 @@ function ConvertLayoutToString(Layout)
 		local matrixString = table.concat(components, ", ")
 
 		-- Add to table 
-		local Tab = {RealItem.Name, matrixString}
+		local Tab = {["Name"] = RealItem.Name, ["Pos"] =matrixString}
 		table.insert(ConvertedLayout, Tab)
 
 		-- Update total cost (ensure your RealItem has a Cost value)
@@ -588,7 +588,7 @@ function ConvertBaseToString(Tycoon)--Converts The players current base to a lay
 			if v.ItemType.Value >0 and v.ItemType.Value <5 and v:FindFirstChild("Cost") then
 				Cost += v.Cost.Value 
 			end 
-			local Tab = {v.Name,tostring(v.Hitbox.CFrame-Tycoon.Base.Position)}
+			local Tab = {["Name"] = v.Name,["Pos"] = tostring(v.Hitbox.CFrame-Tycoon.Base.Position)}
 			table.insert(FullLayout,Tab)
 		end
 	end
