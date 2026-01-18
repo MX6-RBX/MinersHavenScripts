@@ -141,7 +141,6 @@ local Set = {
 	SpoofLife =false,
 	SpoofName = false,
 	LifeVal = 0 ,
-	FastOreBoost = false,
 	FarmBoxes = false,
 	UpgradeLoopCount = 1,
 	externalLayoutString = "",
@@ -149,7 +148,7 @@ local Set = {
 	BlueprintsCost = 0,
 	SelectedPlayer = game.Players.LocalPlayer.Name,
 	SelectedIsland = "Default",
-	
+
 }
 
 local UseClovers = Set.UseCloversValue
@@ -337,7 +336,7 @@ local function LoadStringLayout(String)
 	if typeof(String) ~= "string" then return end
 	local Layout = game.HttpService:JSONDecode(String)
 	if Layout then 
-	
+
 		local PlaceTable = {}
 		for i,v in pairs(Layout) do
 			spawn(function()
@@ -753,21 +752,6 @@ local FarmRpToggle = BoostPage:CreateToggle({
 		end 
 	end,
 })
-
-local Paragraph = BoostPage:CreateParagraph({Title = "Fast Ore Boost", Content = "Fast Ore boost will use a custom function that some executors have to upgrade the ores quicker. NOTE Not all executors will work so check before using. Enabling this when using an unsupported executor may brake the script. solara should have this"})
-
-local FastOreBoostToggle = BoostPage:CreateToggle({
-	Name = "Enable Fast boost method",
-	CurrentValue = false,
-	Flag = "FastOreBoost",  
-	Callback = function(Value)
-		Set.FastOreBoost = Value
-		if Set.TestingMode then
-			print("Fast Ore Boost: ",Value)
-		end 
-	end,
-})
-
 
 
 local UpgraderSection = BoostPage:CreateSection("Item Manipulation")
@@ -1651,21 +1635,13 @@ function BoostOre(Ore)
 			if not v:FindFirstChild("Model") then continue end
 			local UpgradePart = v.Model:FindFirstChild("Upgrade") or v.Model:FindFirstChild("Upgrader") or v.Model:FindFirstChild("Scan")
 			if UpgradePart then
-				if Set.FastOreBoost then
-					print(Ore)
-					print(UpgradePart)
-					firetouchinterest(UpgradePart,0) 
-					wait(0.01)
-					firetouchinterest(UpgradePart,1)
-				else
-					for a = 1,Set.UpgradeLoopCount do
-						if v and v:FindFirstChild("Model")  then
-							Ore.CFrame = UpgradePart.CFrame 
-							wait(0.01)
-						end
+				
+				for a = 1,Set.UpgradeLoopCount do
+					if v and v:FindFirstChild("Model")  then
+						Ore.CFrame = UpgradePart.CFrame 
+						wait(0.01)
 					end
 				end
-
 			elseif v.Model:FindFirstChild("Lava") and not v.Model:FindFirstChild("TeleportSend") then
 				if v and v:FindFirstChild("Model") and v.Model:FindFirstChild("Lava") and not v.Model.Lava:FindFirstChild("TeleportSend") then
 					if Set.TestingMode then
@@ -1701,19 +1677,13 @@ function Reset(Ore)
 		if Set.TestingMode then
 			print("Found Daestrophe")
 		end 
-		if Set.FastOreBoost then
-			firetouchinterest(Ore,Dae.Model.Upgrade,0)
-			wait(0.01)
-			firetouchinterest(Ore,Dae.Model.Upgrade,1)
-		else
-			for a = 1,Set.UpgradeLoopCount do
-				if Dae and Dae:FindFirstChild("Model") then
-					Ore.CFrame = Dae.Model.Upgrade.CFrame
-					wait(0.01)
-				end
+	
+		for a = 1,Set.UpgradeLoopCount do
+			if Dae and Dae:FindFirstChild("Model") then
+				Ore.CFrame = Dae.Model.Upgrade.CFrame
+				wait(0.01)
 			end
 		end
-
 		BoostOre(Ore)
 	else
 		if Set.TestingMode then
@@ -1725,18 +1695,14 @@ function Reset(Ore)
 			print("Found", Sac.Name)
 		end 
 
-		if Set.FastOreBoost then
-			firetouchinterest(Ore,Sac.Model.Upgrade,0)
-			wait(0.01)
-			firetouchinterest(Ore,Sac.Model.Upgrade,1)
-		else
-			for a = 1,Set.UpgradeLoopCount do
-				if Sac and Sac:FindFirstChild("Model") then
-					Ore.CFrame = Sac.Model.Upgrade.CFrame
-					wait(0.01)
-				end
+		
+		for a = 1,Set.UpgradeLoopCount do
+			if Sac and Sac:FindFirstChild("Model") then
+				Ore.CFrame = Sac.Model.Upgrade.CFrame
+				wait(0.01)
 			end
 		end
+		
 		BoostOre(Ore)
 	else
 		if Set.TestingMode then
@@ -1747,16 +1713,11 @@ function Reset(Ore)
 		if Set.TestingMode then
 			print("Found", Star.Name)
 		end 
-		if Set.FastOreBoost then
-			firetouchinterest(Ore,Star.Model.Upgrade,0)
-			wait(0.01)
-			firetouchinterest(Ore,Star.Model.Upgrade,1)
-		else
-			for a = 1,Set.UpgradeLoopCount do
-				if Star and Star:FindFirstChild("Model") then
-					Ore.CFrame = Star.Model.Upgrade.CFrame
-					wait(0.01)
-				end
+		
+		for a = 1,Set.UpgradeLoopCount do
+			if Star and Star:FindFirstChild("Model") then
+				Ore.CFrame = Star.Model.Upgrade.CFrame
+				wait(0.01)
 			end
 		end
 		BoostOre(Ore)
@@ -1769,18 +1730,14 @@ function Reset(Ore)
 		if Set.TestingMode then
 			print("Found", Tes.Name)
 		end 
-		if Set.FastOreBoost then
-			firetouchinterest(Ore,Tes.Model.Upgrade,0)
-			wait()
-			firetouchinterest(Ore,Tes.Model.Upgrade,1)
-		else
-			for a = 1,Set.UpgradeLoopCount do
-				if Tes and Tes:FindFirstChild("Model") then
-					Ore.CFrame = Tes.Model.Upgrade.CFrame
-					wait(0.01)
-				end
+		
+		for a = 1,Set.UpgradeLoopCount do
+			if Tes and Tes:FindFirstChild("Model") then
+				Ore.CFrame = Tes.Model.Upgrade.CFrame
+				wait(0.01)
 			end
 		end
+		
 		BoostOre(Ore)
 	else
 		if Set.TestingMode then
@@ -1823,9 +1780,6 @@ function StartOreBoost(Ore)
 	local MoneyLoop = nil
 	local LooperStats 
 	local Protect
-	if not Set.FastOreBoost then
-		Ore.Anchored = false
-	end
 
 	if Set.TestingMode then
 		print("Ore Boost finished setting up")
@@ -1855,25 +1809,14 @@ function StartOreBoost(Ore)
 					break
 				end
 				if Set.OreBoost == false or Set.OreBoostActive == false then break end
-				if Set.FastOreBoost then
-					firetouchinterest(Ore,MoneyLoop.Model.Upgrade,0)
-					wait(0.01)
-					firetouchinterest(Ore,MoneyLoop.Model.Upgrade,1)
+			
+				for a = 1,Set.UpgradeLoopCount do
+					Ore.CFrame = MoneyLoop.Model.Upgrade.CFrame
+					wait(Info.MinWait or 0.01)
 					if LooperStats.Effect ~= nil and Protect ~= nil then
-						firetouchinterest(Ore,Protect.Model.Upgrade,0)
-						wait(0.01)
-						firetouchinterest(Ore,Protect.Model.Upgrade,1)
-					end
-				else
-					for a = 1,Set.UpgradeLoopCount do
-						Ore.CFrame = MoneyLoop.Model.Upgrade.CFrame
-						wait(Info.MinWait or 0.01)
-						if LooperStats.Effect ~= nil and Protect ~= nil then
-							Ore.CFrame = Protect.Model.Upgrade.CFrame
-						end
-					end
+						Ore.CFrame = Protect.Model.Upgrade.CFrame
 				end
-
+			end
 				wait(0.05)
 			until Ore == nil or MoneyLoop == nil or MoneyLoop:FindFirstChild("Model") == nil or Ore:FindFirstChild("Cash") == nil or Ore.Cash.Value >= Info.Cap
 			if Set.TestingMode then
@@ -1893,15 +1836,8 @@ function StartOreBoost(Ore)
 		Ore.AssemblyAngularVelocity = Vector3.new(0,0,0)
 		Ore.AssemblyLinearVelocity = Vector3.new(0,0,0)
 		if Set.Furnace and Set.Furnace:FindFirstChild("Model") then
-			if Set.FastOreBoost then
-				firetouchinterest(Ore,Set.Furnace.Model.Lava,0)
-				wait(0.01)
-				firetouchinterest(Ore,Set.Furnace.Model.Lava,1)
-			else
-				Ore.Anchored = false
-				Ore.CFrame = Set.Furnace.Model.Lava.CFrame + Vector3.new(0,2,0)
-			end
-
+			Ore.Anchored = false
+			Ore.CFrame = Set.Furnace.Model.Lava.CFrame + Vector3.new(0,2,0)
 		else
 			if Set.TestingMode then
 				print("No Furnace found, sending ore to spawn location")
@@ -1935,11 +1871,11 @@ function Load()
 				Image = nil,
 			})
 		end
-		
+
 	else
 		game.ReplicatedStorage.Layouts:InvokeServer("Load",Set.Layout1)
 	end
-	
+
 	if Set.Layout2 ~= "None" then
 		if Set.TestingMode then
 			print("Using Second Layout")
