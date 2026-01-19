@@ -1770,7 +1770,6 @@ function StartOreBoost(Ore)
 	if Set.TestingMode then
 		print("Ore Boost Setting up")
 	end 
-	Ore.Anchored = true
 	repeat wait() until Ore:FindFirstChild("Cash")
 	if Ore.Cash.Value <= 0 then
 		Ore.Anchored = false
