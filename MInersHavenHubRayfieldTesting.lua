@@ -148,6 +148,7 @@ local Set = {
 	BlueprintsCost = 0,
 	SelectedPlayer = game.Players.LocalPlayer.Name,
 	SelectedIsland = "Default",
+	AntiLeaveBase = false,
 
 }
 
@@ -553,6 +554,18 @@ local AutoRebithToggle = BoostPage:CreateToggle({
 		Set.AutoRebirth = Value or false
 		if Set.TestingMode then
 			print("Auto Rebirth:",Value)
+		end
+	end,
+})
+
+local AntiLeaveBaseToggle = BoostPage:CreateToggle({
+	Name = "Anti Leave Base",
+	CurrentValue = false,
+	Flag = "AntiLeaveBase",
+	Callback = function(Value)
+		Set.AntiLeaveBase = Value or false
+		if Set.TestingMode then
+			print("Anti Leave Base:",Value)
 		end
 	end,
 })
@@ -1635,7 +1648,7 @@ function BoostOre(Ore)
 			if not v:FindFirstChild("Model") then continue end
 			local UpgradePart = v.Model:FindFirstChild("Upgrade") or v.Model:FindFirstChild("Upgrader") or v.Model:FindFirstChild("Scan")
 			if UpgradePart then
-				
+
 				for a = 1,Set.UpgradeLoopCount do
 					if v and v:FindFirstChild("Model")  then
 						Ore.CFrame = UpgradePart.CFrame 
@@ -1677,7 +1690,7 @@ function Reset(Ore)
 		if Set.TestingMode then
 			print("Found Daestrophe")
 		end 
-	
+
 		for a = 1,Set.UpgradeLoopCount do
 			if Dae and Dae:FindFirstChild("Model") then
 				Ore.CFrame = Dae.Model.Upgrade.CFrame
@@ -1695,14 +1708,14 @@ function Reset(Ore)
 			print("Found", Sac.Name)
 		end 
 
-		
+
 		for a = 1,Set.UpgradeLoopCount do
 			if Sac and Sac:FindFirstChild("Model") then
 				Ore.CFrame = Sac.Model.Upgrade.CFrame
 				wait(0.01)
 			end
 		end
-		
+
 		BoostOre(Ore)
 	else
 		if Set.TestingMode then
@@ -1713,7 +1726,7 @@ function Reset(Ore)
 		if Set.TestingMode then
 			print("Found", Star.Name)
 		end 
-		
+
 		for a = 1,Set.UpgradeLoopCount do
 			if Star and Star:FindFirstChild("Model") then
 				Ore.CFrame = Star.Model.Upgrade.CFrame
@@ -1730,14 +1743,14 @@ function Reset(Ore)
 		if Set.TestingMode then
 			print("Found", Tes.Name)
 		end 
-		
+
 		for a = 1,Set.UpgradeLoopCount do
 			if Tes and Tes:FindFirstChild("Model") then
 				Ore.CFrame = Tes.Model.Upgrade.CFrame
 				wait(0.01)
 			end
 		end
-		
+
 		BoostOre(Ore)
 	else
 		if Set.TestingMode then
@@ -1808,14 +1821,14 @@ function StartOreBoost(Ore)
 					break
 				end
 				if Set.OreBoost == false or Set.OreBoostActive == false then break end
-			
+
 				for a = 1,Set.UpgradeLoopCount do
 					Ore.CFrame = MoneyLoop.Model.Upgrade.CFrame
 					wait(Info.MinWait or 0.01)
 					if LooperStats.Effect ~= nil and Protect ~= nil then
 						Ore.CFrame = Protect.Model.Upgrade.CFrame
+					end
 				end
-			end
 				wait(0.05)
 			until Ore == nil or MoneyLoop == nil or MoneyLoop:FindFirstChild("Model") == nil or Ore:FindFirstChild("Cash") == nil or Ore.Cash.Value >= Info.Cap
 			if Set.TestingMode then
@@ -1947,7 +1960,7 @@ Money.Changed:Connect(function()
 		print("Rebirth Price: ",RB)
 	end 
 
-	if Set.AutoRebirth and not rebirthing and Money.Value > RB and os.time()-LastRebirth >= WaitTime and Tycoon == ActiveTycoon then
+	if Set.AutoRebirth and not rebirthing and Money.Value > RB and os.time()-LastRebirth >= WaitTime and Tycoon.Name == ActiveTycoon.Name then
 		if Set.TestingMode then
 			print("Is on their tycoon")
 		end 
@@ -2002,6 +2015,11 @@ end)
 
 game.Lighting.Blur:GetPropertyChangedSignal("Enabled"):Connect(function()
 	game.Lighting.Blur.Enabled = Set.Blur
+end)
+ActiveTycoon.Changed:Connect(function()
+	if ActiveTycoon.Name ~= Tycoon.Name and Set.AntiLeaveBase then
+		TeleportToBase(Player.Name)
+	end
 end)
 
 Chat.OnIncomingMessage = function(Message)
