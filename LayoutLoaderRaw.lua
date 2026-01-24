@@ -571,7 +571,7 @@ function ConvertLayoutToString(Layout)
 		if RealItem:FindFirstChild("NonShinyId") then
 			ItemName = findItem(RealItem.NonShinyId.Value).Name
 		end
-		if RealItem.ItemId.Value == 38 and not RealItem:FindFirstChild("NonShinyId") then
+		if RealItem.Tier.Value == 38 and not RealItem:FindFirstChild("NonShinyId") then
 			print("Skipped "..RealItem.Name.." as missing non shiny id value")
 			continue
 		end
@@ -607,7 +607,7 @@ function ConvertBaseToString(Tycoon)--Converts The players current base to a lay
 				print("Is Shiny Reborn")
 				ItemName = findItem(v.NonShinyId.Value).Name
 			end
-			if v.ItemId.Value == 38 and not v:FindFirstChild("NonShinyId") then
+			if v.Tier.Value == 38 and not v:FindFirstChild("NonShinyId") then
 				print("Skipped "..v.Name.." as missing non shiny id value")
 				continue
 			end
