@@ -92,7 +92,7 @@ end
 
 
 local Tycoon = Player.PlayerTycoon.Value
-local ActiveTycoon = Player.ActiveTycoon.Value
+local ActiveTycoon = Player.ActiveTycoon
 local AdjustSpeed = Tycoon.AdjustSpeed
 local Ores = game.Workspace.DroppedParts:FindFirstChild(Tycoon.Name)
 local GUI = Player.PlayerGui:WaitForChild("GUI")
@@ -1948,6 +1948,7 @@ local rebirthing  = false
 local LastRebirth = os.time()
 local WaitTime = 0
 Money.Changed:Connect(function()
+	if not ActiveTycoon.Value  then return end 
 	if Set.TestingMode then
 		print("Money Updated")
 	end 
@@ -1959,8 +1960,8 @@ Money.Changed:Connect(function()
 	if Set.TestingMode then
 		print("Rebirth Price: ",RB)
 	end 
-
-	if Set.AutoRebirth and not rebirthing and Money.Value > RB and os.time()-LastRebirth >= WaitTime and Tycoon.Name == ActiveTycoon.Name then
+	
+	if Set.AutoRebirth and not rebirthing and Money.Value > RB and os.time()-LastRebirth >= WaitTime and Tycoon.Name == ActiveTycoon.Value.Name then
 		if Set.TestingMode then
 			print("Is on their tycoon")
 		end 
@@ -1998,7 +1999,12 @@ end)
 
 Player.CharacterAdded:Connect(function(character)
 	local humanoid = character:WaitForChild("Humanoid")
-
+	if humanoid.WalkSpeed < Set.WalkSpeed then
+		humanoid.WalkSpeed = Set.WalkSpeed
+	end
+	if humanoid.JumpPower < Set.JumpPower then
+		humanoid.JumpPower = Set.JumpPower
+	end
 	humanoid:GetPropertyChangedSignal("WalkSpeed"):Connect(function()
 		if humanoid.WalkSpeed < Set.WalkSpeed then
 			humanoid.WalkSpeed = Set.WalkSpeed
@@ -2017,8 +2023,8 @@ game.Lighting.Blur:GetPropertyChangedSignal("Enabled"):Connect(function()
 	game.Lighting.Blur.Enabled = Set.Blur
 end)
 ActiveTycoon.Changed:Connect(function()
-	if ActiveTycoon.Name ~= Tycoon.Name and Set.AntiLeaveBase then
-		TeleportToBase(Player.Name)
+	if (ActiveTycoon.Value == nil or  ActiveTycoon.Value.Name ~= Tycoon.Name) and Set.AntiLeaveBase then
+		Player.Character.Humanoid.Health = 0
 	end
 end)
 
