@@ -3,6 +3,7 @@ local Character = Player.Character
 local Zombies = game.Workspace.SpawnedZombies
 local CF = CFrame.new(-161, 115,52,-0.83,1.93,0.55,1.75,1,-8.57,-0.55,2.51,-0.83)
 local Sword = Character:FindFirstChild("LinkedSword") or Player.Backpack:FindFirstChild("LinkedSword")
+Character.HumanoidRootPart.Anchored = true
 Character.HumanoidRootPart.CFrame = CF
 
 repeat
@@ -30,4 +31,3 @@ for a=1,12 do
 	until #Zombies:GetChildren() >0
 	wait(1.5)
 end
-
