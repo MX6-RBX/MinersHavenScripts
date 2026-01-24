@@ -150,6 +150,7 @@ local Set = {
 	SelectedPlayer = game.Players.LocalPlayer.Name,
 	SelectedIsland = "Default",
 	AntiLeaveBase = false,
+	OreSize= 0,
 
 }
 
@@ -770,7 +771,7 @@ local FarmRpToggle = BoostPage:CreateToggle({
 
 local UpgraderSection = BoostPage:CreateSection("Item Manipulation")
 local ConveyorSpeedSlider = BoostPage:CreateSlider({
-	Name = "Conveyor speed",
+	Name = "Conveyor speed(Value ÷ 5",
 	Range = {0, 100},
 	Increment = 1,
 	Suffix = "Conveyor Speed",
@@ -785,6 +786,20 @@ local ConveyorSpeedSlider = BoostPage:CreateSlider({
 	end,
 })
 
+local OreSizeSlider = BoostPage:CreateSlider({
+	Name = "Ore Size(Value ÷ 10 | 0 disable override)",
+	Range = {0, 100},
+	Increment = 1,
+	Suffix = "Ore Size",
+	CurrentValue = 5,
+	Flag = "OreSize",  
+	Callback = function(Value)
+		Set.OreSize = Value/10 or 0
+		if Set.TestingMode then
+			print("Ore Size:",Set.ConveyorSpeed)
+		end 
+	end,
+})
 local UpgSizeSlider = BoostPage:CreateSlider({
 	Name = "Upgrader Size",
 	Range = {1, 20},
@@ -1934,6 +1949,9 @@ GetFurnace()
 if Ores then
 	Ores.ChildAdded:Connect(function(Child)
 		AddTracker(Child)
+		if Set.OreSize > 0 then 
+			Child.Size = Vector3.new(Set.OreSize,Set.OreSize,Set.OreSize)
+		end
 		if Set.OreBoost then
 			if Child:FindFirstChild("Fuel") and Set.Fuel then
 				if Set.IndMine and Set.IndMine:FindFirstChild("Model") then
