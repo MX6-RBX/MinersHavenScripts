@@ -2019,7 +2019,7 @@ game.Lighting.Blur:GetPropertyChangedSignal("Enabled"):Connect(function()
 end)
 ActiveTycoon.Changed:Connect(function()
 	if (ActiveTycoon.Value == nil or  ActiveTycoon.Value.Name ~= Tycoon.Name) and Set.AntiLeaveBase then
-		TeleportToBase(Player.Name)
+		Player.Character.Humanoid.Health = 0
 	end
 end)
 
