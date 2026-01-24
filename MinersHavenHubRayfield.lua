@@ -102,6 +102,7 @@ local RemoteDrop = game.ReplicatedStorage.RemoteDrop
 local ClearBase = game.ReplicatedStorage.DestroyAll
 local Money = GUI:FindFirstChild("Money")
 local Boxes = game.Workspace.Boxes
+local queteleporstring = 'wait(5) loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/MInersHavenHubRayfieldTesting.lua"))()'
 
 local Set = {
 	Layout1 = "Layout1",
@@ -723,7 +724,7 @@ local LoopCountSlider = BoostPage:CreateSlider({
 
 local Ignore
 
-Toggle = BoostPage:CreateToggle({
+local Toggle = BoostPage:CreateToggle({
 	Name = "Using Ind Mine",
 	CurrentValue = false,
 	Flag = "IndMine",  
@@ -1015,6 +1016,9 @@ local IslandTP = VendorsPage:CreateButton({
 	Callback = function()
 		if Set.TestingMode then
 			print("Teleporting to Solo Island",Set.SelectedIsland)
+		end
+		if queue_on_teleport then 
+			queue_on_teleport(queteleporstring)
 		end
 		game.ReplicatedStorage.PlaySolo:InvokeServer(Set.SelectedIsland)
 	end,
@@ -1960,7 +1964,7 @@ Money.Changed:Connect(function()
 	if Set.TestingMode then
 		print("Rebirth Price: ",RB)
 	end 
-	
+
 	if Set.AutoRebirth and not rebirthing and Money.Value > RB and os.time()-LastRebirth >= WaitTime and Tycoon.Name == ActiveTycoon.Value.Name then
 		if Set.TestingMode then
 			print("Is on their tycoon")
