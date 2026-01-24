@@ -1183,7 +1183,6 @@ local LayoutStealer = OtherOptionsPage:CreateButton({
 		end
 		if game.CoreGui:FindFirstChild("LayoutsStealer") then return end
 		loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/LayoutLoaderRaw.lua"))()
-		queteleporstring = queteleporstring..'loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/LayoutLoaderRaw.lua"))()'
 	end,
 })
 
@@ -1195,7 +1194,6 @@ local ItemTracker = OtherOptionsPage:CreateButton({
 		end
 		if game.CoreGui:FindFirstChild("ItemTracker") then return end
 		loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/MinersHavenItemTracker.lua"))()
-		queteleporstring = queteleporstring..'loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/MinersHavenItemTracker.lua"))()'
 	end,
 })
 
