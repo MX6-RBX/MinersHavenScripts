@@ -2018,7 +2018,7 @@ game.Lighting.Blur:GetPropertyChangedSignal("Enabled"):Connect(function()
 	game.Lighting.Blur.Enabled = Set.Blur
 end)
 ActiveTycoon.Changed:Connect(function()
-	if ActiveTycoon.Value == nil or  ActiveTycoon.Value.Name ~= Tycoon.Name and Set.AntiLeaveBase then
+	if (ActiveTycoon.Value == nil or  ActiveTycoon.Value.Name ~= Tycoon.Name) and Set.AntiLeaveBase then
 		TeleportToBase(Player.Name)
 	end
 end)
