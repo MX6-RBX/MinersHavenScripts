@@ -1018,7 +1018,7 @@ local IslandTP = VendorsPage:CreateButton({
 			print("Teleporting to Solo Island",Set.SelectedIsland)
 		end
 		if queue_on_teleport then 
-			queue_on_teleport('wait(5) loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/MInersHavenHubRayfieldTesting.lua"))()')
+			queue_on_teleport(queteleporstring)
 		end
 		game.ReplicatedStorage.PlaySolo:InvokeServer(Set.SelectedIsland)
 	end,
