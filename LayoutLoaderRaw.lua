@@ -564,7 +564,13 @@ function ConvertLayoutToString(Layout)
 		local NewPos = CoordinateFrame - TycoonBase.Position
 		local components = {NewPos:GetComponents()}
 		local matrixString = table.concat(components, ", ")
-
+		local ItemName = RealItem.Name
+		if RealItem:FindFirstChild("RequiredEvo") then 
+			ItemName = findItem(RealItem.RequiredEvo.Value).Name
+		end
+		if RealItem:FindFirstChild("NonShinyId") then
+			ItemName = findItem(RealItem.NonShinyId.Value).Name
+		end
 		-- Add to table 
 		local Tab = {RealItem.Name,matrixString}
 		table.insert(ConvertedLayout, Tab)
@@ -585,10 +591,17 @@ function ConvertBaseToString(Tycoon)--Converts The players current base to a lay
 	local FullLayout = {}
 	for i,v in pairs(Tycoon:GetChildren()) do 
 		if v:FindFirstChild("ItemId") then
+			local  ItemName = v.Name
 			if v.ItemType.Value >0 and v.ItemType.Value <5 and v:FindFirstChild("Cost") then
 				Cost += v.Cost.Value 
 			end 
-			local Tab = {v.Name,tostring(v.Hitbox.CFrame-Tycoon.Base.Position)}
+			if v:FindFirstChild("RequiredEvo") then 
+				ItemName = findItem(v.RequiredEvo.Value).Name
+			end
+			if v:FindFirstChild("NonShinyId") then
+				ItemName = findItem(v.NonShinyId.Value).Name
+			end
+			local Tab = {ItemName,tostring(v.Hitbox.CFrame-Tycoon.Base.Position)}
 			table.insert(FullLayout,Tab)
 		end
 	end
@@ -598,11 +611,11 @@ end
 
 function SaveLayout(Layout)
 	Withdraw:InvokeServer()
-	print(Player.PlayerTycoon.Value.Base.CFrame)
+	print(Player.AcyiveTycoon.Value.Base.CFrame)
 	for i,Item in pairs(Layout) do
 		spawn(function()
 			local RealItem = findItem(Item.ItemId)
-			local Tycoon = Player.PlayerTycoon.Value
+			local Tycoon = Player.AcyiveTycoon.Value
 			local TycoonBase = Tycoon.Base
 			local TycoonTopLeft = TycoonBase.CFrame * CFrame.new(Vector3.new(TycoonBase.Size.x/2, 0, TycoonBase.Size.z/2))		
 			Item.Position[1] = tonumber(Item.Position[1])
@@ -620,14 +633,14 @@ function SaveLayout(Layout)
 			if RealItem.ItemType.Value >=1 and RealItem.ItemType.Value <5  then
 				if Player.PlayerGui.GUI.Money.Value >= RealItem.Cost.Value then
 					buyItem:InvokeServer(RealItem.Name,1)
-					PlaceItem:InvokeServer(RealItem.Name,  CoordinateFrame, {Player.PlayerTycoon.Value.Base}) 
+					PlaceItem:InvokeServer(RealItem.Name,  CoordinateFrame, {Player.AcyiveTycoon.Value.Base}) 
 				else
 					print("Cant buy item :(")
 				end
 
 			else
 				if HasItem:InvokeServer(RealItem.ItemId.Value) >0 then
-					PlaceItem:InvokeServer(RealItem.Name,  CoordinateFrame, {Player.PlayerTycoon.Value.Base}) 
+					PlaceItem:InvokeServer(RealItem.Name,  CoordinateFrame, {Player.AcyiveTycoon.Value.Base}) 
 				else
 					print("You Dont have "..RealItem.Name)
 				end
@@ -644,18 +657,18 @@ function SaveBase(Base)
 		spawn(function()
 			if v:FindFirstChild("ItemId") then
 				local Pos = v.Hitbox.CFrame - Base.Base.Position
-				local PlacePos = Pos + Player.PlayerTycoon.Value.Base.Position
+				local PlacePos = Pos + Player.AcyiveTycoon.Value.Base.Position
 				if v.ItemType.Value >=1 and v.ItemType.Value <5  then
 					if Player.PlayerGui.GUI.Money.Value >= v.Cost.Value then
 						buyItem:InvokeServer(v.Name,1)
-						PlaceItem:InvokeServer(v.Name,  PlacePos, {Player.PlayerTycoon.Value.Base}) 
+						PlaceItem:InvokeServer(v.Name,  PlacePos, {Player.AcyiveTycoon.Value.Base}) 
 					else
 						print("Cant buy item :(")
 					end
 
 				else
 					if HasItem:InvokeServer(v.ItemId.Value) >0 then
-						PlaceItem:InvokeServer(v.Name,  PlacePos, {Player.PlayerTycoon.Value.Base}) 
+						PlaceItem:InvokeServer(v.Name,  PlacePos, {Player.AcyiveTycoon.Value.Base}) 
 					else
 						print("You Dont have "..v.Name)
 					end
