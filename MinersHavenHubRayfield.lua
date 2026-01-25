@@ -2102,6 +2102,7 @@ task.spawn(function()
 		if Set.FarmBoxes then
 			local Pos = Player.Character.HumanoidRootPart.CFrame 
 			for i,v in Boxes:GetChildren() do
+				if not Set.FarmBoxes then return end 
 				if v:IsA("Model") and v:FindFirstChild("Crate") then
 					Player.Character.HumanoidRootPart.CFrame = v.Crate.CFrame		
 				else
