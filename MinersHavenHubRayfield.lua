@@ -152,7 +152,6 @@ local Set = {
 	AntiLeaveBase = false,
 	OreSize= 0,
 	AutoResizeUpgraders = false,
-
 }
 
 local UseClovers = Set.UseCloversValue
@@ -454,7 +453,7 @@ local function ResizeUpgraders()
 	for i,v in Tycoon:GetChildren() do
 		task.spawn(function()
 			if v:FindFirstChild("ItemId") and v:FindFirstChild("Plane")  then
-				if not v:FindFirstChild("Model") then continue end
+				if not v:FindFirstChild("Model") then return end
 				if v.Model:FindFirstChild("Upgrade") then
 					if not v.Model.Upgrade:FindFirstChild("BaseSize") then
 						local BS = Instance.new("Vector3Value")
@@ -470,7 +469,6 @@ local function ResizeUpgraders()
 				end
 			end
 		end)
-		
 	end
 end
 local function RezieSingleUpgrader(Name)
@@ -804,6 +802,7 @@ local OreSizeSlider = BoostPage:CreateSlider({
 		end 
 	end,
 })
+
 local UpgSizeSlider = BoostPage:CreateSlider({
 	Name = "Upgrader Size",
 	Range = {1, 20},
@@ -843,7 +842,7 @@ local RezieAllButton = BoostPage:CreateButton({
 	end,
 })
 
-local AutoResizeToggle = BoostPage:CreateToggle({
+local AutoResizeUpgradersToggle = BoostPage:CreateToggle({
 	Name = "Auto Resize All Upgraders",
 	CurrentValue = false,
 	Flag = "AutoResizeAllUpg",  
@@ -854,7 +853,6 @@ local AutoResizeToggle = BoostPage:CreateToggle({
 		end 
 	end,
 })
-
 
 local KillOresButton = BoostPage:CreateButton({
 	Name = "Kill Ores",
@@ -2154,3 +2152,4 @@ task.spawn(function()
 		end
 	end
 end)
+		
