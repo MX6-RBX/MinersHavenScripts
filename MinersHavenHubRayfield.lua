@@ -1881,16 +1881,7 @@ function StartOreBoost(Ore)
 		end 
 		Ore.AssemblyAngularVelocity = Vector3.new(0,0,0)
 		Ore.AssemblyLinearVelocity = Vector3.new(0,0,0)
-		if Set.Furnace and Set.Furnace:FindFirstChild("Model") then
-			Ore.Anchored = false
-			Ore.CFrame = Set.Furnace.Model.Lava.CFrame + Vector3.new(0,2,0)
-		else
-			if Set.TestingMode then
-				print("No Furnace found, sending ore to spawn location")
-			end 
-			Ore.Anchored = false
-			Ore.CFrame = SavePos	
-		end
+		Sell(Ore)
 	end
 end
 
