@@ -1796,7 +1796,7 @@ end
 function GetFurnace()
 	for i,v in Tycoon:GetChildren() do
 		if v and v:FindFirstChild("Model") and v.Model:FindFirstChild("Lava") and not v.Model.Lava:FindFirstChild("TeleportSend") then
-			if not v.Model:FindFirstChild("Drop") and  (Set.Furnace == nil or Set.Furnace:FindFirstChild("Model") == nil or Set.Furnace.Model:FindFirstChild("Lava") == nil) then 
+			if not v.Model:FindFirstChild("Drop") and not v:FindFirstChild("Upgrade") and  (Set.Furnace == nil or Set.Furnace:FindFirstChild("Model") == nil or Set.Furnace.Model:FindFirstChild("Lava") == nil) then 
 				Set.Furnace = v	
 			end
 			if v.Model:FindFirstChild("Drop") and v.Model:FindFirstChild("Lava") and  (Set.IndMine == nil or Set.IndMine:FindFirstChild("Model") == nil )  then
@@ -2152,4 +2152,3 @@ task.spawn(function()
 		end
 	end
 end)
-		
