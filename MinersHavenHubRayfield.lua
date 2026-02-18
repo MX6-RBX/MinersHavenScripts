@@ -102,7 +102,7 @@ local RemoteDrop = game.ReplicatedStorage.RemoteDrop
 local ClearBase = game.ReplicatedStorage.DestroyAll
 local Money = GUI:FindFirstChild("Money")
 local Boxes = game.Workspace.Boxes
-local queteleporstring = 'wait(5) loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/MinersHavenHubRayfield.lua"))()'
+local queteleporstring = 'wait(5) loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/MInersHavenHubRayfieldTesting.lua"))()'
 
 local Set = {
 	Layout1 = "Layout1",
@@ -151,6 +151,7 @@ local Set = {
 	SelectedIsland = "Default",
 	AntiLeaveBase = false,
 	OreSize= 0,
+	AutoResizeUpgraders = false,
 
 }
 
@@ -451,22 +452,25 @@ end
 
 local function ResizeUpgraders()
 	for i,v in Tycoon:GetChildren() do
-		if v:FindFirstChild("ItemId") and v:FindFirstChild("Plane")  then
-			if not v:FindFirstChild("Model") then continue end
-			if v.Model:FindFirstChild("Upgrade") then
-				if not v.Model.Upgrade:FindFirstChild("BaseSize") then
-					local BS = Instance.new("Vector3Value")
-					BS.Value = v.Model.Upgrade.Size
-					BS.Name = "BaseSize"
-					BS.Parent = v.Model.Upgrade
-					wait(0.1)
+		task.spawn(function()
+			if v:FindFirstChild("ItemId") and v:FindFirstChild("Plane")  then
+				if not v:FindFirstChild("Model") then continue end
+				if v.Model:FindFirstChild("Upgrade") then
+					if not v.Model.Upgrade:FindFirstChild("BaseSize") then
+						local BS = Instance.new("Vector3Value")
+						BS.Value = v.Model.Upgrade.Size
+						BS.Name = "BaseSize"
+						BS.Parent = v.Model.Upgrade
+						wait(0.1)
+					end
+					if Set.TestingMode then
+						print(v.Name, "Resized to ",Set.UpgraderSize)
+					end
+					v.Model.Upgrade.Size = v.Model.Upgrade.BaseSize.Value * Set.UpgraderSize
 				end
-				if Set.TestingMode then
-					print(v.Name, "Resized to ",Set.UpgraderSize)
-				end
-				v.Model.Upgrade.Size = v.Model.Upgrade.BaseSize.Value * Set.UpgraderSize
 			end
-		end
+		end)
+		
 	end
 end
 local function RezieSingleUpgrader(Name)
@@ -838,6 +842,19 @@ local RezieAllButton = BoostPage:CreateButton({
 		ResizeUpgraders()
 	end,
 })
+
+local AutoResizeToggle = BoostPage:CreateToggle({
+	Name = "Auto Resize All Upgraders",
+	CurrentValue = false,
+	Flag = "AutoResizeAllUpg",  
+	Callback = function(Value)
+		Set.AutoResizeUpgraders = Value
+		if Set.TestingMode then
+			print("Track Ore Value: ",Value)
+		end 
+	end,
+})
+
 
 local KillOresButton = BoostPage:CreateButton({
 	Name = "Kill Ores",
@@ -1942,6 +1959,9 @@ function Load()
 		if Set.OreBoost then
 			Set.OreBoostActive = true
 		end
+	end
+	if Set.AutoResizeUpgraders then
+		ResizeUpgraders()
 	end
 end
 
