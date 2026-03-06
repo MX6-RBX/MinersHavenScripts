@@ -832,6 +832,16 @@ local UpgarderNameTextBox = BoostPage:CreateInput({
 	end,
 })
 
+local RezieSingleButton = BoostPage:CreateButton({
+	Name = "Resize Single Item",
+	Callback = function()
+		if Set.TestingMode then
+			print("Resizing all upgraders")
+		end
+		RezieSingleUpgrader(Set.SingleItemUpgrade)
+	end,
+})
+
 local RezieAllButton = BoostPage:CreateButton({
 	Name = "Resize All",
 	Callback = function()
