@@ -156,6 +156,7 @@ local Set = {
 	AutoResizeUpgraders = false,
 	SelectedPlace = "The Void",
 	AutoClovers = false,
+	CollectTime = 30,
 }
 
 local UseClovers = Set.UseCloversValue
@@ -1183,6 +1184,23 @@ local AutoCloverToggle = EventPage:CreateToggle({
 		Set.AutoClovers = Value
 	end,
 })
+
+local CloverCollectSlider = EventPage:CreateSlider({
+	Name = "Collect Speed",
+	Range = {0, 100},
+	Increment = 1,
+	Suffix = " Speed",
+	CurrentValue = 16,
+	Flag = "CollectTime",  
+	Callback = function(Value)
+		if Set.TestingMode then
+			print("Collect Speed set to",Value)
+		end 
+		Set.CollectTime = Value
+	end,
+})
+
+
 local ClaimEventStuff = EventPage:CreateButton({
 	Name = "Collect Claimable Global rewards",
 	Callback = function()
@@ -2211,7 +2229,7 @@ task.spawn(function()
 			for i,v in game.Workspace.Clovers:GetChildren() do 
 				if not Set.AutoClovers then return end 
 				Player.Character.HumanoidRootPart.CFrame = v.CFrame +Vector3.new(0,3,0)
-				wait(0.3)
+				wait(Set.CollectTime/100)
 			end
 		end
 	end
