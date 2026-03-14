@@ -1157,7 +1157,7 @@ task.spawn(function()
 	})
 end)
 
-local EventPage = MainUi:CreateTab("Event ",6023426938)
+local EventPage = MainUi:CreateTab("Event ","clover")
 local TestSection = EventPage:CreateSection("Clover Event ")
 local AutoCloverToggle = EventPage:CreateToggle({
 	Name = "Auto Collect Clovers",
