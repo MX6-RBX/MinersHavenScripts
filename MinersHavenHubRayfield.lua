@@ -1170,10 +1170,10 @@ local AutoCloverToggle = EventPage:CreateToggle({
 
 local CloverCollectSlider = EventPage:CreateSlider({
 	Name = "Collect Speed",
-	Range = {0, 100},
+	Range = {1, 100},
 	Increment = 1,
 	Suffix = " Speed",
-	CurrentValue = 16,
+	CurrentValue = 30,
 	Flag = "CollectTime",  
 	Callback = function(Value)
 		if Set.TestingMode then
