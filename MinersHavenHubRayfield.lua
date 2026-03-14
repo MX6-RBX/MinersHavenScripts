@@ -1019,24 +1019,7 @@ local EventMenu = VendorsPage:CreateButton({
 	end,
 })
 
-local GiftExchange = VendorsPage:CreateButton({
-	Name = "Open Gift Exchange/Present Santa",
-	Callback = function()
-		if game.Workspace.Map:FindFirstChild("SantaModel") then
-			Player.Character.HumanoidRootPart.CFrame = game.Workspace.Map.SantaModel.Santa.CamPos.CFrame
-			wait(0.1)
-			ChangeUi("GiftExchange")
-		else
-			Rayfield:Notify({
-				Title = "Unable to open",
-				Content = "The Gui cant be opened due to the Santa model not being found, this is probably because your playing on solo island.",
-				Duration = 5,
-				Image = 4483362458,
-			})
-		end
 
-	end,
-})
 local PlayerList = {}
 for i,v in game.Players:GetChildren() do
 	table.insert(PlayerList,v.Name)
@@ -1208,6 +1191,19 @@ local ClaimEventStuff = EventPage:CreateButton({
 			print("Claiming event rewards")
 		end 
 		ClaimEventRewards()
+	end,
+})
+local CloverMenu = EventPage:CreateButton({
+	Name = "Open Clover Shop",
+	Callback = function()
+		ChangeUi("Patrick")
+	end,
+})
+
+local EventMenu = EventPage:CreateButton({
+	Name = "Open Event",
+	Callback = function()
+		ChangeUi("EventMenu")
 	end,
 })
 
