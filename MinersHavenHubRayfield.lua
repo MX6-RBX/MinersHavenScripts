@@ -2204,35 +2204,44 @@ Rayfield:LoadConfiguration()
 
 task.spawn(function()
 	while true do
-		wait()
+		task.wait()
 		if Set.FarmBoxes then
 			local Pos = Player.Character.HumanoidRootPart.CFrame 
 			for i,v in Boxes:GetChildren() do
-				if not Set.FarmBoxes then return end 
+				if not Set.FarmBoxes then break end 
 				if v:IsA("Model") and v:FindFirstChild("Crate") then
 					Player.Character.HumanoidRootPart.CFrame = v.Crate.CFrame		
 				else
 					Player.Character.HumanoidRootPart.CFrame = v.CFrame	
 				end
-				wait(0.05)
+				task.wait(0.05)
 			end
 			Player.Character.HumanoidRootPart.AssemblyLinearVelocity = Vector3.new(0,0,0)
 			Player.Character.HumanoidRootPart.AssemblyAngularVelocity = Vector3.new(0,0,0)
 			Player.Character.HumanoidRootPart.CFrame = Pos
 		end
+		
+	end
+end)
+task.spawn(function()
+	while true do
+		task.wait()
 		if Set.AutoClovers then 
 			local Pos = Player.Character.HumanoidRootPart.CFrame 
 			for i,v in game.Workspace.Clovers:GetChildren() do 
-				if not Set.AutoClovers then return end 
+				if not Set.AutoClovers then break end 
 				Player.Character.HumanoidRootPart.CFrame = v.CFrame +Vector3.new(0,3,0)
-				wait(Set.CollectTime/100)
+				task.wait(Set.CollectTime/100)
 			end
+			Player.Character.HumanoidRootPart.AssemblyLinearVelocity = Vector3.new(0,0,0)
+			Player.Character.HumanoidRootPart.AssemblyAngularVelocity = Vector3.new(0,0,0)
+			Player.Character.HumanoidRootPart.CFrame = Pos
 		end
 	end
 end)
 task.spawn(function()
 	while true do
-		wait(Set.BoxWait)
+		task.wait(Set.BoxWait)
 		local BoxName = Set.SelectedBox or "Regular"
 		local Box = Player.Crates:FindFirstChild(Set.SelectedBox)
 		if Set.OpenBoxes and  Box and Box.Value >0  then
@@ -2242,7 +2251,7 @@ task.spawn(function()
 end)
 task.spawn(function()
 	while true do
-		wait()
+		task.wait()
 		if Set.AutoDrop then 
 			RemoteDrop:FireServer()
 		end
