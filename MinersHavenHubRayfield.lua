@@ -1,4 +1,5 @@
 local Chat = game:GetService("TextChatService")
+local TeleportService = game:GetService("TeleportService")
 local channel = Chat:WaitForChild('TextChannels').RBXGeneral
 local Player = game.Players.LocalPlayer
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
@@ -36,7 +37,8 @@ local MainUi = Rayfield:CreateWindow({
 		SaveKey = true, 
 		GrabKeyFromSite = false, 
 		Key = {"FreeKeys"}
-	}
+	},
+
 })
 
 local  CustomThemeTable = {
@@ -152,6 +154,8 @@ local Set = {
 	AntiLeaveBase = false,
 	OreSize= 0,
 	AutoResizeUpgraders = false,
+	SelectedPlace = "The Void",
+	AutoClovers = false,
 }
 
 local UseClovers = Set.UseCloversValue
@@ -280,9 +284,19 @@ local Data = {
 	Blueprints = {},
 	OreTrackers = {},
 	BoxTrackers = {},
+	Places = {
+		["Restore Data 2"] = 1778064565,
+		["The Void"]           = 4464946645,
+		["Revenge of John Doe"] = 4780479031,
+		["Illusion"]           = 4888384971,
+		["Heart of Void"]      = 5621678877,
+		["The Temple"]         = 5621679766,
+		["Shiny Void"]         = 5621680266,
+		["Data Restore V3"]    = 16433781330,
+		
+	}
 }
-
-
+--  Restore Data 2, 1778064565 The Void, 4464946645 Revenge of John Doe, 4780479031 Illusion, 4888384971 Heart of Void, 5621678877 The Temple, 5621679766 Shiny Void, 5621680266 Data Restore V3, 16433781330 
 local ELayout = loadstring(game:HttpGet('https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/BasicFirstLife.lua'))()
 local UILib = loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX/UiLib/refs/heads/main/UiLib.lua"))()
 
@@ -544,6 +558,17 @@ function BuyBlueprints()
 		if Bought then 
 			Set.BlueprintsCost -= v[2]
 			Set.BlueprintCount -= 1
+		end
+	end
+end
+
+local function ClaimEventRewards()
+	for i,v in GUI.EventMenu.PagesBackground.MilestoneBackground.ScrollingFrame:GetChildren() do
+		if v:IsA("GuiObject") then
+			local Reward = v:GetAttribute("Milestone")
+			if Reward then 
+				game:GetService("ReplicatedStorage").ClaimGlobalEventReward:InvokeServer(Reward)
+			end
 		end
 	end
 end
@@ -1063,6 +1088,33 @@ local IslandTP = VendorsPage:CreateButton({
 		game.ReplicatedStorage.PlaySolo:InvokeServer(Set.SelectedIsland)
 	end,
 })
+
+local PlaceSection = VendorsPage:CreateSection("Game Universes/states")
+local PlaceSelectDropdown = VendorsPage:CreateDropdown({
+	Name = "Select Place",
+	Options = {"The Void","Revenge of John Doe","Illusion","Heart of Void","The Temple","Shiny Void","Data Restore V3","Data Restore V4"},
+	CurrentOption = {"The Void"},
+	MultipleOptions = false,
+	Flag = "PlaceSelected",  
+	Callback = function(Options)
+		Set.SelectedPlace = Options[1]
+		if Set.TestingMode then	
+			print("Seletced Place:",Options[1])
+		end
+	end,
+})
+local PlaceTP = VendorsPage:CreateButton({
+	Name = "Teleport To Place",
+	Callback = function()
+		if Set.TestingMode then
+			print("Teleporting to ",Set.SelectedPlace)
+		end
+		local PlaceId = Data.Places[Set.SelectedPlace]
+		 TeleportService:Teleport(PlaceId,Player)
+	end,
+})
+
+
 local BoxSection = VendorsPage:CreateSection("Box Opening")
 local BoxSelectDropdown = VendorsPage:CreateDropdown({
 	Name = "Select Box",
@@ -1120,6 +1172,27 @@ task.spawn(function()
 		end,
 	})
 end)
+
+local EventPage = MainUi:CreateTab("Event ",6023426938)
+local TestSection = EventPage:CreateSection("Clover Event ")
+local AutoCloverToggle = EventPage:CreateToggle({
+	Name = "Auto Collect Clovers",
+	CurrentValue = false,
+	Flag = "AutoClovers",  
+	Callback = function(Value)
+		Set.AutoClovers = Value
+	end,
+})
+local ClaimEventStuff = EventPage:CreateButton({
+	Name = "Collect Claimable Global rewards",
+	Callback = function()
+		if Set.TestingMode then
+			print("Claiming event rewards")
+		end 
+		ClaimEventRewards()
+	end,
+})
+
 
 local OtherOptionsPage = MainUi:CreateTab("Other Options",6023426938)
 local TestSection = OtherOptionsPage:CreateSection("Testing")
@@ -2133,6 +2206,14 @@ task.spawn(function()
 			Player.Character.HumanoidRootPart.AssemblyAngularVelocity = Vector3.new(0,0,0)
 			Player.Character.HumanoidRootPart.CFrame = Pos
 		end
+		if Set.AutoClovers then 
+			local Pos = Player.Character.HumanoidRootPart.CFrame 
+			for i,v in game.Workspace.Clovers:GetChildren() do 
+				if not Set.AutoClovers then return end 
+				Player.Character.HumanoidRootPart.CFrame = v.CFrame +Vector3.new(0,3,0)
+				wait(0.3)
+			end
+		end
 	end
 end)
 task.spawn(function()
@@ -2153,3 +2234,4 @@ task.spawn(function()
 		end
 	end
 end)
+
