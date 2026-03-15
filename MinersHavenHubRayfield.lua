@@ -157,6 +157,7 @@ local Set = {
 	SelectedPlace = "The Void",
 	AutoClovers = false,
 	CollectTime = 30,
+	BoxFarmSpeed = 30
 }
 
 local UseClovers = Set.UseCloversValue
@@ -294,7 +295,7 @@ local Data = {
 		["The Temple"]         = 5621679766,
 		["Shiny Void"]         = 5621680266,
 		["Data Restore V3"]    = 16433781330,
-		
+
 	}
 }
 --  Restore Data 2, 1778064565 The Void, 4464946645 Revenge of John Doe, 4780479031 Illusion, 4888384971 Heart of Void, 5621678877 The Temple, 5621679766 Shiny Void, 5621680266 Data Restore V3, 16433781330 
@@ -1083,7 +1084,7 @@ local PlaceTP = VendorsPage:CreateButton({
 			print("Teleporting to ",Set.SelectedPlace)
 		end
 		local PlaceId = Data.Places[Set.SelectedPlace]
-		 TeleportService:Teleport(PlaceId,Player)
+		TeleportService:Teleport(PlaceId,Player)
 	end,
 })
 
@@ -1168,7 +1169,8 @@ local CloverCollectSlider = EventPage:CreateSlider({
 		if Set.TestingMode then
 			print("Collect Speed set to",Value)
 		end 
-		Set.CollectTime = Value
+		local Real = 101-Value
+		Set.CollectTime = Real
 	end,
 })
 
@@ -1231,6 +1233,22 @@ local AutoBoxTeleportToggle = OtherOptionsPage:CreateToggle({
 		if Set.TestingMode then
 			print("Box Farming: ",Value)
 		end 
+	end,
+})
+
+local BoxFarmSpeed = OtherOptionsPage:CreateSlider({
+	Name = "Box Farm Speed",
+	Range = {1, 100},
+	Increment = 1,
+	Suffix = "Speed",
+	CurrentValue = 30,
+	Flag = "BoxFarmSpeed",  
+	Callback = function(Value)
+		if Set.TestingMode then
+			print("Box Farm speed",Value)
+		end
+		local Real = 101-Value
+		Set.BoxFarmSpeed = Real
 	end,
 })
 
@@ -2193,13 +2211,13 @@ task.spawn(function()
 				else
 					Player.Character.HumanoidRootPart.CFrame = v.CFrame	
 				end
-				task.wait(0.05)
+				task.wait(Set.BoxFarmSpeed/100)
 			end
 			Player.Character.HumanoidRootPart.AssemblyLinearVelocity = Vector3.new(0,0,0)
 			Player.Character.HumanoidRootPart.AssemblyAngularVelocity = Vector3.new(0,0,0)
 			Player.Character.HumanoidRootPart.CFrame = Pos
 		end
-		
+
 	end
 end)
 task.spawn(function()
@@ -2236,4 +2254,3 @@ task.spawn(function()
 		end
 	end
 end)
-
