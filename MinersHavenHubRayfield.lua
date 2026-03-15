@@ -563,17 +563,6 @@ function BuyBlueprints()
 	end
 end
 
-local function ClaimEventRewards()
-	for i,v in GUI.EventMenu.PagesBackground.MilestoneBackground.ScrollingFrame:GetChildren() do
-		if v:IsA("GuiObject") then
-			local Reward = v:GetAttribute("Milestone")
-			if Reward then 
-				game:GetService("ReplicatedStorage").ClaimGlobalEventReward:InvokeServer(Reward)
-			end
-		end
-	end
-end
-
 local BoostPage = MainUi:CreateTab("Boost Options", 130772689610761) 
 local AutoRebirthSection = BoostPage:CreateSection("Auto Rebirth")
 local AutoRebithToggle = BoostPage:CreateToggle({
@@ -1183,16 +1172,6 @@ local CloverCollectSlider = EventPage:CreateSlider({
 	end,
 })
 
-
-local ClaimEventStuff = EventPage:CreateButton({
-	Name = "Collect Claimable Global rewards",
-	Callback = function()
-		if Set.TestingMode then
-			print("Claiming event rewards")
-		end 
-		ClaimEventRewards()
-	end,
-})
 local CloverMenu = EventPage:CreateButton({
 	Name = "Open Clover Shop",
 	Callback = function()
