@@ -2244,7 +2244,7 @@ task.spawn(function()
 end)
 task.spawn(function()
 	while true do
-		task.wait()
+		task.wait(0.5)
 		if Set.AutoClovers then 
 			local Clovers = game.Workspace.Clovers:GetChildren()
 			table.sort(Clovers, function(a, b)
