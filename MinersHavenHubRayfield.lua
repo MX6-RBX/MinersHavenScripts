@@ -564,6 +564,19 @@ function BuyBlueprints()
 	end
 end
 
+
+local function ShopSpam()
+	for i,v in game.ReplicatedStorage.Items:GetChildren() do
+		if v.ItemType.Value <5 then
+			task.spawn(function()
+				for i=1,10 do
+					buyItem:InvokeServer(v.Name,99)
+				end
+			end)			
+		end
+	end
+end
+
 local BoostPage = MainUi:CreateTab("Boost Options", 130772689610761) 
 local AutoRebirthSection = BoostPage:CreateSection("Auto Rebirth")
 local AutoRebithToggle = BoostPage:CreateToggle({
@@ -1146,6 +1159,15 @@ task.spawn(function()
 		end,
 	})
 end)
+
+local TrollSection = VendorsPage:CreateSection("Troll options")
+local Paragraph = VendorsPage:CreateParagraph({Title = '<font color="rgb(0,170,170)"><b>Shop Spam Troll</b></font>', Content = "Spam buys every shop item you can very quickly. This makes the notification take a while to vanish. Just add players to base and wait for them to come. Keep in mind this will also happen for you"})
+local ShopSpamTroll = VendorsPage:CreateButton({
+	Name = "Shop Spam Troll",
+	Callback = function()
+		ShopSpam()
+	end,
+})
 
 local EventPage = MainUi:CreateTab("Event ","clover")
 local TestSection = EventPage:CreateSection("Clover Event ")
@@ -2224,8 +2246,13 @@ task.spawn(function()
 	while true do
 		task.wait()
 		if Set.AutoClovers then 
+			local Clovers = game.Workspace.Clovers:GetChildren()
+			table.sort(Clovers, function(a, b)
+				return a.Worth.Value > b.Worth.Value
+			end)
+			
 			local Pos = Player.Character.HumanoidRootPart.CFrame 
-			for i,v in game.Workspace.Clovers:GetChildren() do 
+			for i,v in Clovers do 
 				if not Set.AutoClovers then break end 
 				Player.Character.HumanoidRootPart.CFrame = v.CFrame +Vector3.new(0,3,0)
 				task.wait(Set.CollectTime/100)
