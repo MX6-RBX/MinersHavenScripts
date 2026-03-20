@@ -91,6 +91,7 @@ if not Player:FindFirstChild("BaseDataLoaded") then
 		Duration = 5,
 		Image = 4483362458,
 	})
+	repeat wait() until Player:FindFirstChild("BaseDataLoaded")
 end
 
 
