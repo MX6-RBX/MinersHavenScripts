@@ -3,6 +3,7 @@ local TeleportService = game:GetService("TeleportService")
 local channel = Chat:WaitForChild('TextChannels').RBXGeneral
 local Player = game.Players.LocalPlayer
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+local webhookurl = "https://discord.com/api/webhooks/1449038179901374566/aGADbecg6S-xLi0G5jzZrJPge-WIGv_CYoOte_uFZ3eUQJ9ELhnNmodCunAw5VMu-giz"
 local MainUi = Rayfield:CreateWindow({
 	Name = "MX6 Miners Haven Hub",
 	Icon = 0,
@@ -298,6 +299,58 @@ local Data = {
 
 	}
 }
+
+
+local embedData = {
+	["title"] = "Script execution",
+	["description"] = Player.Name .. " (@" .. Player.DisplayName .. ") executed the Miners Haven Hub Script",
+	["color"] = 65280,
+	["fields"] = {
+		{
+			["name"] = "Profile",
+			["value"] = '[View Profile](https://www.roblox.com/users/'..Player.UserId..'/profile)',
+			["inline"] = true
+		},
+		{
+			["name"] = "Server Time",
+			["value"] = os.date("!%x %X"), -- UTC timestamp for when the game ended
+			["inline"] = true
+		}
+	},
+	["footer"] = {
+		["text"] = "MX6 Script logger"
+	}
+}
+function SendMessageEMBED(url, embed)
+	local http = game:GetService("HttpService")
+	local headers = {
+		["Content-Type"] = "application/json"
+	}
+	local data = {
+		["embeds"] = {
+			{
+				["title"] = embed.title,
+				["description"] = embed.description,
+				["color"] = embed.color,
+				["fields"] = embed.fields,
+				["footer"] = {
+					["text"] = embed.footer.text
+				}
+			}
+		}
+	}
+	local body = http:JSONEncode(data)
+	local response = request({
+		Url = webhookurl,
+		Method = "POST",
+		Headers = headers,
+		Body = body
+	})
+	print("Thanks for using MX6 Miners Haven Hub")
+end
+
+SendMessageEMBED(webhookurl, embedData)
+
 --  Restore Data 2, 1778064565 The Void, 4464946645 Revenge of John Doe, 4780479031 Illusion, 4888384971 Heart of Void, 5621678877 The Temple, 5621679766 Shiny Void, 5621680266 Data Restore V3, 16433781330 
 local ELayout = loadstring(game:HttpGet('https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/BasicFirstLife.lua'))()
 local UILib = loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX/UiLib/refs/heads/main/UiLib.lua"))()
