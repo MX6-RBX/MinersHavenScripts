@@ -105,7 +105,7 @@ local RemoteDrop = game.ReplicatedStorage.RemoteDrop
 local ClearBase = game.ReplicatedStorage.DestroyAll
 local Money = GUI:FindFirstChild("Money")
 local Boxes = game.Workspace.Boxes
-local queteleporstring = 'task.wait(5) loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/MInersHavenHubRayfieldTesting.lua"))()'
+local queteleporstring = 'task.wait(5) loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/MInersHavenHubRayfield.lua"))()'
 
 --Main scipt variables. Uses table to prevent hitting local var limit
 local Set = {
