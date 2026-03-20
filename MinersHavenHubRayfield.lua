@@ -2243,7 +2243,7 @@ Money.Changed:Connect(function()--Detects when money is updated and rebirth if t
 		print("Rebirth Price: ",RB)
 	end 
 
-	if Set.AutoRebirth and not rebirthing and Money.Value > RB and os.time()-LastRebirth >= WaitTime and Tycoon.Name == ActiveTycoon.Value.Name and Player.Rebirths.Value+1 < Set.StopLife then
+	if Set.AutoRebirth and not rebirthing and Money.Value > RB and os.time()-LastRebirth >= WaitTime and Tycoon.Name == ActiveTycoon.Value.Name and (Set.StopLife >0 and  Player.Rebirths.Value+1 < Set.StopLife) then
 		if Set.TestingMode then
 			print("Is on their tycoon")
 		end 
