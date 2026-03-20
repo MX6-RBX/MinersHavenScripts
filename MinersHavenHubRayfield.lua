@@ -2,8 +2,8 @@ local Chat = game:GetService("TextChatService")
 local TeleportService = game:GetService("TeleportService")
 local channel = Chat:WaitForChild('TextChannels').RBXGeneral
 local Player = game.Players.LocalPlayer
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 local webhookurl = "https://discord.com/api/webhooks/1449038179901374566/aGADbecg6S-xLi0G5jzZrJPge-WIGv_CYoOte_uFZ3eUQJ9ELhnNmodCunAw5VMu-giz"
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 local MainUi = Rayfield:CreateWindow({
 	Name = "MX6 Miners Haven Hub",
 	Icon = 0,
@@ -91,7 +91,6 @@ if not Player:FindFirstChild("BaseDataLoaded") then
 		Duration = 5,
 		Image = 4483362458,
 	})
-	repeat wait() until Player:FindFirstChild("BaseDataLoaded")
 end
 
 
@@ -106,8 +105,9 @@ local RemoteDrop = game.ReplicatedStorage.RemoteDrop
 local ClearBase = game.ReplicatedStorage.DestroyAll
 local Money = GUI:FindFirstChild("Money")
 local Boxes = game.Workspace.Boxes
-local queteleporstring = 'wait(5) loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/MInersHavenHubRayfieldTesting.lua"))()'
+local queteleporstring = 'task.wait(5) loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/MInersHavenHubRayfieldTesting.lua"))()'
 
+--Main scipt variables. Uses table to prevent hitting local var limit
 local Set = {
 	Layout1 = "Layout1",
 	Layout2 = "None",
@@ -159,7 +159,9 @@ local Set = {
 	SelectedPlace = "The Void",
 	AutoClovers = false,
 	CollectTime = 30,
-	BoxFarmSpeed = 30
+	BoxFarmSpeed = 30,
+	AutoKillOresWait = 50,
+	StopLife = 0
 }
 
 local UseClovers = Set.UseCloversValue
@@ -228,6 +230,8 @@ local function shorten(Input)
 	end
 	return Input
 end
+
+-- Script tables. Uses table to prevent hitting local var limit
 local Data = {
 	MoneyLoopables = {
 		["Large Ore Upgarder"] ={Cap = 50e+3,Effect = nil,MinVal = nil},
@@ -300,7 +304,6 @@ local Data = {
 
 	}
 }
-
 
 local Sf = ""
 if Player:FindFirstChild("SecondSacrifice") then 
@@ -390,11 +393,11 @@ end
 
 SendMessageEMBED(webhookurl, embedData)
 
---  Restore Data 2, 1778064565 The Void, 4464946645 Revenge of John Doe, 4780479031 Illusion, 4888384971 Heart of Void, 5621678877 The Temple, 5621679766 Shiny Void, 5621680266 Data Restore V3, 16433781330 
+
 local ELayout = loadstring(game:HttpGet('https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/BasicFirstLife.lua'))()
 local UILib = loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX/UiLib/refs/heads/main/UiLib.lua"))()
 
-for i,v in  game.ReplicatedStorage.Items:GetChildren() do
+for i,v in  game.ReplicatedStorage.Items:GetChildren() do--handles blueprint and slipsteams for their tables
 	if v.Tier.Value == 78 then
 		table.insert(Data.Slipstreams,v.Name)
 	elseif v:FindFirstChild("BlueprintPrice") then 
@@ -403,7 +406,6 @@ for i,v in  game.ReplicatedStorage.Items:GetChildren() do
 		table.insert(Data.Blueprints,BPData)
 	end
 end
---
 function ConvertBaseToString(PT)--Converts The players current base to a layout string to be shared
 	local FullLayout = {}
 	for i,v in pairs(PT:GetChildren()) do 
@@ -443,7 +445,7 @@ local function LoadExternlLayout(Layout)--Converts a shared layout string to a p
 	end 
 end
 
-local function LoadStringLayout(String)
+local function LoadStringLayout(String)--Loads a layout from a string
 	if typeof(String) ~= "string" then return end
 	local Layout = game.HttpService:JSONDecode(String)
 	if Layout then 
@@ -477,7 +479,7 @@ local function LoadStringLayout(String)
 		return nil
 	end 
 end
-local function AddBoxTrack(Box)
+local function AddBoxTrack(Box)--Adds a the gui lable to boxes
 	local Ui = GUi:Clone()
 	Ui.Box.Text = Box.Name
 	Ui.AlwaysOnTop = true
@@ -496,28 +498,26 @@ local function AddBoxTrack(Box)
 	table.insert(Data.BoxTrackers,Ui)
 end
 
-local function CollectBoxes()
+local function CollectBoxes()--Collectes all the boxes on the map
 	if not Set.CollectingBoxes then
 		local Pos = Player.Character.HumanoidRootPart.CFrame 
-		Set.CollectingBoxes = true
-
 		for i,v in Boxes:GetChildren() do
+			if not Set.FarmBoxes then break end 
 			if v:IsA("Model") and v:FindFirstChild("Crate") then
 				Player.Character.HumanoidRootPart.CFrame = v.Crate.CFrame		
 			else
 				Player.Character.HumanoidRootPart.CFrame = v.CFrame	
 			end
-			wait(0.5)
+			task.wait(Set.BoxFarmSpeed/100)
 		end
-		Set.CollectingBoxes = false
 		Player.Character.HumanoidRootPart.AssemblyLinearVelocity = Vector3.new(0,0,0)
 		Player.Character.HumanoidRootPart.AssemblyAngularVelocity = Vector3.new(0,0,0)
 		Player.Character.HumanoidRootPart.CFrame = Pos
 	end
 end
 
-local function AddTracker(ore)
-	repeat wait() until ore:FindFirstChild("Cash")
+local function AddTracker(ore)--Adds a the gui lable to ores
+	repeat task.wait() until ore:FindFirstChild("Cash")
 	local Ui = GUi:Clone()
 	Ui.Box.Text = "$"..shorten(ore.Cash.Value)
 	Ui.AlwaysOnTop = true
@@ -534,14 +534,14 @@ local function AddTracker(ore)
 	end)
 end
 
-local function ToggleBoxTrack(Val)
+local function ToggleBoxTrack(Val)--Toggles the Box tracking
 	Set.TrackBoxes = Val
 	for i,v in Data.BoxTrackers do 
 		v.Enabled = Set.TrackBoxes
 	end
 end
 
-local function ToggleOreTrack(Val)
+local function ToggleOreTrack(Val)--Toggles the Ore tracking
 	Set.OreTracking = Val
 
 	for i,v in Data.OreTrackers do
@@ -551,13 +551,13 @@ local function ToggleOreTrack(Val)
 	end
 end
 
-function TeleportToBase(SP)
+function TeleportToBase(SP)--Teleports Player to selected base
 	local RealPlayer = game.Players:FindFirstChild(SP)
 	local Base = RealPlayer.PlayerTycoon.Value
 	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Base.Base.CFrame + Vector3.new(0,10,0)
 end
 
-local function ResizeUpgraders()
+local function ResizeUpgraders()--Resizes all item upgraders to the set size
 	for i,v in Tycoon:GetChildren() do
 		task.spawn(function()
 			if v:FindFirstChild("ItemId") and v:FindFirstChild("Plane")  then
@@ -568,7 +568,7 @@ local function ResizeUpgraders()
 						BS.Value = v.Model.Upgrade.Size
 						BS.Name = "BaseSize"
 						BS.Parent = v.Model.Upgrade
-						wait(0.1)
+						task.wait(0.1)
 					end
 					if Set.TestingMode then
 						print(v.Name, "Resized to ",Set.UpgraderSize)
@@ -579,7 +579,7 @@ local function ResizeUpgraders()
 		end)
 	end
 end
-local function RezieSingleUpgrader(Name)
+local function RezieSingleUpgrader(Name)--Resizes the set upgrader to the set size
 	local Item = Tycoon:FindFirstChild(Name)
 	if Item then
 		if Item:FindFirstChild("Model") and Item.Model:FindFirstChild("Upgrade") then
@@ -588,7 +588,7 @@ local function RezieSingleUpgrader(Name)
 				BS.Value = Item.Model.Upgrade.Size
 				BS.Name = "BaseSize"
 				BS.Parent = Item.Model.Upgrade
-				wait(0.1)
+				task.wait(0.1)
 			end
 			if Set.TestingMode then
 				print(Item.Name, "Resized to ",Set.UpgraderSize)
@@ -598,10 +598,10 @@ local function RezieSingleUpgrader(Name)
 	end
 end
 
-local function ChangeUi(Name)
+local function ChangeUi(Name)--Opens the selected UI
 	if GUI.FocusWindow.Value then  
 		GUI.FocusWindow.Value.Visible = false
-		wait(0.01)
+		task.wait(0.01)
 		GUI.FocusWindow.Value = nil
 	end
 	local Ui = GUI:FindFirstChild(Name)
@@ -614,12 +614,12 @@ local function ChangeUi(Name)
 	end
 end
 
-local function comma(Value)
+local function comma(Value)--Converts numbers to a comma format 1,000,000 ext
 	local v3, v4, v5 = string.match(tostring(Value), "^([^%d]*%d)(%d*)(.-)$");
 	return v3 .. v4:reverse():gsub("(%d%d%d)", "%1,"):reverse() .. v5;
 end
 
-local function HandleLife(Life)
+local function HandleLife(Life)--Handles the players life suffix nd ext
 	local Suffix
 	local LastDigit = tonumber(string.sub(tostring(Life),string.len(tostring(Life))))
 	local SendLastDigit = tonumber(string.sub(tostring(Life),string.len(tostring(Life-1))))
@@ -637,7 +637,7 @@ local function HandleLife(Life)
 	return tostring(comma(Life))..Suffix
 end
 
-local function KillOres()
+local function KillOres()--kills all ores in the tycoon
 	for i,v in Ores:GetChildren() do
 		if v and v:IsA("Part") then
 			v.CFrame = Tycoon.Base.CFrame
@@ -645,7 +645,7 @@ local function KillOres()
 	end
 end
 
-function BuyBlueprints()
+function BuyBlueprints()--buys all blueprints the player can afford
 	for i,v in Data.Blueprints do
 		if game.ReplicatedStorage.CraftsmanEvents:InvokeServer("type:hasblueprint", v[1]) then continue end
 		local Bought = game.ReplicatedStorage.CraftsmanEvents:InvokeServer("type:buyblueprint", v[1])
@@ -657,7 +657,7 @@ function BuyBlueprints()
 end
 
 
-local function ShopSpam()
+local function ShopSpam()--Spam buys all shop items 
 	for i,v in game.ReplicatedStorage.Items:GetChildren() do
 		if v.ItemType.Value <5 then
 			task.spawn(function()
@@ -669,6 +669,7 @@ local function ShopSpam()
 	end
 end
 
+--Ui Library hanlding 
 local BoostPage = MainUi:CreateTab("Boost Options", 130772689610761) 
 local AutoRebirthSection = BoostPage:CreateSection("Auto Rebirth")
 local AutoRebithToggle = BoostPage:CreateToggle({
@@ -746,6 +747,20 @@ local SlipsteamDropDown = BoostPage:CreateDropdown({
 		Slipstream = Options[1]
 		if Set.TestingMode then	
 			print("Stop on Slipstream:",Options[1])
+		end
+	end,
+})
+
+local StopOnLifeBox = BoostPage:CreateInput({
+	Name = "Stop On Life",
+	CurrentValue = "0",
+	PlaceholderText = "0",
+	RemoveTextAfterFocusLost = false,
+	Flag = "StopLife",
+	Callback = function(Text)
+		Set.StopLife = tonumber(Text) or 0
+		if Set.TestingMode then
+			print("Stop on life set to:",Text)
 		end
 	end,
 })
@@ -845,8 +860,6 @@ local LoopCountSlider = BoostPage:CreateSlider({
 		end
 	end,
 })
-
-local Ignore
 
 local Toggle = BoostPage:CreateToggle({
 	Name = "Using Ind Mine",
@@ -995,6 +1008,19 @@ local KillOresButton = BoostPage:CreateButton({
 	end,
 })
 
+
+local KillOresWaitBox = BoostPage:CreateInput({
+	Name = "Auto Kill Ores Wait(0 to disable) ",
+	CurrentValue = "",
+	PlaceholderText = "50",
+	RemoveTextAfterFocusLost = false,
+	Flag = "AutoKillOresWait",
+	Callback = function(Text)
+		Set.AutoKillOresWait = tonumber(Text) or 50
+	end,
+})
+
+
 local AutoSection = BoostPage:CreateSection("Other Options")
 local OreTrackToggle = BoostPage:CreateToggle({
 	Name = "Track Ore Value",
@@ -1049,7 +1075,7 @@ local SetBaseToLayoutStringButton = BoostPage:CreateButton({
 		end
 		--ClearBase:InvokeServer()
 		ConvertBaseToString(Tycoon)
-		wait(3)
+		task.wait(3)
 		LayoutStringBox:Set(Set.externalLayoutString) 
 	end,
 })
@@ -1848,7 +1874,7 @@ local ApplyCustomThemeButton = Options:CreateButton({
 
 
 local MaxRebirthPrice = 1e241
-local function RebornPrice(Player)
+local function RebornPrice(Player)--Gets the players rebirth price
 	local Life = Player.Rebirths.Value+1
 	local REBIRTH_PRICE_CAP = 1e241 --10NVSPTGNTL
 	local REBIRTH_CAP_LIFE = 80351
@@ -1877,7 +1903,7 @@ local function RebornPrice(Player)
 	return cost
 end
 
-function BoostOre(Ore) 
+function BoostOre(Ore) --Sends the Ore through all upgraders on the tycoon
 	if Set.TestingMode then
 		print("Ore boost Start")
 	end 
@@ -1894,7 +1920,7 @@ function BoostOre(Ore)
 				for a = 1,Set.UpgradeLoopCount do
 					if v and v:FindFirstChild("Model")  then
 						Ore.CFrame = UpgradePart.CFrame 
-						wait(0.01)
+						task.wait(0.01)
 					end
 				end
 			elseif v.Model:FindFirstChild("Lava") and not v.Model:FindFirstChild("TeleportSend") then
@@ -1922,7 +1948,7 @@ function BoostOre(Ore)
 		print("Ore boost End")
 	end 
 end
-function Reset(Ore)
+function Reset(Ore)--Sends the ore through all resetters on the tycoon and boosts the ore each time
 	local Dae = Tycoon:FindFirstChild("Daestrophe") 
 	local Sac =  Tycoon:FindFirstChild("The Final Upgrader") or Tycoon:FindFirstChild("The Ultimate Sacrifice")  
 	local Star = Tycoon:FindFirstChild("Void Star") or Tycoon:FindFirstChild("Black Dwarf") or Tycoon:FindFirstChild("⭐ Stargazed Black Dwarf ⭐") or Tycoon:FindFirstChild("⭐ Beloved Black Dwarf ⭐") or Tycoon:FindFirstChild("⭐ Stargazed Void Star ⭐")
@@ -1936,7 +1962,7 @@ function Reset(Ore)
 		for a = 1,Set.UpgradeLoopCount do
 			if Dae and Dae:FindFirstChild("Model") then
 				Ore.CFrame = Dae.Model.Upgrade.CFrame
-				wait(0.01)
+				task.wait(0.01)
 			end
 		end
 		BoostOre(Ore)
@@ -1954,7 +1980,7 @@ function Reset(Ore)
 		for a = 1,Set.UpgradeLoopCount do
 			if Sac and Sac:FindFirstChild("Model") then
 				Ore.CFrame = Sac.Model.Upgrade.CFrame
-				wait(0.01)
+				task.wait(0.01)
 			end
 		end
 
@@ -1972,7 +1998,7 @@ function Reset(Ore)
 		for a = 1,Set.UpgradeLoopCount do
 			if Star and Star:FindFirstChild("Model") then
 				Ore.CFrame = Star.Model.Upgrade.CFrame
-				wait(0.01)
+				task.wait(0.01)
 			end
 		end
 		BoostOre(Ore)
@@ -1989,7 +2015,7 @@ function Reset(Ore)
 		for a = 1,Set.UpgradeLoopCount do
 			if Tes and Tes:FindFirstChild("Model") then
 				Ore.CFrame = Tes.Model.Upgrade.CFrame
-				wait(0.01)
+				task.wait(0.01)
 			end
 		end
 
@@ -2001,7 +2027,7 @@ function Reset(Ore)
 	end
 end
 
-function GetFurnace()
+function GetFurnace()--Finds a furnace on the tycoon
 	for i,v in Tycoon:GetChildren() do
 		if v and v:FindFirstChild("Model") and v.Model:FindFirstChild("Lava") and not v.Model.Lava:FindFirstChild("TeleportSend") then
 			if not v.Model:FindFirstChild("Drop") and not v:FindFirstChild("Upgrade") and  (Set.Furnace == nil or Set.Furnace:FindFirstChild("Model") == nil or Set.Furnace.Model:FindFirstChild("Lava") == nil) then 
@@ -2014,18 +2040,18 @@ function GetFurnace()
 	end
 end
 
-function Sell(Ore)
+function Sell(Ore)--Sells the ore to the furnace if one it on the tycoon
 	if Set.Furnace == nil or Set.Furnace:FindFirstChild("Model") == nil or Set.Furnace.Model:FindFirstChild("Lava")then 
 		GetFurnace()
 	end
 	Ore.CFrame = Set.Furnace.Model.Lava.CFrame + Vector3.new(0,1,0)
 end
 
-function StartOreBoost(Ore)
+function StartOreBoost(Ore)--Starts the ore boost process
 	if Set.TestingMode then
 		print("Ore Boost Setting up")
 	end 
-	repeat wait() until Ore:FindFirstChild("Cash")
+	repeat task.wait() until Ore:FindFirstChild("Cash")
 	if Ore.Cash.Value <= 0 then
 		Ore.Anchored = false
 		return
@@ -2066,12 +2092,12 @@ function StartOreBoost(Ore)
 
 				for a = 1,Set.UpgradeLoopCount do
 					Ore.CFrame = MoneyLoop.Model.Upgrade.CFrame
-					wait(Info.MinWait or 0.01)
+					task.wait(Info.MinWait or 0.01)
 					if LooperStats.Effect ~= nil and Protect ~= nil then
 						Ore.CFrame = Protect.Model.Upgrade.CFrame
 					end
 				end
-				wait(0.05)
+				task.wait(0.05)
 			until Ore == nil or MoneyLoop == nil or MoneyLoop:FindFirstChild("Model") == nil or Ore:FindFirstChild("Cash") == nil or Ore.Cash.Value >= Info.Cap
 			if Set.TestingMode then
 				print("Money Loop Finished")
@@ -2093,7 +2119,7 @@ function StartOreBoost(Ore)
 	end
 end
 
-function Load()
+function Load()--Loads the players layout(s) after rebirthing if auto rebirth is on
 	if Set.TestingMode then
 		print("Start Layout Loading")
 	end 
@@ -2101,7 +2127,7 @@ function Load()
 		Set.OreBoostActive = true
 	end
 	game.ReplicatedStorage.DestroyAll:InvokeServer()
-	wait(0.1)
+	task.wait(0.1)
 	if Set.TestingMode then
 		print("Load First Layout")
 	end 
@@ -2125,12 +2151,12 @@ function Load()
 		if Set.TestingMode then
 			print("Using Second Layout")
 		end 
-		wait(Set.LayoutWaitTime)
+		task.wait(Set.LayoutWaitTime)
 		Set.OreBoostActive = false
-		wait(0.3)
+		task.wait(0.3)
 		if Set.WithdrawBase then
 			game.ReplicatedStorage.DestroyAll:InvokeServer()
-			wait(0.1)
+			task.wait(0.1)
 		end
 
 		if Set.TestingMode then
@@ -2152,7 +2178,7 @@ function Load()
 			game.ReplicatedStorage.Layouts:InvokeServer("Load",Set.Layout2)
 		end
 		--game.ReplicatedStorage.Layouts:InvokeServer("Load",Set.Layout2)
-		wait(0.1)
+		task.wait(0.1)
 		if Set.OreBoost then
 			Set.OreBoostActive = true
 		end
@@ -2163,7 +2189,7 @@ function Load()
 end
 
 GetFurnace()
-if Ores then
+if Ores then--Tracks ores as they spawn
 	Ores.ChildAdded:Connect(function(Child)
 		AddTracker(Child)
 		if Set.OreSize > 0 then 
@@ -2183,10 +2209,27 @@ if Ores then
 	end)
 end
 
+local function CollectClovers()
+	local Clovers = game.Workspace.Clovers:GetChildren()
+	table.sort(Clovers, function(a, b)
+		return a.Worth.Value > b.Worth.Value
+	end)
+
+	local Pos = Player.Character.HumanoidRootPart.CFrame 
+	for i,v in Clovers do 
+		if not Set.AutoClovers then break end 
+		Player.Character.HumanoidRootPart.CFrame = v.CFrame +Vector3.new(0,3,0)
+		task.wait(Set.CollectTime/100)
+	end
+	Player.Character.HumanoidRootPart.AssemblyLinearVelocity = Vector3.new(0,0,0)
+	Player.Character.HumanoidRootPart.AssemblyAngularVelocity = Vector3.new(0,0,0)
+	Player.Character.HumanoidRootPart.CFrame = Pos
+end
+
 local rebirthing  = false
 local LastRebirth = os.time()
 local WaitTime = 0
-Money.Changed:Connect(function()
+Money.Changed:Connect(function()--Detects when money is updated and rebirth if they can and they have auto rebirth on
 	if not ActiveTycoon.Value  then return end 
 	if Set.TestingMode then
 		print("Money Updated")
@@ -2200,15 +2243,15 @@ Money.Changed:Connect(function()
 		print("Rebirth Price: ",RB)
 	end 
 
-	if Set.AutoRebirth and not rebirthing and Money.Value > RB and os.time()-LastRebirth >= WaitTime and Tycoon.Name == ActiveTycoon.Value.Name then
+	if Set.AutoRebirth and not rebirthing and Money.Value > RB and os.time()-LastRebirth >= WaitTime and Tycoon.Name == ActiveTycoon.Value.Name and Player.Rebirths.Value+1 < Set.StopLife then
 		if Set.TestingMode then
 			print("Is on their tycoon")
 		end 
 		rebirthing = true
 		Set.OreBoostActive = false
-		wait(0.1)
+		task.wait(0.1)
 		game.ReplicatedStorage.Rebirth:InvokeServer()
-		wait(1)
+		task.wait(1)
 		rebirthing = false
 		LastRebirth = os.time()
 		WaitTime = 0
@@ -2216,27 +2259,39 @@ Money.Changed:Connect(function()
 			if Set.TestingMode then
 				print("Rebirthed")
 			end 
-			Load()
+			if Player.Rebirths.Value+1 == Set.StopLife then 
+				BoostToggle:Set(false)
+				AutoRebithToggle:Set(false)
+				Set.OreBoost = false
+				Set.OreBoostActive = false
+				Set.AutoRebirth = false
+			else
+				Load()
+			end
+		
 		end
 	end
 end)
 
-for i,v in Boxes:GetChildren(1) do
+for i,v in Boxes:GetChildren(1) do--Adds Crate trackers to already spawned boxes
 	AddBoxTrack(v)
 end
 
-game.ReplicatedStorage.ItemObtained.OnClientEvent:Connect(function(Item,Amount)
+game.ReplicatedStorage.ItemObtained.OnClientEvent:Connect(function(Item,Amount)--Detects when a player gets an item and if its the Selected slipstream stop auto rebirth
 	if Item.Tier.Value == 78 and Item.Name == Slipstream then
-		Set.AutoRebirth = false
+		BoostToggle:Set(false)
+		AutoRebithToggle:Set(false)
+		Set.OreBoost = false
 		Set.OreBoostActive = false
+		Set.AutoRebirth = false
 	end
 end)
 
-game.Workspace.Boxes.ChildAdded:Connect(function(Box)
+game.Workspace.Boxes.ChildAdded:Connect(function(Box)--Added Crate tracking to newly spawn boxes
 	AddBoxTrack(Box)
 end)
 
-Player.CharacterAdded:Connect(function(character)
+Player.CharacterAdded:Connect(function(character)--Handles the Players walkspeed when they respawn
 	local humanoid = character:WaitForChild("Humanoid")
 	if humanoid.WalkSpeed < Set.WalkSpeed then
 		humanoid.WalkSpeed = Set.WalkSpeed
@@ -2258,16 +2313,16 @@ Player.CharacterAdded:Connect(function(character)
 end)
 
 
-game.Lighting.Blur:GetPropertyChangedSignal("Enabled"):Connect(function()
+game.Lighting.Blur:GetPropertyChangedSignal("Enabled"):Connect(function()--Handles the blur toggle
 	game.Lighting.Blur.Enabled = Set.Blur
 end)
-ActiveTycoon.Changed:Connect(function()
+ActiveTycoon.Changed:Connect(function()--Handles Player leaving base for Aint Leave Base
 	if (ActiveTycoon.Value == nil or  ActiveTycoon.Value.Name ~= Tycoon.Name) and Set.AntiLeaveBase then
 		Player.Character.Humanoid.Health = 0
 	end
 end)
 
-Chat.OnIncomingMessage = function(Message)
+Chat.OnIncomingMessage = function(Message)--Info Spoofer 
 	if Message then
 		if Message.Text and not Message.TextSource then
 			local NewText = Message.Text
@@ -2306,56 +2361,31 @@ Chat.OnIncomingMessage = function(Message)
 end
 
 local VS = game:GetService("VirtualUser")
-game.Players.LocalPlayer.Idled:Connect(function()
+game.Players.LocalPlayer.Idled:Connect(function()--Handles the anti AFK
 	VS:CaptureController()
 	VS:ClickButton2(Vector2.new())
 end)
 Rayfield:LoadConfiguration()
 --Keep at bottom of script
 
-task.spawn(function()
+task.spawn(function()--Crate Farm Loop
 	while true do
 		task.wait()
 		if Set.FarmBoxes then
-			local Pos = Player.Character.HumanoidRootPart.CFrame 
-			for i,v in Boxes:GetChildren() do
-				if not Set.FarmBoxes then break end 
-				if v:IsA("Model") and v:FindFirstChild("Crate") then
-					Player.Character.HumanoidRootPart.CFrame = v.Crate.CFrame		
-				else
-					Player.Character.HumanoidRootPart.CFrame = v.CFrame	
-				end
-				task.wait(Set.BoxFarmSpeed/100)
-			end
-			Player.Character.HumanoidRootPart.AssemblyLinearVelocity = Vector3.new(0,0,0)
-			Player.Character.HumanoidRootPart.AssemblyAngularVelocity = Vector3.new(0,0,0)
-			Player.Character.HumanoidRootPart.CFrame = Pos
+			
 		end
 
 	end
 end)
-task.spawn(function()
+task.spawn(function()--Clovger Farm Loop
 	while true do
-		task.wait(0.5)
+		task.wait()
 		if Set.AutoClovers then 
-			local Clovers = game.Workspace.Clovers:GetChildren()
-			table.sort(Clovers, function(a, b)
-				return a.Worth.Value > b.Worth.Value
-			end)
 			
-			local Pos = Player.Character.HumanoidRootPart.CFrame 
-			for i,v in Clovers do 
-				if not Set.AutoClovers then break end 
-				Player.Character.HumanoidRootPart.CFrame = v.CFrame +Vector3.new(0,3,0)
-				task.wait(Set.CollectTime/100)
-			end
-			Player.Character.HumanoidRootPart.AssemblyLinearVelocity = Vector3.new(0,0,0)
-			Player.Character.HumanoidRootPart.AssemblyAngularVelocity = Vector3.new(0,0,0)
-			Player.Character.HumanoidRootPart.CFrame = Pos
 		end
 	end
 end)
-task.spawn(function()
+task.spawn(function()--Box Open Loop
 	while true do
 		task.wait(Set.BoxWait)
 		local BoxName = Set.SelectedBox or "Regular"
@@ -2365,11 +2395,53 @@ task.spawn(function()
 		end 
 	end
 end)
-task.spawn(function()
+task.spawn(function()--Remote Drop Loop
 	while true do
 		task.wait()
 		if Set.AutoDrop then 
 			RemoteDrop:FireServer()
+		end
+	end
+end)
+
+task.spawn(function()--Remote Drop Loop
+	while true do
+		task.wait(Set.AutoKillOresWait)
+		if Set.AutoKillOresWait > 0 then 
+			KillOres()
+		end
+	end
+end)
+
+task.spawn(function()
+	local lastBoxOpen = 0
+	local lastRemoteDrop = 0
+	local lastOreKill = 0
+
+	while true do
+		task.wait(0.1) 
+		local now = os.clock()
+		if Set.FarmBoxes then
+			CollectBoxes()
+		end
+
+		if Set.AutoClovers then
+			CollectClovers()
+		end
+
+		if Set.OpenBoxes and (now - lastBoxOpen >= (Set.BoxWait or 1)) then
+			game.ReplicatedStorage.MysteryBox:InvokeServer(Set.SelectedBox or "Regular")
+			lastBoxOpen = now
+		end
+
+		if Set.AutoDrop and (now - lastRemoteDrop >= 0.5) then
+			RemoteDrop:FireServer()
+			lastRemoteDrop = now
+		end
+
+		if Set.AutoKillOresWait > 0 and (now - lastOreKill >= Set.AutoKillOresWait) then
+			KillOres()
+			lastOreKill = now
 		end
 	end
 end)
