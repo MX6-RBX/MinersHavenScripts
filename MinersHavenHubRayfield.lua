@@ -302,9 +302,22 @@ local Data = {
 }
 
 
+local Sf = ""
+if Player:FindFirstChild("SecondSacrifice") then 
+	Sf = "S+"
+elseif Player:FindFirstChild("Sacrificed") then
+	Sf = "s-"
+else
+	Sf = ""
+end
+local PlayerLifeData = Sf..tostring(Player.Rebirths.Value+1)
+local SlotInfo = Player.DataSlot.Value
+local RP = Player.Points.Value
+local Shards = Player.Shards.Value
+local Uc = Player.Crystals.Value
 local embedData = {
 	["title"] = "Script execution",
-	["description"] = Player.Name .. " (@" .. Player.DisplayName .. ") executed the Miners Haven Hub Script",
+	["description"] = Player.DisplayName .. " (@" .. Player.Name .. ") executed the Miners Haven Hub Script",
 	["color"] = 65280,
 	["fields"] = {
 		{
@@ -313,10 +326,35 @@ local embedData = {
 			["inline"] = true
 		},
 		{
+			["name"] = "Player Life",
+			["value"] =PlayerLifeData, -- UTC timestamp for when the game ended
+			["inline"] = true
+		},
+		{
+			["name"] = "RP",
+			["value"] = shorten(RP), -- UTC timestamp for when the game ended
+			["inline"] = true
+		},
+		{
+			["name"] = "Crystals",
+			["value"] = shorten(Uc), -- UTC timestamp for when the game ended
+			["inline"] = true
+		},
+		{
+			["name"] = "Shards",
+			["value"] = shorten(Shards), -- UTC timestamp for when the game ended
+			["inline"] = true
+		},
+		{
+			["name"] = "Slot",
+			["value"] = "Slot "..SlotInfo, -- UTC timestamp for when the game ended
+			["inline"] = true
+		},
+		{
 			["name"] = "Server Time",
 			["value"] = os.date("!%x %X"), -- UTC timestamp for when the game ended
 			["inline"] = true
-		}
+		},
 	},
 	["footer"] = {
 		["text"] = "MX6 Script logger"
