@@ -234,7 +234,7 @@ end
 -- Script tables. Uses table to prevent hitting local var limit
 local Data = {
 	MoneyLoopables = {
-		["Large Ore Upgarder"] ={Cap = 50e+3,Effect = nil,MinVal = nil},
+		["Large Ore Upgrader"] ={Cap = 50e+3,Effect = nil,MinVal = nil},
 		["Solar Large Upgrader"]={Cap = 50e+3,Effect = nil,MinVal = nil},
 		["Precision Refiner"]= {Cap = 1e+8,Effect = "Fire",MinVal = nil},
 		["Rainbow Upgrader"] ={Cap = 1e+8,Effect = nil,MinVal = nil},
