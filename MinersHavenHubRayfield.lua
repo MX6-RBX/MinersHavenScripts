@@ -752,7 +752,7 @@ local SlipsteamDropDown = BoostPage:CreateDropdown({
 })
 
 local StopOnLifeBox = BoostPage:CreateInput({
-	Name = "Stop On Life",
+	Name = "Stop On Life(Set 0 to disable)",
 	CurrentValue = "0",
 	PlaceholderText = "0",
 	RemoveTextAfterFocusLost = false,
