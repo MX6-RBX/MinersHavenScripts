@@ -1542,7 +1542,7 @@ local ThemeDropdown = Options:CreateDropdown({
 	MultipleOptions = false,
 	Flag = "GUITheme",  
 	Callback = function(Options)
-		print(Options)
+		--print(Options)
 		if Options[1] == "Custom" then
 			MainUi.ModifyTheme(CustomThemeTable)
 		else
