@@ -1149,7 +1149,7 @@ local PlayerBaseSection = VendorsPage:CreateSection("Player Base Teleport")
 local PlayerSelectDropdown = VendorsPage:CreateDropdown({
 	Name = "Select Player",
 	Options = PlayerList,
-	CurrentOption = { game.Players.LocalPlayer.Name},
+	CurrentOption = {game.Players.LocalPlayer.Name},
 	MultipleOptions = false,
 	Flag = "PlayerSelect",  
 	Callback = function(Options)
@@ -2363,6 +2363,20 @@ Chat.OnIncomingMessage = function(Message)--Info Spoofer
 	end
 end
 
+game.Players.PlayerAdded:Connect(function(Plr)
+	if not table.find(PlayerList,Plr.Name) then
+		table.insert(PlayerList,Plr.Name)
+	end
+	PlayerSelectDropdown:Refresh(PlayerList)
+end)
+game.Players.PlayerRemoving:Connect(function(Plr)
+	if table.find(PlayerList,Plr.Name) then
+		table.remove()(PlayerList,Plr.Name)
+	end
+	PlayerSelectDropdown:Refresh(PlayerList)
+end)
+
+
 local VS = game:GetService("VirtualUser")
 game.Players.LocalPlayer.Idled:Connect(function()--Handles the anti AFK
 	VS:CaptureController()
@@ -2370,52 +2384,6 @@ game.Players.LocalPlayer.Idled:Connect(function()--Handles the anti AFK
 end)
 Rayfield:LoadConfiguration()
 --Keep at bottom of script
-
-task.spawn(function()--Crate Farm Loop
-	while true do
-		task.wait()
-		if Set.FarmBoxes then
-
-		end
-
-	end
-end)
-task.spawn(function()--Clovger Farm Loop
-	while true do
-		task.wait()
-		if Set.AutoClovers then 
-
-		end
-	end
-end)
-task.spawn(function()--Box Open Loop
-	while true do
-		task.wait(Set.BoxWait)
-		local BoxName = Set.SelectedBox or "Regular"
-		local Box = Player.Crates:FindFirstChild(Set.SelectedBox)
-		if Set.OpenBoxes and  Box and Box.Value >0  then
-			game.ReplicatedStorage.MysteryBox:InvokeServer(Box.Name)	
-		end 
-	end
-end)
-task.spawn(function()--Remote Drop Loop
-	while true do
-		task.wait()
-		if Set.AutoDrop then 
-			RemoteDrop:FireServer()
-		end
-	end
-end)
-
-task.spawn(function()--Remote Drop Loop
-	while true do
-		task.wait(Set.AutoKillOresWait)
-		if Set.AutoKillOresWait > 0 then 
-			KillOres()
-		end
-	end
-end)
-
 task.spawn(function()
 	local lastBoxOpen = 0
 	local lastRemoteDrop = 0
