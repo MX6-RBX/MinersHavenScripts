@@ -2243,8 +2243,8 @@ Money.Changed:Connect(function()--Detects when money is updated and rebirth if t
 		print("Rebirth Price: ",RB)
 	end 
 
-	if Set.AutoRebirth and not rebirthing and Money.Value > RB and os.time()-LastRebirth >= WaitTime and Tycoon.Name == ActiveTycoon.Value.Name  then
-		if Set.StopLife >0 and  Player.Rebirths.Value+1 >= Set.StopLife then
+	if Set.AutoRebirth and not rebirthing and (Money.Value > RB or GUI.Parent.HUDTop.HUDTop.MoneyOther.Money.Amount.Text == "$inf" ) and os.time()-LastRebirth >= WaitTime and Tycoon.Name == ActiveTycoon.Value.Name  then
+		if Set.StopLife >0 and  Player.Rebirths.Value >= Set.StopLife then
 			return
 		end			
 		if Set.TestingMode then
@@ -2271,7 +2271,7 @@ Money.Changed:Connect(function()--Detects when money is updated and rebirth if t
 			else
 				Load()
 			end
-		
+
 		end
 	end
 end)
@@ -2375,7 +2375,7 @@ task.spawn(function()--Crate Farm Loop
 	while true do
 		task.wait()
 		if Set.FarmBoxes then
-			
+
 		end
 
 	end
@@ -2384,7 +2384,7 @@ task.spawn(function()--Clovger Farm Loop
 	while true do
 		task.wait()
 		if Set.AutoClovers then 
-			
+
 		end
 	end
 end)
