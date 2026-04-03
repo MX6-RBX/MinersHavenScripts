@@ -1197,47 +1197,9 @@ local ShopSpamTroll = VendorsPage:CreateButton({
 		ShopSpam()
 	end,
 })
-
+--[
 local EventPage = MainUi:CreateTab("Event ","clover")
-local TestSection = EventPage:CreateSection("Clover Event ")
-local AutoCloverToggle = EventPage:CreateToggle({
-	Name = "Auto Collect Clovers",
-	CurrentValue = false,
-	Flag = "AutoClovers",  
-	Callback = function(Value)
-		Set.AutoClovers = Value
-	end,
-})
-
-local CloverCollectSlider = EventPage:CreateSlider({
-	Name = "Collect Speed",
-	Range = {1, 100},
-	Increment = 1,
-	Suffix = " Speed",
-	CurrentValue = 30,
-	Flag = "CollectTime",  
-	Callback = function(Value)
-		if Set.TestingMode then
-			print("Collect Speed set to",Value)
-		end 
-		local Real = 101-Value
-		Set.CollectTime = Real
-	end,
-})
-
-local CloverMenu = EventPage:CreateButton({
-	Name = "Open Clover Shop",
-	Callback = function()
-		ChangeUi("Patrick")
-	end,
-})
-
-local EventMenu = EventPage:CreateButton({
-	Name = "Open Event",
-	Callback = function()
-		ChangeUi("EventMenu")
-	end,
-})
+local eventSection = EventPage:CreateSection("No active event currently ")
 
 
 local OtherOptionsPage = MainUi:CreateTab("Other Options",6023426938)
@@ -2120,23 +2082,6 @@ if Ores then--Tracks ores as they spawn
 	end)
 end
 
-local function CollectClovers()
-	local Clovers = game.Workspace.Clovers:GetChildren()
-	table.sort(Clovers, function(a, b)
-		return a.Worth.Value > b.Worth.Value
-	end)
-
-	local Pos = Player.Character.HumanoidRootPart.CFrame 
-	for i,v in Clovers do 
-		if not Set.AutoClovers then break end 
-		Player.Character.HumanoidRootPart.CFrame = v.CFrame +Vector3.new(0,3,0)
-		task.wait(Set.CollectTime/100)
-	end
-	Player.Character.HumanoidRootPart.AssemblyLinearVelocity = Vector3.new(0,0,0)
-	Player.Character.HumanoidRootPart.AssemblyAngularVelocity = Vector3.new(0,0,0)
-	Player.Character.HumanoidRootPart.CFrame = Pos
-end
-
 local rebirthing  = false
 local LastRebirth = os.time()
 local WaitTime = 0
@@ -2306,11 +2251,6 @@ task.spawn(function()
 		if Set.FarmBoxes then
 			CollectBoxes()
 		end
-
-		if Set.AutoClovers then
-			CollectClovers()
-		end
-
 		if Set.OpenBoxes and (now - lastBoxOpen >= (Set.BoxWait or 1)) then
 			game.ReplicatedStorage.MysteryBox:InvokeServer(Set.SelectedBox or "Regular")
 			lastBoxOpen = now
