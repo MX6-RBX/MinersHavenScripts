@@ -588,9 +588,9 @@ local function CollectEggs()
 			local prompt = Egg:FindFirstChildWhichIsA("ProximityPrompt", true)
 			if prompt then
 				Player.Character.HumanoidRootPart.CFrame = v.CFrame
-				wait(0.1)
+				task.wait(0.5)
 				fireproximityprompt(prompt)
-				task.wait(0.3) 
+				task.wait(0.5) 
 			end
 		end
 	end
@@ -601,9 +601,9 @@ local function CollectEggs()
 			local prompt = Egg:FindFirstChildWhichIsA("ProximityPrompt", true)
 			if prompt then
 				Player.Character.HumanoidRootPart.CFrame = v.CFrame
-				wait(0.1)
+				task.wait(0.5)
 				fireproximityprompt(prompt)
-				task.wait(0.3) 
+				task.wait(0.5) 
 			end
 		end
 	end
@@ -2311,7 +2311,7 @@ task.spawn(function()
 		end
 		if Set.AutoCollectEggs then
 			CollectEggs()
-			wait(1)
+			task.wait(1)
 		end
 	end
 end)
