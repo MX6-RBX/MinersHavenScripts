@@ -156,11 +156,12 @@ local Set = {
 	OreSize= 0,
 	AutoResizeUpgraders = false,
 	SelectedPlace = "The Void",
-	AutoClovers = false,
-	CollectTime = 30,
 	BoxFarmSpeed = 30,
 	AutoKillOresWait = 50,
-	StopLife = 0
+	StopLife = 0,
+	AutoCollectEggs = false,
+	mainMapEggs = game.Workspace.Map.EGG_SPAWNS,
+	easterIslandEggs = game.Workspace.Easter["EASTER ISLAND EGG SPAWNS"]
 }
 
 local UseClovers = Set.UseCloversValue
@@ -578,6 +579,35 @@ local function ShopSpam()--Spam buys all shop items
 			end)			
 		end
 	end
+end
+
+local function CollectEggs()
+	for i,v in Set.mainMapEggs:GetChildren() do
+		local Egg = v:FindFirstChildWhichIsA("MeshPart")
+		if Egg then 
+			local prompt = Egg:FindFirstChildWhichIsA("ProximityPrompt", true)
+			if prompt then
+				Player.Character.HumanoidRootPart.CFrame = v.CFrame
+				wait(0.2)
+				fireproximityprompt(prompt)
+				task.wait(0.3) 
+			end
+		end
+	end
+
+	for i,v in Set.easterIslandEggs:GetChildren() do
+		local Egg = v:FindFirstChildWhichIsA("MeshPart")
+		if Egg then 
+			local prompt = Egg:FindFirstChildWhichIsA("ProximityPrompt", true)
+			if prompt then
+				Player.Character.HumanoidRootPart.CFrame = v.CFrame
+				wait(0.1)
+				fireproximityprompt(prompt)
+				task.wait(0.3) 
+			end
+		end
+	end
+
 end
 
 --Ui Library hanlding 
@@ -1199,8 +1229,22 @@ local ShopSpamTroll = VendorsPage:CreateButton({
 })
 --[
 local EventPage = MainUi:CreateTab("Event ","clover")
-local eventSection = EventPage:CreateSection("No active event currently ")
+local eventSection = EventPage:CreateSection("Easter Event")
 
+local AutoCollecvy = EventPage:CreateToggle({
+	Name = "Auto Collect Eggs",
+	CurrentValue = false,
+	Flag = "AutoEggs",  
+	Callback = function(Value)
+		Set.AutoCollectEggs = Value
+	end,
+})
+local Fleabag = EventPage:CreateButton({
+	Name = "Open Fleabag",
+	Callback = function()
+		ChangeUi("Fleabag")
+	end,
+})
 
 local OtherOptionsPage = MainUi:CreateTab("Other Options",6023426938)
 local TestSection = OtherOptionsPage:CreateSection("Testing")
@@ -2264,6 +2308,10 @@ task.spawn(function()
 		if Set.AutoKillOresWait > 0 and (now - lastOreKill >= Set.AutoKillOresWait) then
 			KillOres()
 			lastOreKill = now
+		end
+		if Set.AutoCollectEggs then
+			CollectEggs()
+			wait(1)
 		end
 	end
 end)
