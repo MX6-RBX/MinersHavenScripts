@@ -160,8 +160,8 @@ local Set = {
 	AutoKillOresWait = 50,
 	StopLife = 0,
 	AutoCollectEggs = false,
-	mainMapEggs = game.Workspace.Map.EGG_SPAWNS,
-	easterIslandEggs = game.Workspace.Easter["EASTER ISLAND EGG SPAWNS"]
+	mainMapEggs = game.Workspace.Map:FindFirstChild("EGG_SPAWNS"),
+	easterIslandEggs = game.Workspace:FindFirstChild("Easter"):FindFirstChild("EASTER ISLAND EGG SPAWNS")
 }
 
 local UseClovers = Set.UseCloversValue
@@ -309,6 +309,9 @@ local Data = {
 local ELayout = loadstring(game:HttpGet('https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/BasicFirstLife.lua'))()
 local UILib = loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX/UiLib/refs/heads/main/UiLib.lua"))()
 
+if game.ReplicatedStorage.SoloIsland.Value then
+	game.Workspace.Easter.Parent = game.ReplicatedStorage
+end
 for i,v in  game.ReplicatedStorage.Items:GetChildren() do--handles blueprint and slipsteams for their tables
 	if v.Tier.Value == 78 then
 		table.insert(Data.Slipstreams,v.Name)
@@ -582,15 +585,28 @@ local function ShopSpam()--Spam buys all shop items
 end
 
 local function CollectEggs()
+	if Set.mainMapEggs == nil then
+		Rayfield:Notify({
+			Title = "are you on solo?",
+			Content = "There is no egg spawns found",
+			Duration = 10,
+			Image = nil,
+		}) 
+		return 
+	end
+	if Set.easterIslandEggs == nil then 
+	
+		return 
+	end
 	for i,v in Set.mainMapEggs:GetChildren() do
 		local Egg = v:FindFirstChildWhichIsA("MeshPart")
 		if Egg then 
 			local prompt = Egg:FindFirstChildWhichIsA("ProximityPrompt", true)
 			if prompt then
 				Player.Character.HumanoidRootPart.CFrame = v.CFrame
-				task.wait(0.5)
+				wait(0.1)
 				fireproximityprompt(prompt)
-				task.wait(0.5) 
+				task.wait(0.3) 
 			end
 		end
 	end
@@ -601,9 +617,9 @@ local function CollectEggs()
 			local prompt = Egg:FindFirstChildWhichIsA("ProximityPrompt", true)
 			if prompt then
 				Player.Character.HumanoidRootPart.CFrame = v.CFrame
-				task.wait(0.5)
+				wait(0.1)
 				fireproximityprompt(prompt)
-				task.wait(0.5) 
+				task.wait(0.3) 
 			end
 		end
 	end
@@ -2311,7 +2327,7 @@ task.spawn(function()
 		end
 		if Set.AutoCollectEggs then
 			CollectEggs()
-			task.wait(1)
+			wait(1)
 		end
 	end
 end)
