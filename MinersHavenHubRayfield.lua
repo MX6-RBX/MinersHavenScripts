@@ -310,7 +310,9 @@ local ELayout = loadstring(game:HttpGet('https://raw.githubusercontent.com/MX6-R
 local UILib = loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX/UiLib/refs/heads/main/UiLib.lua"))()
 
 if game.ReplicatedStorage.SoloIsland.Value then
-	game.Workspace.Easter.Parent = game.ReplicatedStorage
+	if game.Workspace:FindFirstChild("Easter") then 
+		game.Workspace.Easter.Parent = game.ReplicatedStorage
+	end
 end
 for i,v in  game.ReplicatedStorage.Items:GetChildren() do--handles blueprint and slipsteams for their tables
 	if v.Tier.Value == 78 then
