@@ -1245,7 +1245,10 @@ local ShopSpamTroll = VendorsPage:CreateButton({
 		ShopSpam()
 	end,
 })
---[
+--[[
+
+
+]]
 local EventPage = MainUi:CreateTab("Event ","clover")
 local eventSection = EventPage:CreateSection("Easter Event")
 
@@ -1261,6 +1264,14 @@ local Fleabag = EventPage:CreateButton({
 	Name = "Open Fleabag",
 	Callback = function()
 		ChangeUi("Fleabag")
+	end,
+})
+EventPage:CreateButton({
+	Name = "Claim Obtainable Egg Items",
+	Callback = function()
+		for i,v in pairs(game:GetService("ReplicatedStorage").AvailableEggs:GetChildren()) do
+			game:GetService("ReplicatedStorage").EventControllers.Easter.EasterBadgeItem:InvokeServer(v.Name)
+		end
 	end,
 })
 
