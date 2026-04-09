@@ -1251,6 +1251,15 @@ local OpenBoxToggle = VendorsPage:CreateToggle({
 		Set.OpenBoxes = Value
 	end,
 })
+local TrollSection = VendorsPage:CreateSection("Troll options")
+local Paragraph = VendorsPage:CreateParagraph({Title = '<font color="rgb(0,170,170)"><b>Shop Spam Troll</b></font>', Content = "Spam buys every shop item you can very quickly. This makes the notification take a while to vanish. Just add players to base and wait for them to come. Keep in mind this will also happen for you"})
+local ShopSpamTroll = VendorsPage:CreateButton({
+	Name = "Shop Spam Troll",
+	Callback = function()
+		ShopSpam()
+	end,
+})
+
 local BoxSection = VendorsPage:CreateSection("Blueprints")
 task.spawn(function()
 	for i,v in Data.Blueprints do
@@ -1270,14 +1279,7 @@ task.spawn(function()
 	})
 end)
 
-local TrollSection = VendorsPage:CreateSection("Troll options")
-local Paragraph = VendorsPage:CreateParagraph({Title = '<font color="rgb(0,170,170)"><b>Shop Spam Troll</b></font>', Content = "Spam buys every shop item you can very quickly. This makes the notification take a while to vanish. Just add players to base and wait for them to come. Keep in mind this will also happen for you"})
-local ShopSpamTroll = VendorsPage:CreateButton({
-	Name = "Shop Spam Troll",
-	Callback = function()
-		ShopSpam()
-	end,
-})
+
 --[
 local EventPage = MainUi:CreateTab("Event ","clover")
 local eventSection = EventPage:CreateSection("Easter Event")
