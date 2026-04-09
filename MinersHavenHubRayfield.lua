@@ -2332,8 +2332,9 @@ game.Players.PlayerAdded:Connect(function(Plr)
 	PlayerSelectDropdown:Refresh(PlayerList)
 end)
 game.Players.PlayerRemoving:Connect(function(Plr)
-	if table.find(PlayerList,Plr.Name) then
-		table.remove(PlayerList,Plr.Name)
+	local Pos = table.find(PlayerList,Plr.Name)
+	if Pos then
+		table.remove(PlayerList,Pos)
 	end
 	PlayerSelectDropdown:Refresh(PlayerList)
 end)
