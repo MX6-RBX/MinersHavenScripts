@@ -292,6 +292,7 @@ local Data = {
 	Blueprints = {},
 	OreTrackers = {},
 	BoxTrackers = {},
+	OreConnections = {},
 	Places = {
 		["Restore Data 2"] = 1778064565,
 		["The Void"]           = 4464946645,
@@ -304,7 +305,6 @@ local Data = {
 
 	}
 }
-
 
 local ELayout = loadstring(game:HttpGet('https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/BasicFirstLife.lua'))()
 local UILib = loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX/UiLib/refs/heads/main/UiLib.lua"))()
@@ -396,23 +396,33 @@ local function LoadStringLayout(String)--Loads a layout from a string
 		return nil
 	end 
 end
-local function AddBoxTrack(Box)--Adds a the gui lable to boxes
+local function AddBoxTrack(Box)
+	if not Box or Data.BoxTrackers[Box] then return end
+
 	local Ui = GUi:Clone()
 	Ui.Box.Text = Box.Name
 	Ui.AlwaysOnTop = true
 	Ui.Box.BackgroundTransparency = 0
+
 	if Box:IsA("Model") and Box:FindFirstChild("Crate") then
 		Ui.Box.BackgroundColor3 = Box.Crate.Color
 		Ui.Parent = Box.Crate
 		Ui.Adornee = Box.Crate
-
 	else
 		Ui.Box.BackgroundColor3 = Box.Color
 		Ui.Parent = Box
 		Ui.Adornee = Box
 	end
+
 	Ui.Enabled = Set.TrackBoxes
-	table.insert(Data.BoxTrackers,Ui)
+	BoxTrackers[Box] = Ui
+
+	Box.AncestryChanged:Connect(function(_, parent)
+		if not parent then
+			if Ui then Ui:Destroy() end
+			BoxTrackers[Box] = nil
+		end
+	end)
 end
 
 local function CollectBoxes()--Collectes all the boxes on the map
@@ -433,23 +443,45 @@ local function CollectBoxes()--Collectes all the boxes on the map
 	end
 end
 
-local function AddTracker(ore)--Adds a the gui lable to ores
-	repeat task.wait() until ore:FindFirstChild("Cash")
+local function AddTracker(ore)
+	if not ore or Data.OreConnections[ore] then return end
+	local cash = ore:WaitForChild("Cash", 5) 
+	if not cash or not ore.Parent then return end
+
 	local Ui = GUi:Clone()
-	Ui.Box.Text = "$"..shorten(ore.Cash.Value)
+	Ui.Box.Text = "$" .. shorten(cash.Value)
 	Ui.AlwaysOnTop = true
 	Ui.Parent = ore
 	Ui.Adornee = ore
 	Ui.Enabled = Set.OreTracking
-	table.insert(Data.OreTrackers,Ui)
-	ore.Cash.Changed:Connect(function()
-		local Val = 0
-		if ore and ore:FindFirstChild("Cash") then
-			Val = ore.Cash.Value or 0
+
+	local connections = {}
+	OreConnections[ore] = connections
+	connections.cashConn = cash.Changed:Connect(function()
+		if Ui and Ui.Parent then
+			Ui.Box.Text = "$" .. shorten(cash.Value or 0)
 		end
-		Ui.Box.Text = "$"..shorten(Val)
+	end)
+	local function cleanup()
+		for _, conn in pairs(connections) do
+			if conn then conn:Disconnect() end
+		end
+		if Ui then 
+			Ui:Destroy() 
+			Ui = nil
+		end
+
+		OreTrackers[ore] = nil
+		OreConnections[ore] = nil
+	end
+	connections.destroyConn = ore.Destroying:Connect(cleanup)
+	connections.ancestryConn = ore.AncestryChanged:Connect(function(_, parent)
+		if not parent then
+			cleanup()
+		end
 	end)
 end
+
 
 local function ToggleBoxTrack(Val)--Toggles the Box tracking
 	Set.TrackBoxes = Val
@@ -606,7 +638,7 @@ local function CollectEggs()
 			local prompt = Egg:FindFirstChildWhichIsA("ProximityPrompt", true)
 			if prompt then
 				Player.Character.HumanoidRootPart.CFrame = v.CFrame
-				wait(0.2)
+				wait(0.1)
 				fireproximityprompt(prompt)
 				task.wait(0.3) 
 			end
@@ -1245,10 +1277,7 @@ local ShopSpamTroll = VendorsPage:CreateButton({
 		ShopSpam()
 	end,
 })
---[[
-
-
-]]
+--[
 local EventPage = MainUi:CreateTab("Event ","clover")
 local eventSection = EventPage:CreateSection("Easter Event")
 
@@ -1266,8 +1295,9 @@ local Fleabag = EventPage:CreateButton({
 		ChangeUi("Fleabag")
 	end,
 })
+
 EventPage:CreateButton({
-	Name = "Claim Obtainable Egg Items",
+	Name = "Collect Egg Items",
 	Callback = function()
 		for i,v in pairs(game:GetService("ReplicatedStorage").AvailableEggs:GetChildren()) do
 			game:GetService("ReplicatedStorage").EventControllers.Easter.EasterBadgeItem:InvokeServer(v.Name)
@@ -2300,7 +2330,7 @@ game.Players.PlayerAdded:Connect(function(Plr)
 end)
 game.Players.PlayerRemoving:Connect(function(Plr)
 	if table.find(PlayerList,Plr.Name) then
-		table.remove()(PlayerList,Plr.Name)
+		table.remove(PlayerList,Plr.Name)
 	end
 	PlayerSelectDropdown:Refresh(PlayerList)
 end)
