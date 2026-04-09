@@ -415,16 +415,54 @@ local function AddBoxTrack(Box)
 	end
 
 	Ui.Enabled = Set.TrackBoxes
-	BoxTrackers[Box] = Ui
+	Data.BoxTrackers[Box] = Ui
 
 	Box.AncestryChanged:Connect(function(_, parent)
 		if not parent then
 			if Ui then Ui:Destroy() end
-			BoxTrackers[Box] = nil
+			Data.BoxTrackers[Box] = nil
 		end
 	end)
 end
 
+local function AddTracker(ore)
+	if not ore or Data.OreConnections[ore] then return end
+	local cash = ore:WaitForChild("Cash", 5) 
+	if not cash or not ore.Parent then return end
+
+	local Ui = GUi:Clone()
+	Ui.Box.Text = "$" .. shorten(cash.Value)
+	Ui.AlwaysOnTop = true
+	Ui.Parent = ore
+	Ui.Adornee = ore
+	Ui.Enabled = Set.OreTracking
+
+	local connections = {}
+	Data.OreConnections[ore] = connections
+	connections.cashConn = cash.Changed:Connect(function()
+		if Ui and Ui.Parent then
+			Ui.Box.Text = "$" .. shorten(cash.Value or 0)
+		end
+	end)
+	local function cleanup()
+		for _, conn in pairs(connections) do
+			if conn then conn:Disconnect() end
+		end
+		if Ui then 
+			Ui:Destroy() 
+			Ui = nil
+		end
+
+		Data.OreTrackers[ore] = nil
+		Data.OreConnections[ore] = nil
+	end
+	connections.destroyConn = ore.Destroying:Connect(cleanup)
+	connections.ancestryConn = ore.AncestryChanged:Connect(function(_, parent)
+		if not parent then
+			cleanup()
+		end
+	end)
+end
 local function CollectBoxes()--Collectes all the boxes on the map
 	if not Set.CollectingBoxes then
 		local Pos = Player.Character.HumanoidRootPart.CFrame 
@@ -443,44 +481,7 @@ local function CollectBoxes()--Collectes all the boxes on the map
 	end
 end
 
-local function AddTracker(ore)
-	if not ore or Data.OreConnections[ore] then return end
-	local cash = ore:WaitForChild("Cash", 5) 
-	if not cash or not ore.Parent then return end
 
-	local Ui = GUi:Clone()
-	Ui.Box.Text = "$" .. shorten(cash.Value)
-	Ui.AlwaysOnTop = true
-	Ui.Parent = ore
-	Ui.Adornee = ore
-	Ui.Enabled = Set.OreTracking
-
-	local connections = {}
-	OreConnections[ore] = connections
-	connections.cashConn = cash.Changed:Connect(function()
-		if Ui and Ui.Parent then
-			Ui.Box.Text = "$" .. shorten(cash.Value or 0)
-		end
-	end)
-	local function cleanup()
-		for _, conn in pairs(connections) do
-			if conn then conn:Disconnect() end
-		end
-		if Ui then 
-			Ui:Destroy() 
-			Ui = nil
-		end
-
-		OreTrackers[ore] = nil
-		OreConnections[ore] = nil
-	end
-	connections.destroyConn = ore.Destroying:Connect(cleanup)
-	connections.ancestryConn = ore.AncestryChanged:Connect(function(_, parent)
-		if not parent then
-			cleanup()
-		end
-	end)
-end
 
 
 local function ToggleBoxTrack(Val)--Toggles the Box tracking
