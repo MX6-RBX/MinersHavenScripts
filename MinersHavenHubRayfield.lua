@@ -658,7 +658,7 @@ local function CollectEggs()
 			end
 		end
 	end
-
+	Player.Character.HumanoidRootPart.CFrame =  Tycoon.Base.CFrame + Vector3.new(0,5,0)
 end
 
 --Ui Library hanlding 
