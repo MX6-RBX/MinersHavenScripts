@@ -630,7 +630,7 @@ local function CollectEggs()
 		return 
 	end
 	if Set.easterIslandEggs == nil then 
-	
+
 		return 
 	end
 	for i,v in Set.mainMapEggs:GetChildren() do
@@ -2205,36 +2205,38 @@ Money.Changed:Connect(function()--Detects when money is updated and rebirth if t
 		print("Rebirth Price: ",RB)
 	end 
 
-	if Set.AutoRebirth and not rebirthing and (Money.Value > RB or GUI.Parent.HUDTop.HUDTop.MoneyOther.Money.Amount.Text == "$inf" ) and os.time()-LastRebirth >= WaitTime and Tycoon.Name == ActiveTycoon.Value.Name  then
-		if Set.StopLife >0 and  Player.Rebirths.Value >= Set.StopLife then
-			return
-		end			
-		if Set.TestingMode then
-			print("Is on their tycoon")
-		end 
-		rebirthing = true
-		Set.OreBoostActive = false
-		task.wait(0.1)
-		game.ReplicatedStorage.Rebirth:InvokeServer()
-		task.wait(1)
-		rebirthing = false
-		LastRebirth = os.time()
-		WaitTime = 0
-		if Set.AutoRebirth then
+	if Set.AutoRebirth and not rebirthing and os.time()-LastRebirth >= WaitTime and Tycoon.Name == ActiveTycoon.Value.Name  then
+		if  Money.Value > RB or GUI.Parent.HUDTop.HUDTop.MoneyOther.Money.Amount.Text == "$inf" then
+			if Set.StopLife >0 and  Player.Rebirths.Value >= Set.StopLife then
+				return
+			end			
 			if Set.TestingMode then
-				print("Rebirthed")
+				print("Is on their tycoon")
 			end 
-			if Player.Rebirths.Value+1 == Set.StopLife then 
-				BoostToggle:Set(false)
-				AutoRebithToggle:Set(false)
-				Set.OreBoost = false
-				Set.OreBoostActive = false
-				Set.AutoRebirth = false
-			else
-				Load()
-			end
+			rebirthing = true
+			Set.OreBoostActive = false
+			task.wait(0.1)
+			game.ReplicatedStorage.Rebirth:InvokeServer()
+			task.wait(1)
+			rebirthing = false
+			LastRebirth = os.time()
+			WaitTime = 0
+			if Set.AutoRebirth then
+				if Set.TestingMode then
+					print("Rebirthed")
+				end 
+				if Player.Rebirths.Value+1 == Set.StopLife then 
+					BoostToggle:Set(false)
+					AutoRebithToggle:Set(false)
+					Set.OreBoost = false
+					Set.OreBoostActive = false
+					Set.AutoRebirth = false
+				else
+					Load()
+				end
 
-		end
+			end
+		end	
 	end
 end)
 
