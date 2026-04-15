@@ -924,7 +924,7 @@ local OreSizeSlider = BoostPage:CreateSlider({
 	Callback = function(Value)
 		Set.OreSize = Value/10 or 0
 		if Set.TestingMode then
-			print("Ore Size:",Set.ConveyorSpeed)
+			print("Ore Size:",Set.OreSize)
 		end 
 	end,
 })
@@ -985,7 +985,7 @@ local AutoResizeUpgradersToggle = BoostPage:CreateToggle({
 	Callback = function(Value)
 		Set.AutoResizeUpgraders = Value
 		if Set.TestingMode then
-			print("Track Ore Value: ",Value)
+			print("Auto Resize All: ",Value)
 		end 
 	end,
 })
