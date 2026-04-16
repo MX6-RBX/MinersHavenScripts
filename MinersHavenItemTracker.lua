@@ -541,7 +541,7 @@ local function AddNewButton(Item,Amount)
 		Clone.LastObtained.Text = "<b>Last Obtained</b> - "..GetSuffix()..HandleLife(Life.Value+1)
 		Clone.ItemName.Text = Item.Name.." ("..Tier.TierName.Value..")"
 		Clone.Parent = Items
-
+		UIStroke_2.Parent = ItemFrame
 		if TierId == 36 or TierId == 38 then
 			local UiS = UIStroke:Clone()
 			UiS.Parent = Clone
