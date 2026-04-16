@@ -1933,42 +1933,6 @@ function Reset(Ore)--Sends the ore through all resetters on the tycoon and boost
 	local Star = Tycoon:FindFirstChild("Void Star") or Tycoon:FindFirstChild("Black Dwarf") or Tycoon:FindFirstChild("⭐ Stargazed Black Dwarf ⭐") or Tycoon:FindFirstChild("⭐ Beloved Black Dwarf ⭐") or Tycoon:FindFirstChild("⭐ Stargazed Void Star ⭐")
 	local Tes = Tycoon:FindFirstChild("Tesla Resetter")or Tycoon:FindFirstChild("⭐ Advanced Tesla Resetter ⭐") or Tycoon:FindFirstChild("⭐ Spooky Tesla Resetter ⭐") or Tycoon:FindFirstChild("Tesla Refuter") or Tycoon:FindFirstChild("⭐ Advanced Tesla Refuter ⭐") 
 	BoostOre(Ore)
-	if Dae and Ore and Set.OreBoostActive then --checks if Daestrophe is on the base
-		if Set.TestingMode then
-			print("Found Daestrophe")
-		end 
-
-		for a = 1,Set.UpgradeLoopCount do
-			if Dae and Dae:FindFirstChild("Model") then
-				Ore.CFrame = Dae.Model.Upgrade.CFrame
-				task.wait(0.01)
-			end
-		end
-		BoostOre(Ore)
-	else
-		if Set.TestingMode then
-			print("Daestrophe Not found")
-		end
-	end
-	if Sac and Ore and Set.OreBoostActive then  --Checks if either of the sacrifice resetters are on the base 
-		if Set.TestingMode then
-			print("Found", Sac.Name)
-		end 
-
-
-		for a = 1,Set.UpgradeLoopCount do
-			if Sac and Sac:FindFirstChild("Model") then
-				Ore.CFrame = Sac.Model.Upgrade.CFrame
-				task.wait(0.01)
-			end
-		end
-
-		BoostOre(Ore)
-	else
-		if Set.TestingMode then
-			print("Sacrifice resetter Not found")
-		end				
-	end
 	if Star and Ore and Set.OreBoostActive then --Checks if black dwarf or void star is on the base 
 		if Set.TestingMode then
 			print("Found", Star.Name)
@@ -2002,6 +1966,42 @@ function Reset(Ore)--Sends the ore through all resetters on the tycoon and boost
 	else
 		if Set.TestingMode then
 			print("Tesla Not found")
+		end
+	end
+	if Sac and Ore and Set.OreBoostActive then  --Checks if either of the sacrifice resetters are on the base 
+		if Set.TestingMode then
+			print("Found", Sac.Name)
+		end 
+
+
+		for a = 1,Set.UpgradeLoopCount do
+			if Sac and Sac:FindFirstChild("Model") then
+				Ore.CFrame = Sac.Model.Upgrade.CFrame
+				task.wait(0.01)
+			end
+		end
+
+		BoostOre(Ore)
+	else
+		if Set.TestingMode then
+			print("Sacrifice resetter Not found")
+		end				
+	end
+	if Dae and Ore and Set.OreBoostActive then --checks if Daestrophe is on the base
+		if Set.TestingMode then
+			print("Found Daestrophe")
+		end 
+
+		for a = 1,Set.UpgradeLoopCount do
+			if Dae and Dae:FindFirstChild("Model") then
+				Ore.CFrame = Dae.Model.Upgrade.CFrame
+				task.wait(0.01)
+			end
+		end
+		BoostOre(Ore)
+	else
+		if Set.TestingMode then
+			print("Daestrophe Not found")
 		end
 	end
 end
@@ -2206,7 +2206,7 @@ Money.Changed:Connect(function()--Detects when money is updated and rebirth if t
 	end 
 
 	if Set.AutoRebirth and not rebirthing and os.time()-LastRebirth >= WaitTime and Tycoon.Name == ActiveTycoon.Value.Name  then
-		if  Money.Value > RB or GUI.Parent.HUDTop.HUDTop.MoneyOther.Money.Amount.Text == "$inf" then
+		if  Money.Value > RB or string.find(GUI.Parent.HUDTop.HUDTop.MoneyOther.Money.Amount.Text,"inf") then
 			if Set.StopLife >0 and  Player.Rebirths.Value >= Set.StopLife then
 				return
 			end			
