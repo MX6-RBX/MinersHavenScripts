@@ -49,7 +49,7 @@ local UIStroke = Instance.new("UIStroke")
 local UIStroke_2 = Instance.new("UIStroke")
 
 ItemTracker.Name = "ItemTracker"
-ItemTracker.Parent = game.StarterGui
+ItemTracker.Parent = game.CoreGui
 ItemTracker.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
 Main.Name = "Main"
