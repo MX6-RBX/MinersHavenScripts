@@ -568,7 +568,7 @@ local function AddNewButton(Item,Amount)
 		ItemFrame.ItemAmount.Text = "X"..ItemFrame.Amount.Value
 		ItemFrame.LayoutOrder = ItemFrame.LayoutOrder -  ItemFrame.Amount.Value
 		ItemFrame.LastObtained.Text = "<b>Last Obtained</b> - "..GetSuffix()..HandleLife(Life.Value+1)
-		UICorner_2.Parent = ItemFrame
+		UIStroke_2.Parent = ItemFrame
 	end
 	LastItem.Text = "<b>Last Item</b> - "..Item.Name
 	TotalItems +=1 
