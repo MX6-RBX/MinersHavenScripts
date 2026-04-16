@@ -1,3 +1,4 @@
+wait(2)
 local Chat = game:GetService("TextChatService")
 local TeleportService = game:GetService("TeleportService")
 local channel = Chat:WaitForChild('TextChannels').RBXGeneral
