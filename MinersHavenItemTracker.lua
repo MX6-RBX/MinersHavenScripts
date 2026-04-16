@@ -46,9 +46,10 @@ local UIPadding_6 = Instance.new("UIPadding")
 local TierTemplate = Instance.new("TextButton")
 local UICorner_6 = Instance.new("UICorner")
 local UIStroke = Instance.new("UIStroke")
+local UIStroke_2 = Instance.new("UIStroke")
 
 ItemTracker.Name = "ItemTracker"
-ItemTracker.Parent = game.CoreGui
+ItemTracker.Parent = game.StarterGui
 ItemTracker.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
 Main.Name = "Main"
@@ -383,6 +384,11 @@ UIStroke.Color = Color3.fromRGB(97, 162, 93)
 UIStroke.Thickness = 3.000
 UIStroke.Parent = TierTemplate
 
+UIStroke_2.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+UIStroke_2.Color = Color3.fromRGB(200,200,200)
+UIStroke_2.Thickness = 3.000
+
+
 local ButtonCount = Instance.new("IntValue")
 ButtonCount.Name ="Count"
 ButtonCount.Value = 0
@@ -562,6 +568,7 @@ local function AddNewButton(Item,Amount)
 		ItemFrame.ItemAmount.Text = "X"..ItemFrame.Amount.Value
 		ItemFrame.LayoutOrder = ItemFrame.LayoutOrder -  ItemFrame.Amount.Value
 		ItemFrame.LastObtained.Text = "<b>Last Obtained</b> - "..GetSuffix()..HandleLife(Life.Value+1)
+		UICorner_2.Parent = ItemFrame
 	end
 	LastItem.Text = "<b>Last Item</b> - "..Item.Name
 	TotalItems +=1 
