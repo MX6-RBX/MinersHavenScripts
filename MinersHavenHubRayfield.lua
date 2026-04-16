@@ -105,7 +105,6 @@ local RemoteDrop = game.ReplicatedStorage.RemoteDrop
 local ClearBase = game.ReplicatedStorage.DestroyAll
 local Money = GUI:FindFirstChild("Money")
 local Boxes = game.Workspace.Boxes
-local queteleporstring = 'task.wait(5) loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/MInersHavenHubRayfield.lua"))()'
 
 --Main scipt variables. Uses table to prevent hitting local var limit
 local Set = {
@@ -1179,9 +1178,6 @@ local IslandTP = VendorsPage:CreateButton({
 	Callback = function()
 		if Set.TestingMode then
 			print("Teleporting to Solo Island",Set.SelectedIsland)
-		end
-		if queue_on_teleport then 
-			queue_on_teleport(queteleporstring)
 		end
 		game.ReplicatedStorage.PlaySolo:InvokeServer(Set.SelectedIsland)
 	end,
