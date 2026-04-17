@@ -1,4 +1,6 @@
-local Chat = game:GetService("TextChatService")
+loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/MinersHavenHubRayfield.lua"))()
+
+--[[local Chat = game:GetService("TextChatService")
 local channel = Chat:WaitForChild('TextChannels').RBXGeneral
 local Player = game.Players.LocalPlayer
 local Tycoon = Player.PlayerTycoon.Value
@@ -1102,3 +1104,4 @@ while true do
 		game.ReplicatedStorage.MysteryBox:InvokeServer(Box.Name)	
 	end 
 end
+]]
