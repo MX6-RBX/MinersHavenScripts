@@ -2246,6 +2246,7 @@ for i,v in Boxes:GetChildren(1) do--Adds Crate trackers to already spawned boxes
 end
 
 game.ReplicatedStorage.ItemObtained.OnClientEvent:Connect(function(Item,Amount)--Detects when a player gets an item and if its the Selected slipstream stop auto rebirth
+	if not Item:FindFirstChild("Tier") then return end 
 	if Item.Tier.Value == 78 and Item.Name == Slipstream then
 		BoostToggle:Set(false)
 		AutoRebithToggle:Set(false)
