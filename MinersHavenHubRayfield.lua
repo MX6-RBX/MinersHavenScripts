@@ -161,8 +161,12 @@ local Set = {
 	StopLife = 0,
 	AutoCollectEggs = false,
 	mainMapEggs = game.Workspace.Map:FindFirstChild("EGG_SPAWNS"),
-	easterIslandEggs = game.Workspace:FindFirstChild("Easter"):FindFirstChild("EASTER ISLAND EGG SPAWNS")
+	easterIslandEggs = nil
 }
+
+if game.Workspace:FindFirstChild("Easter") and game.Workspace:FindFirstChild("Easter"):FindFirstChild("EASTER ISLAND EGG SPAWNS") then
+	Set.easterIslandEggs = game.Workspace:FindFirstChild("Easter"):FindFirstChild("EASTER ISLAND EGG SPAWNS")
+end
 
 local UseClovers = Set.UseCloversValue
 
@@ -630,7 +634,6 @@ local function CollectEggs()
 		return 
 	end
 	if Set.easterIslandEggs == nil then 
-
 		return 
 	end
 	for i,v in Set.mainMapEggs:GetChildren() do
