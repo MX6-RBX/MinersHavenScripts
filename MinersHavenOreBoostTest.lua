@@ -1,4 +1,6 @@
-local Chat = game:GetService("TextChatService")
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/MinersHavenHubRayfield.lua"))()
+--[[local Chat = game:GetService("TextChatService")
 local channel = Chat:WaitForChild('TextChannels').RBXGeneral
 local Player = game.Players.LocalPlayer
 local Tycoon = Player.PlayerTycoon.Value
@@ -568,7 +570,7 @@ local LayoutStealer = ExternalSection.addButton("Layout Stealer",function()
 	--[[
 	if not game.CoreGui:FindFirstChild("LayoutsStealer") then return end
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/LayoutLoaderRaw.lua"))()
-	]]
+
 	print("Disabled for testing ")
 end)
 
@@ -576,7 +578,7 @@ local ItemTracker = ExternalSection.addButton("Item Tracker",function()
 	--[[
 	if not game.CoreGui:FindFirstChild("ItemTracker") then return end
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/MinersHavenItemTracker.lua"))()
-	]]
+	
 	print("Disabled for testing")
 end)
 
@@ -1007,3 +1009,4 @@ while true do
 		game.ReplicatedStorage.MysteryBox:InvokeServer(Box.Name)	
 	end 
 end
+]]
