@@ -319,6 +319,7 @@ if game.ReplicatedStorage.SoloIsland.Value then
 	end
 end
 for i,v in  game.ReplicatedStorage.Items:GetChildren() do--handles blueprint and slipsteams for their tables
+	if not v:FindFirstChild("Tier") then continue end 
 	if v.Tier.Value == 78 then
 		table.insert(Data.Slipstreams,v.Name)
 	elseif v:FindFirstChild("BlueprintPrice") then 
