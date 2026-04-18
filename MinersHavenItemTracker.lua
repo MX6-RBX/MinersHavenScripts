@@ -576,6 +576,7 @@ local function AddNewButton(Item,Amount)
 end
 
 game.ReplicatedStorage.ItemObtained.OnClientEvent:Connect(function(Item,Amount)
+	if not Item:FindFirstChild("Tier") then return end
 	if table.find(SelectedTiers,Item.Tier.Value) then
 		AddNewButton(Item,Amount)
 	end
