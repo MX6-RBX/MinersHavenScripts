@@ -159,14 +159,9 @@ local Set = {
 	BoxFarmSpeed = 30,
 	AutoKillOresWait = 50,
 	StopLife = 0,
-	AutoCollectEggs = false,
-	mainMapEggs = game.Workspace.Map:FindFirstChild("EGG_SPAWNS"),
-	easterIslandEggs = nil
+	
 }
 
-if game.Workspace:FindFirstChild("Easter") and game.Workspace:FindFirstChild("Easter"):FindFirstChild("EASTER ISLAND EGG SPAWNS") then
-	Set.easterIslandEggs = game.Workspace:FindFirstChild("Easter"):FindFirstChild("EASTER ISLAND EGG SPAWNS")
-end
 
 local UseClovers = Set.UseCloversValue
 
@@ -313,11 +308,6 @@ local Data = {
 local ELayout = loadstring(game:HttpGet('https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/BasicFirstLife.lua'))()
 local UILib = loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX/UiLib/refs/heads/main/UiLib.lua"))()
 
-if game.ReplicatedStorage.SoloIsland.Value then
-	if game.Workspace:FindFirstChild("Easter") then 
-		game.Workspace.Easter.Parent = game.ReplicatedStorage
-	end
-end
 for i,v in  game.ReplicatedStorage.Items:GetChildren() do--handles blueprint and slipsteams for their tables
 	if not v:FindFirstChild("Tier") then continue end 
 	if v.Tier.Value == 78 then
@@ -622,47 +612,6 @@ local function ShopSpam()--Spam buys all shop items
 			end)			
 		end
 	end
-end
-
-local function CollectEggs()
-	if Set.mainMapEggs == nil then
-		Rayfield:Notify({
-			Title = "are you on solo?",
-			Content = "There is no egg spawns found",
-			Duration = 10,
-			Image = nil,
-		}) 
-		return 
-	end
-	if Set.easterIslandEggs == nil then 
-		return 
-	end
-	for i,v in Set.mainMapEggs:GetChildren() do
-		local Egg = v:FindFirstChildWhichIsA("MeshPart")
-		if Egg then 
-			local prompt = Egg:FindFirstChildWhichIsA("ProximityPrompt", true)
-			if prompt then
-				Player.Character.HumanoidRootPart.CFrame = v.CFrame
-				wait(0.3)
-				fireproximityprompt(prompt)
-				task.wait(0.3) 
-			end
-		end
-	end
-
-	for i,v in Set.easterIslandEggs:GetChildren() do
-		local Egg = v:FindFirstChildWhichIsA("MeshPart")
-		if Egg then 
-			local prompt = Egg:FindFirstChildWhichIsA("ProximityPrompt", true)
-			if prompt then
-				Player.Character.HumanoidRootPart.CFrame = v.CFrame
-				wait(0.3)
-				fireproximityprompt(prompt)
-				task.wait(0.3) 
-			end
-		end
-	end
-	Player.Character.HumanoidRootPart.CFrame =  Tycoon.Base.CFrame + Vector3.new(0,5,0)
 end
 
 --Ui Library hanlding 
@@ -1281,33 +1230,9 @@ task.spawn(function()
 end)
 
 
---[
-local EventPage = MainUi:CreateTab("Event ","clover")
-local eventSection = EventPage:CreateSection("Easter Event")
 
-local AutoCollecvy = EventPage:CreateToggle({
-	Name = "Auto Collect Eggs",
-	CurrentValue = false,
-	Flag = "AutoEggs",  
-	Callback = function(Value)
-		Set.AutoCollectEggs = Value
-	end,
-})
-local Fleabag = EventPage:CreateButton({
-	Name = "Open Fleabag",
-	Callback = function()
-		ChangeUi("Fleabag")
-	end,
-})
-
-EventPage:CreateButton({
-	Name = "Collect Egg Items",
-	Callback = function()
-		for i,v in pairs(game:GetService("ReplicatedStorage").AvailableEggs:GetChildren()) do
-			game:GetService("ReplicatedStorage").EventControllers.Easter.EasterBadgeItem:InvokeServer(v.Name)
-		end
-	end,
-})
+local EventPage = MainUi:CreateTab("Event ","")
+local eventSection = EventPage:CreateSection("No active event")
 
 local OtherOptionsPage = MainUi:CreateTab("Other Options",6023426938)
 local TestSection = OtherOptionsPage:CreateSection("Testing")
@@ -2376,9 +2301,6 @@ task.spawn(function()
 			KillOres()
 			lastOreKill = now
 		end
-		if Set.AutoCollectEggs then
-			CollectEggs()
-			wait(1)
-		end
+		
 	end
 end)
