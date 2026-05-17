@@ -1231,7 +1231,7 @@ end)
 
 
 
-local EventPage = MainUi:CreateTab("Event ","")
+local EventPage = MainUi:CreateTab("Event ")
 local eventSection = EventPage:CreateSection("No active event")
 
 local OtherOptionsPage = MainUi:CreateTab("Other Options",6023426938)
