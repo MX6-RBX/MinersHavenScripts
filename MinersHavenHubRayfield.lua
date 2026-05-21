@@ -240,7 +240,6 @@ local Data = {
 		["Way-Up-High Upgrader"]={Cap =1e+9,Effect = nil,MinVal = nil},
 		["Digital Ore Cleaner"]={Cap = 10e+9,Effect = nil,MinVal = nil},
 		["Freon-Blast Upgrader"]= {Cap = 125e+9,Effect = nil,MinVal = nil},
-		["Radioactive Refiner"]={Cap = 500e+9,Effect = nil,MinVal = nil},
 		["Fire-Blast Upgrader"]={Cap = 64e+9,Effect = "Fire",MinVal = nil},
 		["Serpentine Upgrader"]={Cap = 1e+12,Effect = nil,MinVal = nil,},
 		["Suspended Refiner"]={Cap = 1e+18,Effect = nil,MinVal = nil},
