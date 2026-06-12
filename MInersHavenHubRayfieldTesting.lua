@@ -1,4 +1,6 @@
+
 local Chat = game:GetService("TextChatService")
+local TeleportService = game:GetService("TeleportService")
 local channel = Chat:WaitForChild('TextChannels').RBXGeneral
 local Player = game.Players.LocalPlayer
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
@@ -36,7 +38,8 @@ local MainUi = Rayfield:CreateWindow({
 		SaveKey = true, 
 		GrabKeyFromSite = false, 
 		Key = {"FreeKeys"}
-	}
+	},
+
 })
 
 local  CustomThemeTable = {
@@ -102,13 +105,15 @@ local RemoteDrop = game.ReplicatedStorage.RemoteDrop
 local ClearBase = game.ReplicatedStorage.DestroyAll
 local Money = GUI:FindFirstChild("Money")
 local Boxes = game.Workspace.Boxes
-local queteleporstring = 'wait(5) loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/MinersHavenHubRayfield.lua"))()'
 
+--Main scipt variables. Uses table to prevent hitting local var limit
 local Set = {
 	Layout1 = "Layout1",
 	Layout2 = "None",
+	Layout3 = "None",
 	MinWait = 20,
-	LayoutWaitTime = 10,
+	Layout2WaitTime = 10,
+	Layout3WaitTime = 10,
 	AutoRebirth = false,
 	Rebirthing = false,
 	UsingMoneyLoop = false,
@@ -151,8 +156,14 @@ local Set = {
 	SelectedIsland = "Default",
 	AntiLeaveBase = false,
 	OreSize= 0,
+	AutoResizeUpgraders = false,
+	SelectedPlace = "The Void",
+	BoxFarmSpeed = 30,
+	AutoKillOresWait = 50,
+	StopLife = 0,
 
 }
+
 
 local UseClovers = Set.UseCloversValue
 
@@ -220,16 +231,17 @@ local function shorten(Input)
 	end
 	return Input
 end
+
+-- Script tables. Uses table to prevent hitting local var limit
 local Data = {
 	MoneyLoopables = {
-		["Large Ore Upgarder"] ={Cap = 50e+3,Effect = nil,MinVal = nil},
+		["Large Ore Upgrader"] ={Cap = 50e+3,Effect = nil,MinVal = nil},
 		["Solar Large Upgrader"]={Cap = 50e+3,Effect = nil,MinVal = nil},
 		["Precision Refiner"]= {Cap = 1e+8,Effect = "Fire",MinVal = nil},
 		["Rainbow Upgrader"] ={Cap = 1e+8,Effect = nil,MinVal = nil},
 		["Way-Up-High Upgrader"]={Cap =1e+9,Effect = nil,MinVal = nil},
 		["Digital Ore Cleaner"]={Cap = 10e+9,Effect = nil,MinVal = nil},
 		["Freon-Blast Upgrader"]= {Cap = 125e+9,Effect = nil,MinVal = nil},
-		["Radioactive Refiner"]={Cap = 500e+9,Effect = nil,MinVal = nil},
 		["Fire-Blast Upgrader"]={Cap = 64e+9,Effect = "Fire",MinVal = nil},
 		["Serpentine Upgrader"]={Cap = 1e+12,Effect = nil,MinVal = nil,},
 		["Suspended Refiner"]={Cap = 1e+18,Effect = nil,MinVal = nil},
@@ -280,13 +292,25 @@ local Data = {
 	Blueprints = {},
 	OreTrackers = {},
 	BoxTrackers = {},
-}
+	OreConnections = {},
+	Places = {
+		["Restore Data 2"] = 1778064565,
+		["The Void"]           = 4464946645,
+		["Revenge of John Doe"] = 4780479031,
+		["Illusion"]           = 4888384971,
+		["Heart of Void"]      = 5621678877,
+		["The Temple"]         = 5621679766,
+		["Shiny Void"]         = 5621680266,
+		["Data Restore V3"]    = 16433781330,
 
+	}
+}
 
 local ELayout = loadstring(game:HttpGet('https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/BasicFirstLife.lua'))()
 local UILib = loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX/UiLib/refs/heads/main/UiLib.lua"))()
 
-for i,v in  game.ReplicatedStorage.Items:GetChildren() do
+for i,v in  game.ReplicatedStorage.Items:GetChildren() do--handles blueprint and slipsteams for their tables
+	if not v:FindFirstChild("Tier") then continue end 
 	if v.Tier.Value == 78 then
 		table.insert(Data.Slipstreams,v.Name)
 	elseif v:FindFirstChild("BlueprintPrice") then 
@@ -295,7 +319,6 @@ for i,v in  game.ReplicatedStorage.Items:GetChildren() do
 		table.insert(Data.Blueprints,BPData)
 	end
 end
---
 function ConvertBaseToString(PT)--Converts The players current base to a layout string to be shared
 	local FullLayout = {}
 	for i,v in pairs(PT:GetChildren()) do 
@@ -335,7 +358,7 @@ local function LoadExternlLayout(Layout)--Converts a shared layout string to a p
 	end 
 end
 
-local function LoadStringLayout(String)
+local function LoadStringLayout(String)--Loads a layout from a string
 	if typeof(String) ~= "string" then return end
 	local Layout = game.HttpService:JSONDecode(String)
 	if Layout then 
@@ -370,70 +393,101 @@ local function LoadStringLayout(String)
 	end 
 end
 local function AddBoxTrack(Box)
+	if not Box or Data.BoxTrackers[Box] then return end
+
 	local Ui = GUi:Clone()
 	Ui.Box.Text = Box.Name
 	Ui.AlwaysOnTop = true
 	Ui.Box.BackgroundTransparency = 0
+
 	if Box:IsA("Model") and Box:FindFirstChild("Crate") then
 		Ui.Box.BackgroundColor3 = Box.Crate.Color
 		Ui.Parent = Box.Crate
 		Ui.Adornee = Box.Crate
-
 	else
 		Ui.Box.BackgroundColor3 = Box.Color
 		Ui.Parent = Box
 		Ui.Adornee = Box
 	end
+
 	Ui.Enabled = Set.TrackBoxes
-	table.insert(Data.BoxTrackers,Ui)
+	Data.BoxTrackers[Box] = Ui
+
+	Box.AncestryChanged:Connect(function(_, parent)
+		if not parent then
+			if Ui then Ui:Destroy() end
+			Data.BoxTrackers[Box] = nil
+		end
+	end)
 end
 
-local function CollectBoxes()
+local function AddTracker(ore)
+	if not ore or Data.OreConnections[ore] then return end
+	local cash = ore:WaitForChild("Cash", 5) 
+	if not cash or not ore.Parent then return end
+
+	local Ui = GUi:Clone()
+	Ui.Box.Text = "$" .. shorten(cash.Value)
+	Ui.AlwaysOnTop = true
+	Ui.Parent = ore
+	Ui.Adornee = ore
+	Ui.Enabled = Set.OreTracking
+
+	local connections = {}
+	Data.OreConnections[ore] = connections
+	connections.cashConn = cash.Changed:Connect(function()
+		if Ui and Ui.Parent then
+			Ui.Box.Text = "$" .. shorten(cash.Value or 0)
+		end
+	end)
+	local function cleanup()
+		for _, conn in pairs(connections) do
+			if conn then conn:Disconnect() end
+		end
+		if Ui then 
+			Ui:Destroy() 
+			Ui = nil
+		end
+
+		Data.OreTrackers[ore] = nil
+		Data.OreConnections[ore] = nil
+	end
+	connections.destroyConn = ore.Destroying:Connect(cleanup)
+	connections.ancestryConn = ore.AncestryChanged:Connect(function(_, parent)
+		if not parent then
+			cleanup()
+		end
+	end)
+end
+local function CollectBoxes()--Collectes all the boxes on the map
 	if not Set.CollectingBoxes then
 		local Pos = Player.Character.HumanoidRootPart.CFrame 
-		Set.CollectingBoxes = true
-
 		for i,v in Boxes:GetChildren() do
+			if not Set.FarmBoxes then break end 
 			if v:IsA("Model") and v:FindFirstChild("Crate") then
 				Player.Character.HumanoidRootPart.CFrame = v.Crate.CFrame		
 			else
 				Player.Character.HumanoidRootPart.CFrame = v.CFrame	
 			end
-			wait(0.5)
+			task.wait(Set.BoxFarmSpeed/100)
 		end
-		Set.CollectingBoxes = false
 		Player.Character.HumanoidRootPart.AssemblyLinearVelocity = Vector3.new(0,0,0)
 		Player.Character.HumanoidRootPart.AssemblyAngularVelocity = Vector3.new(0,0,0)
 		Player.Character.HumanoidRootPart.CFrame = Pos
 	end
 end
 
-local function AddTracker(ore)
-	repeat wait() until ore:FindFirstChild("Cash")
-	local Ui = GUi:Clone()
-	Ui.Box.Text = "$"..shorten(ore.Cash.Value)
-	Ui.AlwaysOnTop = true
-	Ui.Parent = ore
-	Ui.Adornee = ore
-	Ui.Enabled = Set.OreTracking
-	table.insert(Data.OreTrackers,Ui)
-	ore.Cash.Changed:Connect(function()
-		local Val = 0
-		if ore and ore:FindFirstChild("Cash") then
-			Val = ore.Cash.Value or 0
-		end
-		Ui.Box.Text = "$"..shorten(Val)
-	end)
-end
 
-local function ToggleBoxTrack(Val)
+
+
+local function ToggleBoxTrack(Val)--Toggles the Box tracking
 	Set.TrackBoxes = Val
 	for i,v in Data.BoxTrackers do 
 		v.Enabled = Set.TrackBoxes
 	end
 end
 
-local function ToggleOreTrack(Val)
+local function ToggleOreTrack(Val)--Toggles the Ore tracking
 	Set.OreTracking = Val
 
 	for i,v in Data.OreTrackers do
@@ -443,33 +497,35 @@ local function ToggleOreTrack(Val)
 	end
 end
 
-function TeleportToBase(SP)
+function TeleportToBase(SP)--Teleports Player to selected base
 	local RealPlayer = game.Players:FindFirstChild(SP)
 	local Base = RealPlayer.PlayerTycoon.Value
 	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Base.Base.CFrame + Vector3.new(0,10,0)
 end
 
-local function ResizeUpgraders()
+local function ResizeUpgraders()--Resizes all item upgraders to the set size
 	for i,v in Tycoon:GetChildren() do
-		if v:FindFirstChild("ItemId") and v:FindFirstChild("Plane")  then
-			if not v:FindFirstChild("Model") then continue end
-			if v.Model:FindFirstChild("Upgrade") then
-				if not v.Model.Upgrade:FindFirstChild("BaseSize") then
-					local BS = Instance.new("Vector3Value")
-					BS.Value = v.Model.Upgrade.Size
-					BS.Name = "BaseSize"
-					BS.Parent = v.Model.Upgrade
-					wait(0.1)
+		task.spawn(function()
+			if v:FindFirstChild("ItemId") and v:FindFirstChild("Plane")  then
+				if not v:FindFirstChild("Model") then return end
+				if v.Model:FindFirstChild("Upgrade") then
+					if not v.Model.Upgrade:FindFirstChild("BaseSize") then
+						local BS = Instance.new("Vector3Value")
+						BS.Value = v.Model.Upgrade.Size
+						BS.Name = "BaseSize"
+						BS.Parent = v.Model.Upgrade
+						task.wait(0.1)
+					end
+					if Set.TestingMode then
+						print(v.Name, "Resized to ",Set.UpgraderSize)
+					end
+					v.Model.Upgrade.Size = v.Model.Upgrade.BaseSize.Value * Set.UpgraderSize
 				end
-				if Set.TestingMode then
-					print(v.Name, "Resized to ",Set.UpgraderSize)
-				end
-				v.Model.Upgrade.Size = v.Model.Upgrade.BaseSize.Value * Set.UpgraderSize
 			end
-		end
+		end)
 	end
 end
-local function RezieSingleUpgrader(Name)
+local function RezieSingleUpgrader(Name)--Resizes the set upgrader to the set size
 	local Item = Tycoon:FindFirstChild(Name)
 	if Item then
 		if Item:FindFirstChild("Model") and Item.Model:FindFirstChild("Upgrade") then
@@ -478,7 +534,7 @@ local function RezieSingleUpgrader(Name)
 				BS.Value = Item.Model.Upgrade.Size
 				BS.Name = "BaseSize"
 				BS.Parent = Item.Model.Upgrade
-				wait(0.1)
+				task.wait(0.1)
 			end
 			if Set.TestingMode then
 				print(Item.Name, "Resized to ",Set.UpgraderSize)
@@ -488,10 +544,10 @@ local function RezieSingleUpgrader(Name)
 	end
 end
 
-local function ChangeUi(Name)
+local function ChangeUi(Name)--Opens the selected UI
 	if GUI.FocusWindow.Value then  
 		GUI.FocusWindow.Value.Visible = false
-		wait(0.01)
+		task.wait(0.01)
 		GUI.FocusWindow.Value = nil
 	end
 	local Ui = GUI:FindFirstChild(Name)
@@ -504,12 +560,12 @@ local function ChangeUi(Name)
 	end
 end
 
-local function comma(Value)
+local function comma(Value)--Converts numbers to a comma format 1,000,000 ext
 	local v3, v4, v5 = string.match(tostring(Value), "^([^%d]*%d)(%d*)(.-)$");
 	return v3 .. v4:reverse():gsub("(%d%d%d)", "%1,"):reverse() .. v5;
 end
 
-local function HandleLife(Life)
+local function HandleLife(Life)--Handles the players life suffix nd ext
 	local Suffix
 	local LastDigit = tonumber(string.sub(tostring(Life),string.len(tostring(Life))))
 	local SendLastDigit = tonumber(string.sub(tostring(Life),string.len(tostring(Life-1))))
@@ -527,7 +583,7 @@ local function HandleLife(Life)
 	return tostring(comma(Life))..Suffix
 end
 
-local function KillOres()
+local function KillOres()--kills all ores in the tycoon
 	for i,v in Ores:GetChildren() do
 		if v and v:IsA("Part") then
 			v.CFrame = Tycoon.Base.CFrame
@@ -535,7 +591,7 @@ local function KillOres()
 	end
 end
 
-function BuyBlueprints()
+function BuyBlueprints()--buys all blueprints the player can afford
 	for i,v in Data.Blueprints do
 		if game.ReplicatedStorage.CraftsmanEvents:InvokeServer("type:hasblueprint", v[1]) then continue end
 		local Bought = game.ReplicatedStorage.CraftsmanEvents:InvokeServer("type:buyblueprint", v[1])
@@ -546,6 +602,20 @@ function BuyBlueprints()
 	end
 end
 
+
+local function ShopSpam()--Spam buys all shop items 
+	for i,v in game.ReplicatedStorage.Items:GetChildren() do
+		if v.ItemType.Value <5 then
+			task.spawn(function()
+				for i=1,10 do
+					buyItem:InvokeServer(v.Name,99)
+				end
+			end)			
+		end
+	end
+end
+
+--Ui Library hanlding 
 local BoostPage = MainUi:CreateTab("Boost Options", 130772689610761) 
 local AutoRebirthSection = BoostPage:CreateSection("Auto Rebirth")
 local AutoRebithToggle = BoostPage:CreateToggle({
@@ -627,6 +697,20 @@ local SlipsteamDropDown = BoostPage:CreateDropdown({
 	end,
 })
 
+local StopOnLifeBox = BoostPage:CreateInput({
+	Name = "Stop On Life(Set 0 to disable)",
+	CurrentValue = "0",
+	PlaceholderText = "0",
+	RemoveTextAfterFocusLost = false,
+	Flag = "StopLife",
+	Callback = function(Text)
+		Set.StopLife = tonumber(Text) or 0
+		if Set.TestingMode then
+			print("Stop on life set to:",Text)
+		end
+	end,
+})
+
 local Layout1Dropdown = BoostPage:CreateDropdown({
 	Name = "First Layout",
 	Options = {"Layout1","Layout2","Layout3","Layout String"},
@@ -641,12 +725,12 @@ local Layout1Dropdown = BoostPage:CreateDropdown({
 	end,
 })
 
-local LayoutWaitBox = BoostPage:CreateInput({
+local Layout2WaitBox = BoostPage:CreateInput({
 	Name = "Layout 2 Load Wait",
 	CurrentValue = "5",
 	PlaceholderText = "5",
 	RemoveTextAfterFocusLost = false,
-	Flag = "LayoutLoadWait",
+	Flag = "Layout2LoadWait",
 	Callback = function(Text)
 		Set.LayoutWaitTime = tonumber(Text) or 5
 		if Set.TestingMode then
@@ -662,7 +746,7 @@ local WithdrawLayoutToggle = BoostPage:CreateToggle({
 	Callback = function(Value)
 		Set.WithdrawBase = Value
 		if Set.TestingMode then
-			print("Add Wait Randomness:",Value)
+			print("Withdraw Layouts:",Value)
 		end
 	end,
 })
@@ -680,6 +764,35 @@ local Layout2Dropdown = BoostPage:CreateDropdown({
 		end
 	end,
 })
+
+local Layout3WaitBox = BoostPage:CreateInput({
+	Name = "Layout 3 Load Wait",
+	CurrentValue = "5",
+	PlaceholderText = "5",
+	RemoveTextAfterFocusLost = false,
+	Flag = "Layout3LoadWait",
+	Callback = function(Text)
+		Set.Layout2WaitTime = tonumber(Text) or 5
+		if Set.TestingMode then
+			print("Layout 3  Load Wait:",Text)
+		end
+	end,
+})
+
+local Layout3Dropdown = BoostPage:CreateDropdown({
+	Name = "ThirdLayout",
+	Options = {"Layout1","Layout2","Layout3","Layout String"},
+	CurrentOption = {"Layout1"},
+	MultipleOptions = false,
+	Flag = "Layout3",  
+	Callback = function(Options)
+		Set.Layout3 = Options[1]
+		if Set.TestingMode then	
+			print("Third Layout:",Options[1])
+		end
+	end,
+})
+
 
 local AutoDropToggle = BoostPage:CreateToggle({
 	Name = "Auto Remote drops",
@@ -722,8 +835,6 @@ local LoopCountSlider = BoostPage:CreateSlider({
 		end
 	end,
 })
-
-local Ignore
 
 local Toggle = BoostPage:CreateToggle({
 	Name = "Using Ind Mine",
@@ -796,10 +907,11 @@ local OreSizeSlider = BoostPage:CreateSlider({
 	Callback = function(Value)
 		Set.OreSize = Value/10 or 0
 		if Set.TestingMode then
-			print("Ore Size:",Set.ConveyorSpeed)
+			print("Ore Size:",Set.OreSize)
 		end 
 	end,
 })
+
 local UpgSizeSlider = BoostPage:CreateSlider({
 	Name = "Upgrader Size",
 	Range = {1, 20},
@@ -829,6 +941,16 @@ local UpgarderNameTextBox = BoostPage:CreateInput({
 	end,
 })
 
+local RezieSingleButton = BoostPage:CreateButton({
+	Name = "Resize Single Item",
+	Callback = function()
+		if Set.TestingMode then
+			print("Resizing all upgraders")
+		end
+		RezieSingleUpgrader(Set.SingleItemUpgrade)
+	end,
+})
+
 local RezieAllButton = BoostPage:CreateButton({
 	Name = "Resize All",
 	Callback = function()
@@ -836,6 +958,18 @@ local RezieAllButton = BoostPage:CreateButton({
 			print("Resizing all upgraders")
 		end
 		ResizeUpgraders()
+	end,
+})
+
+local AutoResizeUpgradersToggle = BoostPage:CreateToggle({
+	Name = "Auto Resize All Upgraders",
+	CurrentValue = false,
+	Flag = "AutoResizeAllUpg",  
+	Callback = function(Value)
+		Set.AutoResizeUpgraders = Value
+		if Set.TestingMode then
+			print("Auto Resize All: ",Value)
+		end 
 	end,
 })
 
@@ -848,6 +982,19 @@ local KillOresButton = BoostPage:CreateButton({
 		KillOres()
 	end,
 })
+
+
+local KillOresWaitBox = BoostPage:CreateInput({
+	Name = "Auto Kill Ores Wait(0 to disable) ",
+	CurrentValue = "",
+	PlaceholderText = "50",
+	RemoveTextAfterFocusLost = false,
+	Flag = "AutoKillOresWait",
+	Callback = function(Text)
+		Set.AutoKillOresWait = tonumber(Text) or 50
+	end,
+})
+
 
 local AutoSection = BoostPage:CreateSection("Other Options")
 local OreTrackToggle = BoostPage:CreateToggle({
@@ -903,7 +1050,7 @@ local SetBaseToLayoutStringButton = BoostPage:CreateButton({
 		end
 		--ClearBase:InvokeServer()
 		ConvertBaseToString(Tycoon)
-		wait(3)
+		task.wait(3)
 		LayoutStringBox:Set(Set.externalLayoutString) 
 	end,
 })
@@ -968,24 +1115,7 @@ local EventMenu = VendorsPage:CreateButton({
 	end,
 })
 
-local GiftExchange = VendorsPage:CreateButton({
-	Name = "Open Gift Exchange/Present Santa",
-	Callback = function()
-		if game.Workspace.Map:FindFirstChild("SantaModel") then
-			Player.Character.HumanoidRootPart.CFrame = game.Workspace.Map.SantaModel.Santa.CamPos.CFrame
-			wait(0.1)
-			ChangeUi("GiftExchange")
-		else
-			Rayfield:Notify({
-				Title = "Unable to open",
-				Content = "The Gui cant be opened due to the Santa model not being found, this is probably because your playing on solo island.",
-				Duration = 5,
-				Image = 4483362458,
-			})
-		end
 
-	end,
-})
 local PlayerList = {}
 for i,v in game.Players:GetChildren() do
 	table.insert(PlayerList,v.Name)
@@ -994,7 +1124,7 @@ local PlayerBaseSection = VendorsPage:CreateSection("Player Base Teleport")
 local PlayerSelectDropdown = VendorsPage:CreateDropdown({
 	Name = "Select Player",
 	Options = PlayerList,
-	CurrentOption = { game.Players.LocalPlayer.Name},
+	CurrentOption = {game.Players.LocalPlayer.Name},
 	MultipleOptions = false,
 	Flag = "PlayerSelect",  
 	Callback = function(Options)
@@ -1032,12 +1162,36 @@ local IslandTP = VendorsPage:CreateButton({
 		if Set.TestingMode then
 			print("Teleporting to Solo Island",Set.SelectedIsland)
 		end
-		if queue_on_teleport then 
-			queue_on_teleport(queteleporstring)
-		end
 		game.ReplicatedStorage.PlaySolo:InvokeServer(Set.SelectedIsland)
 	end,
 })
+
+local PlaceSection = VendorsPage:CreateSection("Game Universes/states")
+local PlaceSelectDropdown = VendorsPage:CreateDropdown({
+	Name = "Select Place",
+	Options = {"The Void","Revenge of John Doe","Illusion","Heart of Void","The Temple","Shiny Void","Data Restore V3","Data Restore V4"},
+	CurrentOption = {"The Void"},
+	MultipleOptions = false,
+	Flag = "PlaceSelected",  
+	Callback = function(Options)
+		Set.SelectedPlace = Options[1]
+		if Set.TestingMode then	
+			print("Seletced Place:",Options[1])
+		end
+	end,
+})
+local PlaceTP = VendorsPage:CreateButton({
+	Name = "Teleport To Place",
+	Callback = function()
+		if Set.TestingMode then
+			print("Teleporting to ",Set.SelectedPlace)
+		end
+		local PlaceId = Data.Places[Set.SelectedPlace]
+		TeleportService:Teleport(PlaceId,Player)
+	end,
+})
+
+
 local BoxSection = VendorsPage:CreateSection("Box Opening")
 local BoxSelectDropdown = VendorsPage:CreateDropdown({
 	Name = "Select Box",
@@ -1077,6 +1231,15 @@ local OpenBoxToggle = VendorsPage:CreateToggle({
 		Set.OpenBoxes = Value
 	end,
 })
+local TrollSection = VendorsPage:CreateSection("Troll options")
+local Paragraph = VendorsPage:CreateParagraph({Title = '<font color="rgb(0,170,170)"><b>Shop Spam Troll</b></font>', Content = "Spam buys every shop item you can very quickly. This makes the notification take a while to vanish. Just add players to base and wait for them to come. Keep in mind this will also happen for you"})
+local ShopSpamTroll = VendorsPage:CreateButton({
+	Name = "Shop Spam Troll",
+	Callback = function()
+		ShopSpam()
+	end,
+})
+
 local BoxSection = VendorsPage:CreateSection("Blueprints")
 task.spawn(function()
 	for i,v in Data.Blueprints do
@@ -1095,6 +1258,11 @@ task.spawn(function()
 		end,
 	})
 end)
+
+
+
+local EventPage = MainUi:CreateTab("Event ")
+local eventSection = EventPage:CreateSection("No active event")
 
 local OtherOptionsPage = MainUi:CreateTab("Other Options",6023426938)
 local TestSection = OtherOptionsPage:CreateSection("Testing")
@@ -1140,6 +1308,22 @@ local AutoBoxTeleportToggle = OtherOptionsPage:CreateToggle({
 		if Set.TestingMode then
 			print("Box Farming: ",Value)
 		end 
+	end,
+})
+
+local BoxFarmSpeed = OtherOptionsPage:CreateSlider({
+	Name = "Box Farm Speed",
+	Range = {1, 100},
+	Increment = 1,
+	Suffix = "Speed",
+	CurrentValue = 30,
+	Flag = "BoxFarmSpeed",  
+	Callback = function(Value)
+		if Set.TestingMode then
+			print("Box Farm speed",Value)
+		end
+		local Real = 101-Value
+		Set.BoxFarmSpeed = Real
 	end,
 })
 
@@ -1293,7 +1477,7 @@ local ThemeDropdown = Options:CreateDropdown({
 	MultipleOptions = false,
 	Flag = "GUITheme",  
 	Callback = function(Options)
-		print(Options)
+		--print(Options)
 		if Options[1] == "Custom" then
 			MainUi.ModifyTheme(CustomThemeTable)
 		else
@@ -1625,7 +1809,7 @@ local ApplyCustomThemeButton = Options:CreateButton({
 
 
 local MaxRebirthPrice = 1e241
-local function RebornPrice(Player)
+local function RebornPrice(Player)--Gets the players rebirth price
 	local Life = Player.Rebirths.Value+1
 	local REBIRTH_PRICE_CAP = 1e241 --10NVSPTGNTL
 	local REBIRTH_CAP_LIFE = 80351
@@ -1654,7 +1838,7 @@ local function RebornPrice(Player)
 	return cost
 end
 
-function BoostOre(Ore) 
+function BoostOre(Ore) --Sends the Ore through all upgraders on the tycoon
 	if Set.TestingMode then
 		print("Ore boost Start")
 	end 
@@ -1671,7 +1855,7 @@ function BoostOre(Ore)
 				for a = 1,Set.UpgradeLoopCount do
 					if v and v:FindFirstChild("Model")  then
 						Ore.CFrame = UpgradePart.CFrame 
-						wait(0.01)
+						task.wait(0.01)
 					end
 				end
 			elseif v.Model:FindFirstChild("Lava") and not v.Model:FindFirstChild("TeleportSend") then
@@ -1699,48 +1883,12 @@ function BoostOre(Ore)
 		print("Ore boost End")
 	end 
 end
-function Reset(Ore)
+function Reset(Ore)--Sends the ore through all resetters on the tycoon and boosts the ore each time
 	local Dae = Tycoon:FindFirstChild("Daestrophe") 
 	local Sac =  Tycoon:FindFirstChild("The Final Upgrader") or Tycoon:FindFirstChild("The Ultimate Sacrifice")  
 	local Star = Tycoon:FindFirstChild("Void Star") or Tycoon:FindFirstChild("Black Dwarf") or Tycoon:FindFirstChild("⭐ Stargazed Black Dwarf ⭐") or Tycoon:FindFirstChild("⭐ Beloved Black Dwarf ⭐") or Tycoon:FindFirstChild("⭐ Stargazed Void Star ⭐")
 	local Tes = Tycoon:FindFirstChild("Tesla Resetter")or Tycoon:FindFirstChild("⭐ Advanced Tesla Resetter ⭐") or Tycoon:FindFirstChild("⭐ Spooky Tesla Resetter ⭐") or Tycoon:FindFirstChild("Tesla Refuter") or Tycoon:FindFirstChild("⭐ Advanced Tesla Refuter ⭐") 
 	BoostOre(Ore)
-	if Dae and Ore and Set.OreBoostActive then --checks if Daestrophe is on the base
-		if Set.TestingMode then
-			print("Found Daestrophe")
-		end 
-
-		for a = 1,Set.UpgradeLoopCount do
-			if Dae and Dae:FindFirstChild("Model") then
-				Ore.CFrame = Dae.Model.Upgrade.CFrame
-				wait(0.01)
-			end
-		end
-		BoostOre(Ore)
-	else
-		if Set.TestingMode then
-			print("Daestrophe Not found")
-		end
-	end
-	if Sac and Ore and Set.OreBoostActive then  --Checks if either of the sacrifice resetters are on the base 
-		if Set.TestingMode then
-			print("Found", Sac.Name)
-		end 
-
-
-		for a = 1,Set.UpgradeLoopCount do
-			if Sac and Sac:FindFirstChild("Model") then
-				Ore.CFrame = Sac.Model.Upgrade.CFrame
-				wait(0.01)
-			end
-		end
-
-		BoostOre(Ore)
-	else
-		if Set.TestingMode then
-			print("Sacrifice resetter Not found")
-		end				
-	end
 	if Star and Ore and Set.OreBoostActive then --Checks if black dwarf or void star is on the base 
 		if Set.TestingMode then
 			print("Found", Star.Name)
@@ -1749,7 +1897,7 @@ function Reset(Ore)
 		for a = 1,Set.UpgradeLoopCount do
 			if Star and Star:FindFirstChild("Model") then
 				Ore.CFrame = Star.Model.Upgrade.CFrame
-				wait(0.01)
+				task.wait(0.01)
 			end
 		end
 		BoostOre(Ore)
@@ -1766,7 +1914,7 @@ function Reset(Ore)
 		for a = 1,Set.UpgradeLoopCount do
 			if Tes and Tes:FindFirstChild("Model") then
 				Ore.CFrame = Tes.Model.Upgrade.CFrame
-				wait(0.01)
+				task.wait(0.01)
 			end
 		end
 
@@ -1776,12 +1924,48 @@ function Reset(Ore)
 			print("Tesla Not found")
 		end
 	end
+	if Sac and Ore and Set.OreBoostActive then  --Checks if either of the sacrifice resetters are on the base 
+		if Set.TestingMode then
+			print("Found", Sac.Name)
+		end 
+
+
+		for a = 1,Set.UpgradeLoopCount do
+			if Sac and Sac:FindFirstChild("Model") then
+				Ore.CFrame = Sac.Model.Upgrade.CFrame
+				task.wait(0.01)
+			end
+		end
+
+		BoostOre(Ore)
+	else
+		if Set.TestingMode then
+			print("Sacrifice resetter Not found")
+		end				
+	end
+	if Dae and Ore and Set.OreBoostActive then --checks if Daestrophe is on the base
+		if Set.TestingMode then
+			print("Found Daestrophe")
+		end 
+
+		for a = 1,Set.UpgradeLoopCount do
+			if Dae and Dae:FindFirstChild("Model") then
+				Ore.CFrame = Dae.Model.Upgrade.CFrame
+				task.wait(0.01)
+			end
+		end
+		BoostOre(Ore)
+	else
+		if Set.TestingMode then
+			print("Daestrophe Not found")
+		end
+	end
 end
 
-function GetFurnace()
+function GetFurnace()--Finds a furnace on the tycoon
 	for i,v in Tycoon:GetChildren() do
 		if v and v:FindFirstChild("Model") and v.Model:FindFirstChild("Lava") and not v.Model.Lava:FindFirstChild("TeleportSend") then
-			if not v.Model:FindFirstChild("Drop") and  (Set.Furnace == nil or Set.Furnace:FindFirstChild("Model") == nil or Set.Furnace.Model:FindFirstChild("Lava") == nil) then 
+			if not v.Model:FindFirstChild("Drop") and not v:FindFirstChild("Upgrade") and  (Set.Furnace == nil or Set.Furnace:FindFirstChild("Model") == nil or Set.Furnace.Model:FindFirstChild("Lava") == nil) then 
 				Set.Furnace = v	
 			end
 			if v.Model:FindFirstChild("Drop") and v.Model:FindFirstChild("Lava") and  (Set.IndMine == nil or Set.IndMine:FindFirstChild("Model") == nil )  then
@@ -1791,18 +1975,18 @@ function GetFurnace()
 	end
 end
 
-function Sell(Ore)
+function Sell(Ore)--Sells the ore to the furnace if one it on the tycoon
 	if Set.Furnace == nil or Set.Furnace:FindFirstChild("Model") == nil or Set.Furnace.Model:FindFirstChild("Lava")then 
 		GetFurnace()
 	end
 	Ore.CFrame = Set.Furnace.Model.Lava.CFrame + Vector3.new(0,1,0)
 end
 
-function StartOreBoost(Ore)
+function StartOreBoost(Ore)--Starts the ore boost process
 	if Set.TestingMode then
 		print("Ore Boost Setting up")
 	end 
-	repeat wait() until Ore:FindFirstChild("Cash")
+	repeat task.wait() until Ore:FindFirstChild("Cash")
 	if Ore.Cash.Value <= 0 then
 		Ore.Anchored = false
 		return
@@ -1843,12 +2027,12 @@ function StartOreBoost(Ore)
 
 				for a = 1,Set.UpgradeLoopCount do
 					Ore.CFrame = MoneyLoop.Model.Upgrade.CFrame
-					wait(Info.MinWait or 0.01)
+					task.wait(Info.MinWait or 0.01)
 					if LooperStats.Effect ~= nil and Protect ~= nil then
 						Ore.CFrame = Protect.Model.Upgrade.CFrame
 					end
 				end
-				wait(0.05)
+				task.wait(0.05)
 			until Ore == nil or MoneyLoop == nil or MoneyLoop:FindFirstChild("Model") == nil or Ore:FindFirstChild("Cash") == nil or Ore.Cash.Value >= Info.Cap
 			if Set.TestingMode then
 				print("Money Loop Finished")
@@ -1866,20 +2050,11 @@ function StartOreBoost(Ore)
 		end 
 		Ore.AssemblyAngularVelocity = Vector3.new(0,0,0)
 		Ore.AssemblyLinearVelocity = Vector3.new(0,0,0)
-		if Set.Furnace and Set.Furnace:FindFirstChild("Model") then
-			Ore.Anchored = false
-			Ore.CFrame = Set.Furnace.Model.Lava.CFrame + Vector3.new(0,2,0)
-		else
-			if Set.TestingMode then
-				print("No Furnace found, sending ore to spawn location")
-			end 
-			Ore.Anchored = false
-			Ore.CFrame = SavePos	
-		end
+		Sell(Ore)
 	end
 end
 
-function Load()
+function Load()--Loads the players layout(s) after rebirthing if auto rebirth is on
 	if Set.TestingMode then
 		print("Start Layout Loading")
 	end 
@@ -1887,7 +2062,7 @@ function Load()
 		Set.OreBoostActive = true
 	end
 	game.ReplicatedStorage.DestroyAll:InvokeServer()
-	wait(0.1)
+	task.wait(0.1)
 	if Set.TestingMode then
 		print("Load First Layout")
 	end 
@@ -1911,12 +2086,12 @@ function Load()
 		if Set.TestingMode then
 			print("Using Second Layout")
 		end 
-		wait(Set.LayoutWaitTime)
+		task.wait(Set.Layout2WaitTime)
 		Set.OreBoostActive = false
-		wait(0.3)
+		task.wait(0.3)
 		if Set.WithdrawBase then
 			game.ReplicatedStorage.DestroyAll:InvokeServer()
-			wait(0.1)
+			task.wait(0.1)
 		end
 
 		if Set.TestingMode then
@@ -1937,16 +2112,50 @@ function Load()
 		else
 			game.ReplicatedStorage.Layouts:InvokeServer("Load",Set.Layout2)
 		end
+		if Set.Layout3 ~= "None" then
+			if Set.TestingMode then
+				print("Using Third Layout")
+			end 
+			task.wait(Set.Layout3WaitTime)
+			Set.OreBoostActive = false
+			task.wait(0.3)
+			if Set.WithdrawBase then
+				game.ReplicatedStorage.DestroyAll:InvokeServer()
+				task.wait(0.1)
+			end
+
+			if Set.TestingMode then
+				print("Load Third Layout")
+			end 
+			if Set.Layout3 == "Layout String" then
+				if Set.externalLayoutString and Set.externalLayoutString ~= "" then
+					LoadStringLayout(Set.externalLayoutString)
+				else
+					Rayfield:Notify({
+						Title = "Layout string erorr",
+						Content = "Layout String missing, cant load from layout string",
+						Duration = 10,
+						Image = nil,
+					})
+				end
+
+			else
+				game.ReplicatedStorage.Layouts:InvokeServer("Load",Set.Layout3)
+			end
+		end
 		--game.ReplicatedStorage.Layouts:InvokeServer("Load",Set.Layout2)
-		wait(0.1)
+		task.wait(0.1)
 		if Set.OreBoost then
 			Set.OreBoostActive = true
 		end
 	end
+	if Set.AutoResizeUpgraders then
+		ResizeUpgraders()
+	end
 end
 
 GetFurnace()
-if Ores then
+if Ores then--Tracks ores as they spawn
 	Ores.ChildAdded:Connect(function(Child)
 		AddTracker(Child)
 		if Set.OreSize > 0 then 
@@ -1969,7 +2178,7 @@ end
 local rebirthing  = false
 local LastRebirth = os.time()
 local WaitTime = 0
-Money.Changed:Connect(function()
+Money.Changed:Connect(function()--Detects when money is updated and rebirth if they can and they have auto rebirth on
 	if not ActiveTycoon.Value  then return end 
 	if Set.TestingMode then
 		print("Money Updated")
@@ -1983,43 +2192,61 @@ Money.Changed:Connect(function()
 		print("Rebirth Price: ",RB)
 	end 
 
-	if Set.AutoRebirth and not rebirthing and Money.Value > RB and os.time()-LastRebirth >= WaitTime and Tycoon.Name == ActiveTycoon.Value.Name then
-		if Set.TestingMode then
-			print("Is on their tycoon")
-		end 
-		rebirthing = true
-		Set.OreBoostActive = false
-		wait(0.1)
-		game.ReplicatedStorage.Rebirth:InvokeServer()
-		wait(1)
-		rebirthing = false
-		LastRebirth = os.time()
-		WaitTime = 0
-		if Set.AutoRebirth then
+	if Set.AutoRebirth and not rebirthing and os.time()-LastRebirth >= WaitTime and Tycoon.Name == ActiveTycoon.Value.Name  then
+		if  Money.Value > RB or string.find(GUI.Parent.HUDTop.HUDTop.MoneyOther.Money.Amount.Text,"inf") then
+			if Set.StopLife >0 and  Player.Rebirths.Value >= Set.StopLife then
+				return
+			end			
 			if Set.TestingMode then
-				print("Rebirthed")
+				print("Is on their tycoon")
 			end 
-			Load()
-		end
+			rebirthing = true
+			Set.OreBoostActive = false
+			task.wait(0.1)
+			game.ReplicatedStorage.Rebirth:InvokeServer()
+			task.wait(1)
+			rebirthing = false
+			LastRebirth = os.time()
+			WaitTime = 0
+			if Set.AutoRebirth then
+				if Set.TestingMode then
+					print("Rebirthed")
+				end 
+				if Player.Rebirths.Value+1 == Set.StopLife then 
+					BoostToggle:Set(false)
+					AutoRebithToggle:Set(false)
+					Set.OreBoost = false
+					Set.OreBoostActive = false
+					Set.AutoRebirth = false
+				else
+					Load()
+				end
+
+			end
+		end	
 	end
 end)
 
-for i,v in Boxes:GetChildren(1) do
+for i,v in Boxes:GetChildren(1) do--Adds Crate trackers to already spawned boxes
 	AddBoxTrack(v)
 end
 
-game.ReplicatedStorage.ItemObtained.OnClientEvent:Connect(function(Item,Amount)
+game.ReplicatedStorage.ItemObtained.OnClientEvent:Connect(function(Item,Amount)--Detects when a player gets an item and if its the Selected slipstream stop auto rebirth
+	if not Item:FindFirstChild("Tier") then return end 
 	if Item.Tier.Value == 78 and Item.Name == Slipstream then
-		Set.AutoRebirth = false
+		BoostToggle:Set(false)
+		AutoRebithToggle:Set(false)
+		Set.OreBoost = false
 		Set.OreBoostActive = false
+		Set.AutoRebirth = false
 	end
 end)
 
-game.Workspace.Boxes.ChildAdded:Connect(function(Box)
+game.Workspace.Boxes.ChildAdded:Connect(function(Box)--Added Crate tracking to newly spawn boxes
 	AddBoxTrack(Box)
 end)
 
-Player.CharacterAdded:Connect(function(character)
+Player.CharacterAdded:Connect(function(character)--Handles the Players walkspeed when they respawn
 	local humanoid = character:WaitForChild("Humanoid")
 	if humanoid.WalkSpeed < Set.WalkSpeed then
 		humanoid.WalkSpeed = Set.WalkSpeed
@@ -2041,16 +2268,16 @@ Player.CharacterAdded:Connect(function(character)
 end)
 
 
-game.Lighting.Blur:GetPropertyChangedSignal("Enabled"):Connect(function()
+game.Lighting.Blur:GetPropertyChangedSignal("Enabled"):Connect(function()--Handles the blur toggle
 	game.Lighting.Blur.Enabled = Set.Blur
 end)
-ActiveTycoon.Changed:Connect(function()
+ActiveTycoon.Changed:Connect(function()--Handles Player leaving base for Aint Leave Base
 	if (ActiveTycoon.Value == nil or  ActiveTycoon.Value.Name ~= Tycoon.Name) and Set.AntiLeaveBase then
 		Player.Character.Humanoid.Health = 0
 	end
 end)
 
-Chat.OnIncomingMessage = function(Message)
+Chat.OnIncomingMessage = function(Message)--Info Spoofer 
 	if Message then
 		if Message.Text and not Message.TextSource then
 			local NewText = Message.Text
@@ -2088,49 +2315,53 @@ Chat.OnIncomingMessage = function(Message)
 	end
 end
 
+game.Players.PlayerAdded:Connect(function(Plr)
+	if not table.find(PlayerList,Plr.Name) then
+		table.insert(PlayerList,Plr.Name)
+	end
+	PlayerSelectDropdown:Refresh(PlayerList)
+end)
+game.Players.PlayerRemoving:Connect(function(Plr)
+	local Pos = table.find(PlayerList,Plr.Name)
+	if Pos then
+		table.remove(PlayerList,Pos)
+	end
+	PlayerSelectDropdown:Refresh(PlayerList)
+end)
+
+
 local VS = game:GetService("VirtualUser")
-game.Players.LocalPlayer.Idled:Connect(function()
+game.Players.LocalPlayer.Idled:Connect(function()--Handles the anti AFK
 	VS:CaptureController()
 	VS:ClickButton2(Vector2.new())
 end)
 Rayfield:LoadConfiguration()
 --Keep at bottom of script
+task.spawn(function()
+	local lastBoxOpen = 0
+	local lastRemoteDrop = 0
+	local lastOreKill = 0
 
-task.spawn(function()
 	while true do
-		wait()
+		task.wait(0.1) 
+		local now = os.clock()
 		if Set.FarmBoxes then
-			local Pos = Player.Character.HumanoidRootPart.CFrame 
-			for i,v in Boxes:GetChildren() do
-				if not Set.FarmBoxes then return end 
-				if v:IsA("Model") and v:FindFirstChild("Crate") then
-					Player.Character.HumanoidRootPart.CFrame = v.Crate.CFrame		
-				else
-					Player.Character.HumanoidRootPart.CFrame = v.CFrame	
-				end
-				wait(0.05)
-			end
-			Player.Character.HumanoidRootPart.AssemblyLinearVelocity = Vector3.new(0,0,0)
-			Player.Character.HumanoidRootPart.AssemblyAngularVelocity = Vector3.new(0,0,0)
-			Player.Character.HumanoidRootPart.CFrame = Pos
+			CollectBoxes()
 		end
-	end
-end)
-task.spawn(function()
-	while true do
-		wait(Set.BoxWait)
-		local BoxName = Set.SelectedBox or "Regular"
-		local Box = Player.Crates:FindFirstChild(Set.SelectedBox)
-		if Set.OpenBoxes and  Box and Box.Value >0  then
-			game.ReplicatedStorage.MysteryBox:InvokeServer(Box.Name)	
-		end 
-	end
-end)
-task.spawn(function()
-	while true do
-		wait()
-		if Set.AutoDrop then 
+		if Set.OpenBoxes and (now - lastBoxOpen >= (Set.BoxWait or 1)) then
+			game.ReplicatedStorage.MysteryBox:InvokeServer(Set.SelectedBox or "Regular")
+			lastBoxOpen = now
+		end
+
+		if Set.AutoDrop and (now - lastRemoteDrop >= 0.5) then
 			RemoteDrop:FireServer()
+			lastRemoteDrop = now
 		end
+
+		if Set.AutoKillOresWait > 0 and (now - lastOreKill >= Set.AutoKillOresWait) then
+			KillOres()
+			lastOreKill = now
+		end
+
 	end
 end)
