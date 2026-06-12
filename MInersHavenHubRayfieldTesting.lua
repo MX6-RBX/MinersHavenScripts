@@ -732,7 +732,7 @@ local Layout2WaitBox = BoostPage:CreateInput({
 	RemoveTextAfterFocusLost = false,
 	Flag = "Layout2LoadWait",
 	Callback = function(Text)
-		Set.LayoutWaitTime = tonumber(Text) or 5
+		Set.Layout2WaitTime = tonumber(Text) or 5
 		if Set.TestingMode then
 			print("Layout 2 Load Wait:",Text)
 		end
@@ -772,7 +772,7 @@ local Layout3WaitBox = BoostPage:CreateInput({
 	RemoveTextAfterFocusLost = false,
 	Flag = "Layout3LoadWait",
 	Callback = function(Text)
-		Set.Layout2WaitTime = tonumber(Text) or 5
+		Set.Layout3WaitTime = tonumber(Text) or 5
 		if Set.TestingMode then
 			print("Layout 3  Load Wait:",Text)
 		end
