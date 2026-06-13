@@ -1847,7 +1847,7 @@ function BoostOre(Ore) --Sends the Ore through all upgraders on the tycoon
 		if not Ore then break end 
 		if not v  then break end 
 		if Data.MoneyLoopables[v.Name] or table.find(Data.ResettersNames,v.Name) then continue end--Passes money loops and resetters
-		if v:FindFirstChild("ItemId") and v:FindFirstChild("Plane")  then
+		if (v:FindFirstChild("ItemId") or v:GetAttribute("ItemId")) and v:FindFirstChild("Plane")  then
 			if not v:FindFirstChild("Model") then continue end
 			local UpgradePart = v.Model:FindFirstChild("Upgrade") or v.Model:FindFirstChild("Upgrader") or v.Model:FindFirstChild("Scan")
 			if UpgradePart then
