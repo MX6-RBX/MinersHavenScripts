@@ -781,8 +781,8 @@ local Layout3WaitBox = BoostPage:CreateInput({
 
 local Layout3Dropdown = BoostPage:CreateDropdown({
 	Name = "ThirdLayout",
-	Options = {"Layout1","Layout2","Layout3","Layout String"},
-	CurrentOption = {"Layout1"},
+	Options = {"None","Layout1","Layout2","Layout3","Layout String"},
+	CurrentOption = {"None"},
 	MultipleOptions = false,
 	Flag = "Layout3",  
 	Callback = function(Options)
