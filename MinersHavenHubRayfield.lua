@@ -159,7 +159,7 @@ local Set = {
 	BoxFarmSpeed = 30,
 	AutoKillOresWait = 50,
 	StopLife = 0,
-	
+
 }
 
 
@@ -2131,7 +2131,7 @@ Money.Changed:Connect(function()--Detects when money is updated and rebirth if t
 	end 
 
 	if Set.AutoRebirth and not rebirthing and os.time()-LastRebirth >= WaitTime and Tycoon.Name == ActiveTycoon.Value.Name  then
-		if  Money.Value > RB or string.find(GUI.Parent.HUDTop.HUDTop.MoneyOther.Money.Amount.Text,"inf") then
+		if string.lower(tostring(Money.Value)) == "inf" or Money.Value > RB then
 			if Set.StopLife >0 and  Player.Rebirths.Value >= Set.StopLife then
 				return
 			end			
@@ -2300,6 +2300,6 @@ task.spawn(function()
 			KillOres()
 			lastOreKill = now
 		end
-		
+
 	end
 end)
