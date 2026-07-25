@@ -2131,7 +2131,7 @@ Money:GetPropertyChangedSignal("Value"):Connect(function()--Detects when money i
 	end 
 
 	if Set.AutoRebirth and not rebirthing and os.time()-LastRebirth >= WaitTime and Tycoon.Name == ActiveTycoon.Value.Name  then
-		if string.lower(tostring(Money.Value)) == "inf" or Money.Value > RB then
+		if Money.Value > RB then
 			if Set.StopLife >0 and  Player.Rebirths.Value >= Set.StopLife then
 				return
 			end			
