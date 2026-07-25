@@ -161,76 +161,8 @@ local Set = {
 	StopLife = 0,
 
 }
-
-
-local UseClovers = Set.UseCloversValue
-
-
-local GUi = Instance.new("BillboardGui")
-local Box = Instance.new("TextLabel")
-local UICorner = Instance.new("UICorner")
-GUi.Name = "GUi"
-GUi.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-GUi.Active = true
-GUi.ExtentsOffset = Vector3.new(0, 2, 0)
-GUi.LightInfluence = 1.000
-GUi.Size = UDim2.new(0, 200, 0, 50)
-
-Box.Name = "Box"
-Box.Parent = GUi
-Box.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Box.BorderColor3 = Color3.fromRGB(0, 0, 0)
-Box.BorderSizePixel = 0
-Box.Size = UDim2.new(0, 200, 0, 50)
-Box.Font = Enum.Font.SourceSans
-Box.TextColor3 = Color3.fromRGB(0, 0, 0)
-Box.TextSize = 14.000
-Box.TextColor3 = Color3.new(1,1,1)
-Box.TextStrokeColor3 = Color3.new(0,0,0)
-Box.TextStrokeTransparency = 0
-Box.TextScaled = true
-Box.BackgroundTransparency = 1
-
-UICorner.Parent = Box
-local Suffixes = { "k", "M", "B", "T", "qd", "Qn", "sx", "Sp", "O", "N", "de", "Ud", "DD", "tdD", "qdD", "QnD", "sxD", "SpD", "OcD", "NvD", 
-	"Vgn", "UVg", "DVg", "TVg", "qtV", "QnV", "SeV", "SPG", "OVG", "NVG", "TGN", "UTG", "DTG", "tsTG", "qtTG", "QnTG", "ssTG", "SpTG", "OcTG", 
-	"NoTG", "QdDR", "uQDR", "dQDR", "tQDR", "qdQDR", "QnQDR", "sxQDR", "SpQDR", "OQDDr", "NQDDr", "qQGNT", "uQGNT", "dQGNT", "tQGNT", "qdQGNT", 
-	"QnQGNT", "sxQGNT", "SpQGNT", "OQQGNT", "NQQGNT", "SXGNTL", "USXGNTL", "DSXGNTL", "TSXGNTL", "QTSXGNTL", "QNSXGNTL", "SXSXGNTL", "SPSXGNTL", 
-	"OSXGNTL", "NVSXGNTL", "SPTGNTL", "USPTGNTL", "DSPTGNTL", "TSPTGNTL", "QTSPTGNTL", "QNSPTGNTL", "SXSPTGNTL", "SPSPTGNTL", "OSPTGNTL",
-	"NVSPTGNTL", "OTGNTL", "UOTGNTL", "DOTGNTL", "TOTGNTL", "QTOTGNTL","QNOTGNTL", "SXOTGNTL", "SPOTGNTL", "OTOTGNTL", "NVOTGNTL", "NONGNTL", 
-	"UNONGNTL", "DNONGNTL", "TNONGNTL", "QTNONGNTL", "QNNONGNTL", "SXNONGNTL", "SPNONGNTL", "OTNONGNTL", "NONONGNTL", "CENT", "UNCENT","inf" }  
-
-if game:GetService("MarketplaceService"):UserOwnsGamePassAsync(Player.UserId,13046381) then
-	Set.BoxWait = 4
-	print("Box Wait changed")
-end
-
-local function shorten(Input)
-	local Negative = Input < 0
-	Input = math.abs(Input)
-
-	local Paired = false
-	for i,v in pairs(Suffixes) do
-		if not (Input >= 10^(3*i)) then
-			Input = Input / 10^(3*(i-1))
-			local isComplex = (string.find(tostring(Input),".") and string.sub(tostring(Input),4,4) ~= ".")
-			Input = string.sub(tostring(Input),1,(isComplex and 4) or 3) .. (Suffixes[i-1] or "")
-			Paired = true
-			break;
-		end
-	end
-	if not Paired then
-		local Rounded = math.floor(Input)
-		Input = tostring(Rounded)
-	end
-
-	if Negative then
-		return "-"..Input
-	end
-	return Input
-end
-
 -- Script tables. Uses table to prevent hitting local var limit
+
 local Data = {
 	MoneyLoopables = {
 		["Large Ore Upgrader"] ={Cap = 50e+3,Effect = nil,MinVal = nil},
@@ -301,8 +233,78 @@ local Data = {
 		["Shiny Void"]         = 5621680266,
 		["Data Restore V3"]    = 16433781330,
 
-	}
+	},
+	Suffixes = { "k", "M", "B", "T", "qd", "Qn", "sx", "Sp", "O", "N", "de", "Ud", "DD", "tdD", "qdD", "QnD", "sxD", "SpD", "OcD", "NvD", 
+		"Vgn", "UVg", "DVg", "TVg", "qtV", "QnV", "SeV", "SPG", "OVG", "NVG", "TGN", "UTG", "DTG", "tsTG", "qtTG", "QnTG", "ssTG", "SpTG", "OcTG", 
+		"NoTG", "QdDR", "uQDR", "dQDR", "tQDR", "qdQDR", "QnQDR", "sxQDR", "SpQDR", "OQDDr", "NQDDr", "qQGNT", "uQGNT", "dQGNT", "tQGNT", "qdQGNT", 
+		"QnQGNT", "sxQGNT", "SpQGNT", "OQQGNT", "NQQGNT", "SXGNTL", "USXGNTL", "DSXGNTL", "TSXGNTL", "QTSXGNTL", "QNSXGNTL", "SXSXGNTL", "SPSXGNTL", 
+		"OSXGNTL", "NVSXGNTL", "SPTGNTL", "USPTGNTL", "DSPTGNTL", "TSPTGNTL", "QTSPTGNTL", "QNSPTGNTL", "SXSPTGNTL", "SPSPTGNTL", "OSPTGNTL",
+		"NVSPTGNTL", "OTGNTL", "UOTGNTL", "DOTGNTL", "TOTGNTL", "QTOTGNTL","QNOTGNTL", "SXOTGNTL", "SPOTGNTL", "OTOTGNTL", "NVOTGNTL", "NONGNTL", 
+		"UNONGNTL", "DNONGNTL", "TNONGNTL", "QTNONGNTL", "QNNONGNTL", "SXNONGNTL", "SPNONGNTL", "OTNONGNTL", "NONONGNTL", "CENT", "UNCENT","inf" }  
 }
+
+
+local UseClovers = Set.UseCloversValue
+
+
+local GUi = Instance.new("BillboardGui")
+local Box = Instance.new("TextLabel")
+local UICorner = Instance.new("UICorner")
+GUi.Name = "GUi"
+GUi.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+GUi.Active = true
+GUi.ExtentsOffset = Vector3.new(0, 2, 0)
+GUi.LightInfluence = 1.000
+GUi.Size = UDim2.new(0, 200, 0, 50)
+
+Box.Name = "Box"
+Box.Parent = GUi
+Box.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Box.BorderColor3 = Color3.fromRGB(0, 0, 0)
+Box.BorderSizePixel = 0
+Box.Size = UDim2.new(0, 200, 0, 50)
+Box.Font = Enum.Font.SourceSans
+Box.TextColor3 = Color3.fromRGB(0, 0, 0)
+Box.TextSize = 14.000
+Box.TextColor3 = Color3.new(1,1,1)
+Box.TextStrokeColor3 = Color3.new(0,0,0)
+Box.TextStrokeTransparency = 0
+Box.TextScaled = true
+Box.BackgroundTransparency = 1
+
+UICorner.Parent = Box
+
+if game:GetService("MarketplaceService"):UserOwnsGamePassAsync(Player.UserId,13046381) then
+	Set.BoxWait = 4
+	print("Box Wait changed")
+end
+
+local function shorten(Input)
+	local Negative = Input < 0
+	Input = math.abs(Input)
+
+	local Paired = false
+	for i,v in pairs(Data.Suffixes) do
+		if not (Input >= 10^(3*i)) then
+			Input = Input / 10^(3*(i-1))
+			local isComplex = (string.find(tostring(Input),".") and string.sub(tostring(Input),4,4) ~= ".")
+			Input = string.sub(tostring(Input),1,(isComplex and 4) or 3) .. (Data.Suffixes[i-1] or "")
+			Paired = true
+			break;
+		end
+	end
+	if not Paired then
+		local Rounded = math.floor(Input)
+		Input = tostring(Rounded)
+	end
+
+	if Negative then
+		return "-"..Input
+	end
+	return Input
+end
+
+
 
 local ELayout = loadstring(game:HttpGet('https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/BasicFirstLife.lua'))()
 local UILib = loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX/UiLib/refs/heads/main/UiLib.lua"))()
@@ -382,7 +384,7 @@ local function LoadStringLayout(String)--Loads a layout from a string
 		return 
 	else
 		Rayfield:Notify({
-			Title = "Layout string Loading erorr",
+			Title = "Layout string Loading error",
 			Content = "Layout String Can't load. ",
 			Duration = 10,
 			Image = nil,
@@ -2077,7 +2079,6 @@ function Load()--Loads the players layout(s) after rebirthing if auto rebirth is
 					Image = nil,
 				})
 			end
-
 		else
 			game.ReplicatedStorage.Layouts:InvokeServer("Load",Set.Layout2)
 		end
