@@ -2116,7 +2116,7 @@ end
 local rebirthing  = false
 local LastRebirth = os.time()
 local WaitTime = 0
-Money.Changed:Connect(function()--Detects when money is updated and rebirth if they can and they have auto rebirth on
+Money:GetPropertyChangedSignal("Value"):Connect(function()--Detects when money is updated and rebirth if they can and they have auto rebirth on
 	if not ActiveTycoon.Value  then return end 
 	if Set.TestingMode then
 		print("Money Updated")
