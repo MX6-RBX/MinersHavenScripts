@@ -1,3 +1,63 @@
+--[[
+	MX6 Miners Haven Hub — single-instance guard
+	Re-executing unloads the previous run (flags, connections, loops, GUI)
+	so you never get double Auto Rebirth / Farm Boxes / stuck toggles.
+]]
+local ENV = (getgenv and getgenv()) or _G
+local HUB_KEY = "MX6_MinersHavenHub"
+
+-- Tear down any previous execution first
+if type(ENV[HUB_KEY]) == "table" and type(ENV[HUB_KEY].Unload) == "function" then
+	pcall(ENV[HUB_KEY].Unload)
+	task.wait(0.2)
+end
+
+-- Nuke leftover Rayfield / hub GUIs that may survive a bad unload
+local function DestroyHubGuis()
+	local function wipe(parent)
+		if not parent then return end
+		for _, child in ipairs(parent:GetChildren()) do
+			local n = string.lower(child.Name)
+			if string.find(n, "rayfield", 1, true)
+				or string.find(n, "mx6", 1, true)
+				or string.find(n, "minershaven", 1, true)
+				or child.Name == "GUi" then
+				pcall(function() child:Destroy() end)
+			end
+		end
+	end
+	pcall(function() wipe(game:GetService("CoreGui")) end)
+	pcall(function()
+		local lp = game:GetService("Players").LocalPlayer
+		if lp then wipe(lp:FindFirstChild("PlayerGui")) end
+	end)
+	-- Some Rayfield builds parent under gethui()
+	pcall(function()
+		if gethui then wipe(gethui()) end
+	end)
+end
+DestroyHubGuis()
+
+local Hub = {
+	Alive = true,
+	Connections = {},
+	Set = nil,
+	ChatHandler = nil,
+	GUi = nil,
+}
+ENV[HUB_KEY] = Hub
+
+local function Track(conn)
+	if conn then
+		table.insert(Hub.Connections, conn)
+	end
+	return conn
+end
+
+local function HubAlive()
+	return Hub.Alive == true and ENV[HUB_KEY] == Hub
+end
+
 local Chat = game:GetService("TextChatService")
 local TeleportService = game:GetService("TeleportService")
 local channel = Chat:WaitForChild('TextChannels').RBXGeneral
@@ -74,6 +134,225 @@ local CustomThemeTable = {
 	InputStroke = Color3.fromRGB(65, 65, 65),
 	PlaceholderColor = Color3.fromRGB(178, 178, 178)
 }
+
+-- Classic ~2017 Miner's Haven UI palette
+-- NOTE: inputs use DARK fields + light text (Rayfield shares TextColor; light boxes made text unreadable)
+local OldMinersHavenTheme = {
+	TextColor = Color3.fromRGB(245, 245, 245),
+	Background = Color3.fromRGB(68, 68, 74),
+	Topbar = Color3.fromRGB(52, 52, 58),
+	Shadow = Color3.fromRGB(28, 28, 32),
+	NotificationBackground = Color3.fromRGB(52, 52, 58),
+	NotificationActionsBackground = Color3.fromRGB(85, 175, 85),
+	TabBackground = Color3.fromRGB(88, 88, 96),
+	TabStroke = Color3.fromRGB(38, 38, 42),
+	TabBackgroundSelected = Color3.fromRGB(65, 150, 215),
+	TabTextColor = Color3.fromRGB(235, 235, 240),
+	SelectedTabTextColor = Color3.fromRGB(255, 255, 255),
+	ElementBackground = Color3.fromRGB(82, 82, 90),
+	ElementBackgroundHover = Color3.fromRGB(98, 98, 106),
+	SecondaryElementBackground = Color3.fromRGB(58, 58, 64),
+	ElementStroke = Color3.fromRGB(40, 40, 44),
+	SecondaryElementStroke = Color3.fromRGB(48, 48, 52),
+	SliderBackground = Color3.fromRGB(48, 48, 54),
+	SliderProgress = Color3.fromRGB(78, 188, 88),
+	SliderStroke = Color3.fromRGB(100, 210, 110),
+	ToggleBackground = Color3.fromRGB(48, 48, 54),
+	ToggleEnabled = Color3.fromRGB(78, 188, 88),
+	ToggleDisabled = Color3.fromRGB(105, 105, 112),
+	ToggleEnabledStroke = Color3.fromRGB(120, 220, 130),
+	ToggleDisabledStroke = Color3.fromRGB(85, 85, 92),
+	ToggleEnabledOuterStroke = Color3.fromRGB(38, 38, 42),
+	ToggleDisabledOuterStroke = Color3.fromRGB(38, 38, 42),
+	DropdownSelected = Color3.fromRGB(65, 150, 215),
+	DropdownUnselected = Color3.fromRGB(70, 70, 78),
+	-- Mid-dark inputs so white typed text + gray placeholder stay visible
+	InputBackground = Color3.fromRGB(58, 58, 66),
+	InputStroke = Color3.fromRGB(100, 100, 110),
+	PlaceholderColor = Color3.fromRGB(180, 180, 190),
+}
+
+local OldMHStyleActive = false
+local OldMHDescConns = {} -- disconnected when leaving OG MH
+local OldMHRestylePending = false
+
+local function FindRayfieldRoots()
+	local roots, seen = {}, {}
+	local function add(obj)
+		if obj and not seen[obj] then
+			seen[obj] = true
+			table.insert(roots, obj)
+		end
+	end
+	local function scan(parent)
+		if not parent then return end
+		for _, child in ipairs(parent:GetChildren()) do
+			local n = string.lower(child.Name)
+			if string.find(n, "rayfield", 1, true) or string.find(n, "mx6", 1, true) then
+				add(child)
+			end
+		end
+	end
+	pcall(function() scan(game:GetService("CoreGui")) end)
+	pcall(function()
+		local lp = game:GetService("Players").LocalPlayer
+		if lp then scan(lp:FindFirstChild("PlayerGui")) end
+	end)
+	pcall(function() if gethui then scan(gethui()) end end)
+	pcall(function()
+		local cg = game:GetService("CoreGui")
+		add(cg:FindFirstChild("Rayfield"))
+	end)
+	return roots
+end
+
+-- One-shot style pass: flat corners, SourceSans, readable inputs (NO property spam / NO lag loops)
+local function StyleInstanceOldMH(inst)
+	if not inst or not inst.Parent then return end
+
+	if inst:IsA("UICorner") then
+		pcall(function() inst.CornerRadius = UDim.new(0, 3) end)
+		return
+	end
+
+	if inst:IsA("UIStroke") then
+		pcall(function()
+			inst.Thickness = 1.5
+			if inst.Transparency > 0.5 then inst.Transparency = 0.25 end
+		end)
+		return
+	end
+
+	if inst:IsA("TextBox") then
+		pcall(function()
+			inst.Font = Enum.Font.SourceSans
+			inst.TextSize = 16
+			inst.TextColor3 = Color3.fromRGB(255, 255, 255)
+			inst.TextTransparency = 0
+			inst.TextStrokeTransparency = 1
+			inst.PlaceholderColor3 = Color3.fromRGB(185, 185, 195)
+			inst.BackgroundColor3 = Color3.fromRGB(55, 55, 62)
+			inst.BackgroundTransparency = 0
+			inst.BorderSizePixel = 1
+			inst.BorderColor3 = Color3.fromRGB(110, 110, 120)
+			inst.TextXAlignment = Enum.TextXAlignment.Left
+		end)
+		local corner = inst:FindFirstChildOfClass("UICorner")
+		if corner then
+			corner.CornerRadius = UDim.new(0, 3)
+		end
+		-- Only re-fix text color when focusing (cheap) — not every property change
+		if not inst:GetAttribute("MX6_OGFix") then
+			inst:SetAttribute("MX6_OGFix", true)
+			Track(inst.Focused:Connect(function()
+				if not OldMHStyleActive then return end
+				pcall(function()
+					inst.TextColor3 = Color3.fromRGB(255, 255, 255)
+					inst.TextTransparency = 0
+					inst.BackgroundColor3 = Color3.fromRGB(55, 55, 62)
+				end)
+			end))
+		end
+		return
+	end
+
+	if inst:IsA("TextLabel") or inst:IsA("TextButton") then
+		pcall(function()
+			inst.Font = Enum.Font.SourceSans
+			local avg = (inst.TextColor3.R + inst.TextColor3.G + inst.TextColor3.B) / 3
+			if avg < 0.4 then
+				inst.TextColor3 = Color3.fromRGB(240, 240, 245)
+			end
+		end)
+		return
+	end
+
+	if inst:IsA("Frame") or inst:IsA("ScrollingFrame") then
+		local corner = inst:FindFirstChildOfClass("UICorner")
+		if corner and (corner.CornerRadius.Scale > 0 or corner.CornerRadius.Offset > 8) then
+			corner.CornerRadius = UDim.new(0, 3)
+		end
+	end
+end
+
+local function RestyleRayfieldOldMH()
+	if not OldMHStyleActive then return end
+	for _, root in ipairs(FindRayfieldRoots()) do
+		pcall(function()
+			for _, d in ipairs(root:GetDescendants()) do
+				StyleInstanceOldMH(d)
+			end
+		end)
+	end
+end
+
+-- Debounced restyle when Rayfield creates new tab content (not a tight loop)
+local function QueueOldMHRestyle()
+	if not OldMHStyleActive or OldMHRestylePending then return end
+	OldMHRestylePending = true
+	task.delay(0.2, function()
+		OldMHRestylePending = false
+		if OldMHStyleActive and HubAlive() then
+			RestyleRayfieldOldMH()
+		end
+	end)
+end
+
+local function StopOldMHRestyleWatch()
+	OldMHStyleActive = false
+	OldMHRestylePending = false
+	for _, c in ipairs(OldMHDescConns) do
+		pcall(function() c:Disconnect() end)
+	end
+	table.clear(OldMHDescConns)
+end
+
+local function StartOldMHRestyleWatch()
+	StopOldMHRestyleWatch()
+	OldMHStyleActive = true
+
+	for _, root in ipairs(FindRayfieldRoots()) do
+		local c = root.DescendantAdded:Connect(function(d)
+			if not OldMHStyleActive then return end
+			-- Style only the new instance (cheap), debounce full pass
+			task.defer(function() StyleInstanceOldMH(d) end)
+			QueueOldMHRestyle()
+		end)
+		table.insert(OldMHDescConns, c)
+		Track(c)
+	end
+
+	-- Few delayed one-shots after theme swap (Rayfield rebuilds UI async) — NOT a forever loop
+	RestyleRayfieldOldMH()
+	task.delay(0.25, function() if OldMHStyleActive then RestyleRayfieldOldMH() end end)
+	task.delay(0.8, function() if OldMHStyleActive then RestyleRayfieldOldMH() end end)
+end
+
+local function NormalizeThemeName(name)
+	if not name then return "Default" end
+	-- migrate old saved names
+	if name == "Old Miners Haven" or name == "Old Miner's Haven" then
+		return "OG MH"
+	end
+	return name
+end
+
+local function ApplyGuiTheme(name)
+	local S = Hub.Set
+	if not S or not MainUi then return end
+	name = NormalizeThemeName(name or S.GUIThemeName or "Default")
+	S.GUIThemeName = name
+	if name == "Custom" then
+		StopOldMHRestyleWatch()
+		pcall(function() MainUi.ModifyTheme(CustomThemeTable) end)
+	elseif name == "OG MH" then
+		pcall(function() MainUi.ModifyTheme(OldMinersHavenTheme) end)
+		StartOldMHRestyleWatch()
+	else
+		StopOldMHRestyleWatch()
+		pcall(function() MainUi.ModifyTheme(name) end)
+	end
+end
 
 if not Player:FindFirstChild("BaseDataLoaded") then 
 	Rayfield:Notify({
@@ -163,7 +442,21 @@ local Set = {
 	FarmShadow = true,
 	FarmCrystal = true,
 	FarmOthers = true,
+
+	-- Ore Boost targeting (saved via Rayfield Flags)
+	PrimaryFurnaceName = "Auto", -- "Auto" = first valid furnace on base (old behavior)
+	PrimaryMineName = "None",    -- used when SingularOre is on
+	SingularOre = false,         -- only boost ores from PrimaryMineName
+	AutoFirePrompts = false,     -- fire all ProximityPrompts on your tycoon
+
+	-- Teleport behavior (saved)
+	GhostLoad = false,           -- no TP when loading layouts; you must already be on base
+	AntiBaseSafety = false,      -- when ON: yank back to base after box farm / keep-on-base TPs (use in private servers)
+	GUIThemeName = "Default",   -- saved theme: Default | OG MH | built-ins | Custom
 }
+
+-- Expose Set to the hub so Unload can hard-stop every feature
+Hub.Set = Set
 
 local UseClovers = Set.UseCloversValue
 
@@ -171,6 +464,7 @@ local GUi = Instance.new("BillboardGui")
 local Box = Instance.new("TextLabel")
 local UICorner = Instance.new("UICorner")
 GUi.Name = "GUi"
+Hub.GUi = GUi
 GUi.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 GUi.Active = true
 GUi.ExtentsOffset = Vector3.new(0, 2, 0)
@@ -348,6 +642,24 @@ local function TeleportToOwnBase()
 	return true
 end
 
+-- Layout loads: skip TP when Ghost Load is on (you must already be on base)
+local function TeleportForLayoutLoad()
+	if Set.GhostLoad then
+		if Set.TestingMode then print("Ghost Load: skipped teleport for layout") end
+		return false
+	end
+	return TeleportToOwnBase()
+end
+
+-- Box farm / keep-on-base: only yank home when Anti-Base Safety is on (private servers)
+local function TeleportForBaseSafety()
+	if not Set.AntiBaseSafety then
+		if Set.TestingMode then print("Anti-Base Safety off: skipped return teleport") end
+		return false
+	end
+	return TeleportToOwnBase()
+end
+
 local function WaitForLayoutSettle(timeout, minItems)
 	timeout = timeout or 12
 	minItems = minItems or 1
@@ -468,15 +780,17 @@ local function AddBoxTrack(Box)
 	end
 	Ui.Enabled = Set.TrackBoxes
 	Data.BoxTrackers[Box] = Ui
-	Box.AncestryChanged:Connect(function(_, parent)
+	Track(Box.AncestryChanged:Connect(function(_, parent)
+		if not HubAlive() then return end
 		if not parent then
 			if Ui then Ui:Destroy() end
 			Data.BoxTrackers[Box] = nil
 		end
-	end)
+	end))
 end
 
 local function AddTracker(ore)
+	if not HubAlive() then return end
 	if not ore or Data.OreConnections[ore] then return end
 	local cash = ore:WaitForChild("Cash", 5) 
 	if not cash or not ore.Parent then return end
@@ -488,30 +802,32 @@ local function AddTracker(ore)
 	Ui.Enabled = Set.OreTracking
 	local connections = {}
 	Data.OreConnections[ore] = connections
-	connections.cashConn = cash.Changed:Connect(function()
+	connections.cashConn = Track(cash.Changed:Connect(function()
+		if not HubAlive() then return end
 		if Ui and Ui.Parent then Ui.Box.Text = "$" .. shorten(cash.Value or 0) end
-	end)
+	end))
 	local function cleanup()
-		for _, conn in pairs(connections) do if conn then conn:Disconnect() end end
+		for _, conn in pairs(connections) do if conn then pcall(function() conn:Disconnect() end) end end
 		if Ui then Ui:Destroy() end
 		Data.OreTrackers[ore] = nil
 		Data.OreConnections[ore] = nil
 	end
-	connections.destroyConn = ore.Destroying:Connect(cleanup)
-	connections.ancestryConn = ore.AncestryChanged:Connect(function(_, parent)
+	connections.destroyConn = Track(ore.Destroying:Connect(cleanup))
+	connections.ancestryConn = Track(ore.AncestryChanged:Connect(function(_, parent)
 		if not parent then cleanup() end
-	end)
+	end))
 end
 
 -- Compact box filter (no extra local function needed later)
 local function CollectBoxes()
+	if not HubAlive() then return end
 	if not Set.FarmBoxes or Set.Rebirthing or Set.LayoutLoading or Set.CollectingBoxes then return end
 	if not Player.Character or not Player.Character:FindFirstChild("HumanoidRootPart") then return end
 	Set.CollectingBoxes = true
 	local ok, err = pcall(function()
 		local hrp = Player.Character.HumanoidRootPart
 		for _,v in Boxes:GetChildren() do
-			if not Set.FarmBoxes or Set.Rebirthing or Set.LayoutLoading then break end
+			if not HubAlive() or not Set.FarmBoxes or Set.Rebirthing or Set.LayoutLoading then break end
 			if not Player.Character or not Player.Character:FindFirstChild("HumanoidRootPart") then break end
 
 			local name = string.lower(v.Name or "")
@@ -541,8 +857,8 @@ local function CollectBoxes()
 			end
 			task.wait(Set.BoxFarmSpeed/100)
 		end
-		-- Always teleport back to own base after finishing (or after toggle was turned off)
-		TeleportToOwnBase()
+		-- Only yank back to base when Anti-Base Safety is on (default off = no spam TP)
+		TeleportForBaseSafety()
 	end)
 	Set.CollectingBoxes = false
 	if not ok and Set.TestingMode then warn("CollectBoxes error:", err) end
@@ -660,6 +976,46 @@ local function ShopSpam()
 	end
 end
 
+-- Furnace / mine helpers (needed before UI dropdowns build)
+local function IsFurnaceItem(v)
+	if not v or not v:FindFirstChild("Model") then return false end
+	if not v.Model:FindFirstChild("Lava") then return false end
+	if v.Model.Lava:FindFirstChild("TeleportSend") then return false end
+	if v.Model:FindFirstChild("Drop") then return false end -- mines have Drop
+	return true
+end
+
+local function IsMineItem(v)
+	if not v or not v:FindFirstChild("Model") then return false end
+	return v.Model:FindFirstChild("Drop") ~= nil
+end
+
+local function GetFurnacesOnBase()
+	local list = {"Auto"}
+	local seen = {Auto = true}
+	if not Tycoon then return list end
+	for _, v in Tycoon:GetChildren() do
+		if IsFurnaceItem(v) and not seen[v.Name] then
+			seen[v.Name] = true
+			table.insert(list, v.Name)
+		end
+	end
+	return list
+end
+
+local function GetMinesOnBase()
+	local list = {"None"}
+	local seen = {None = true}
+	if not Tycoon then return list end
+	for _, v in Tycoon:GetChildren() do
+		if IsMineItem(v) and not seen[v.Name] then
+			seen[v.Name] = true
+			table.insert(list, v.Name)
+		end
+	end
+	return list
+end
+
 local RequestAutoRebirthCheck
 
 -- ===================== UI =====================
@@ -686,6 +1042,21 @@ BoostPage:CreateToggle({
 		Set.AntiLeaveBase = Value or false
 		if Set.TestingMode then print("Anti Leave Base:",Value) end
 	end,
+})
+
+BoostPage:CreateToggle({
+	Name = "Ghost Load",
+	CurrentValue = false,
+	Flag = "GhostLoad",
+	Callback = function(Value)
+		Set.GhostLoad = Value
+		if Set.TestingMode then print("Ghost Load:", Value) end
+	end,
+})
+
+BoostPage:CreateParagraph({
+	Title = "<b>Ghost Load</b>",
+	Content = "<i>Doesn't teleport to your base, anymore. You must be in the base to load your layouts.</i>"
 })
 
 BoostPage:CreateSlider({
@@ -810,6 +1181,21 @@ BoostPage:CreateToggle({
 	end,
 })
 
+BoostPage:CreateToggle({
+	Name = "Auto Fire Proximity Prompts (Base)",
+	CurrentValue = false,
+	Flag = "AutoFirePrompts",
+	Callback = function(Value)
+		Set.AutoFirePrompts = Value
+		if Set.TestingMode then print("Auto Fire Prompts:", Value) end
+	end,
+})
+
+BoostPage:CreateParagraph({
+	Title = "<b>Proximity Prompts</b>",
+	Content = "<i>Spams every Activate/ProximityPrompt on your base (e.g. Martian Lightningbolt Refiner). Does NOT edit prompt properties (so manual Z still works and withdrawing items is safe). Uses InputHoldBegin/End + fireproximityprompt + Triggered hooks. Best with an executor that has fireproximityprompt for true long-range.</i>"
+})
+
 BoostPage:CreateSection("Auto Upgrade")
 local BoostToggle = BoostPage:CreateToggle({
 	Name = "Ore Boost",
@@ -819,6 +1205,104 @@ local BoostToggle = BoostPage:CreateToggle({
 		Set.OreBoost = Value
 		Set.OreBoostActive = Value
 		if Set.TestingMode then print("Ore Boost:",Value) end
+	end,
+})
+
+BoostPage:CreateParagraph({
+	Title = "<b>Primary Furnace</b>",
+	Content = "<i>Where ore is sold after boosting. Default Auto = first valid furnace found (old behavior). Pick a furnace on your base, or type its name 1:1 (e.g. Oblivion Emission). Saved across rebirth & rejoin.</i>"
+})
+
+local PrimaryFurnaceDropdown = BoostPage:CreateDropdown({
+	Name = "Primary Furnace (from base)",
+	Options = GetFurnacesOnBase(),
+	CurrentOption = {Set.PrimaryFurnaceName or "Auto"},
+	MultipleOptions = false,
+	Flag = "PrimaryFurnaceName",
+	Callback = function(Options)
+		local name = Options[1] or "Auto"
+		Set.PrimaryFurnaceName = name
+		Set.Furnace = nil -- force re-resolve
+		GetFurnace()
+		if Set.TestingMode then print("Primary Furnace:", name) end
+	end,
+})
+
+BoostPage:CreateInput({
+	Name = "Primary Furnace Name (exact, 1:1)",
+	CurrentValue = (Set.PrimaryFurnaceName and Set.PrimaryFurnaceName ~= "Auto") and Set.PrimaryFurnaceName or "",
+	PlaceholderText = 'e.g. Oblivion Emission  (or Auto)',
+	RemoveTextAfterFocusLost = false,
+	Flag = "PrimaryFurnaceNameInput",
+	Callback = function(Text)
+		local name = (Text and Text:match("^%s*(.-)%s*$")) or ""
+		if name == "" then name = "Auto" end
+		Set.PrimaryFurnaceName = name
+		Set.Furnace = nil
+		GetFurnace()
+		pcall(function() PrimaryFurnaceDropdown:Set({name}) end)
+		if Set.TestingMode then print("Primary Furnace (typed):", name) end
+	end,
+})
+
+BoostPage:CreateButton({
+	Name = "Refresh Furnace List",
+	Callback = function()
+		local opts = GetFurnacesOnBase()
+		pcall(function() PrimaryFurnaceDropdown:Refresh(opts) end)
+		if Set.TestingMode then print("Furnaces:", table.concat(opts, ", ")) end
+	end,
+})
+
+BoostPage:CreateParagraph({
+	Title = "<b>Singular Ore</b>",
+	Content = "<i>Singular Ore targets ONE mine's ore only. Only that mine is ore-boosted (path + sell). Other mines' ores are left alone (normal conveyor behavior — so setups like Vulcan's Wrath still work). Pick a mine on your base or type the name 1:1 (e.g. Havium Mine). Saved.</i>"
+})
+
+local SingularOreToggle = BoostPage:CreateToggle({
+	Name = "Singular Ore",
+	CurrentValue = false,
+	Flag = "SingularOre",
+	Callback = function(Value)
+		Set.SingularOre = Value
+		if Set.TestingMode then print("Singular Ore:", Value) end
+	end,
+})
+
+local PrimaryMineDropdown = BoostPage:CreateDropdown({
+	Name = "Primary Mine (Singular Ore)",
+	Options = GetMinesOnBase(),
+	CurrentOption = {Set.PrimaryMineName or "None"},
+	MultipleOptions = false,
+	Flag = "PrimaryMineName",
+	Callback = function(Options)
+		local name = Options[1] or "None"
+		Set.PrimaryMineName = name
+		if Set.TestingMode then print("Primary Mine:", name) end
+	end,
+})
+
+BoostPage:CreateInput({
+	Name = "Primary Mine Name (exact, 1:1)",
+	CurrentValue = (Set.PrimaryMineName and Set.PrimaryMineName ~= "None") and Set.PrimaryMineName or "",
+	PlaceholderText = 'e.g. Havium Mine  (or None)',
+	RemoveTextAfterFocusLost = false,
+	Flag = "PrimaryMineNameInput",
+	Callback = function(Text)
+		local name = (Text and Text:match("^%s*(.-)%s*$")) or ""
+		if name == "" then name = "None" end
+		Set.PrimaryMineName = name
+		pcall(function() PrimaryMineDropdown:Set({name}) end)
+		if Set.TestingMode then print("Primary Mine (typed):", name) end
+	end,
+})
+
+BoostPage:CreateButton({
+	Name = "Refresh Mine List",
+	Callback = function()
+		local opts = GetMinesOnBase()
+		pcall(function() PrimaryMineDropdown:Refresh(opts) end)
+		if Set.TestingMode then print("Mines:", table.concat(opts, ", ")) end
 	end,
 })
 
@@ -1168,6 +1652,36 @@ BoxFarmPage:CreateToggle({
 	end,
 })
 
+BoxFarmPage:CreateToggle({
+	Name = "Ghost Load",
+	CurrentValue = false,
+	Flag = "GhostLoad",
+	Callback = function(Value)
+		Set.GhostLoad = Value
+		if Set.TestingMode then print("Ghost Load:", Value) end
+	end,
+})
+
+BoxFarmPage:CreateParagraph({
+	Title = "<b>Ghost Load</b>",
+	Content = "<i>Doesn't teleport to your base, anymore. You must be in the base to load your layouts. (Shared with Auto Rebirth layout loading.)</i>"
+})
+
+BoxFarmPage:CreateToggle({
+	Name = "Anti-Base Safety",
+	CurrentValue = false,
+	Flag = "AntiBaseSafety",
+	Callback = function(Value)
+		Set.AntiBaseSafety = Value
+		if Set.TestingMode then print("Anti-Base Safety:", Value) end
+	end,
+})
+
+BoxFarmPage:CreateParagraph({
+	Title = "<b>Anti-Base Safety</b>",
+	Content = "<i>When ON: after box farming, teleports you back to base (private servers). When OFF (default): no spam teleport to the middle after farming.</i>"
+})
+
 BoxFarmPage:CreateSlider({
 	Name = "Box Farm Speed",
 	Range = {1, 100},
@@ -1387,17 +1901,20 @@ local Options = MainUi:CreateTab("UI Options",6031280882)
 Options:CreateSection("UI Theme")
 local ThemeDropdown = Options:CreateDropdown({
 	Name = "GUI Theme",
-	Options = {"Default","AmberGlow","Amethyst","Bloom","DarkBlue","Green","Light","Ocean","Serenity","Custom"},
-	CurrentOption = {"Default"},
+	Options = {"Default","OG MH","AmberGlow","Amethyst","Bloom","DarkBlue","Green","Light","Ocean","Serenity","Custom"},
+	CurrentOption = {NormalizeThemeName(Set.GUIThemeName) or "Default"},
 	MultipleOptions = false,
 	Flag = "GUITheme",  
 	Callback = function(Options)
-		if Options[1] == "Custom" then
-			MainUi.ModifyTheme(CustomThemeTable)
-		else
-			MainUi.ModifyTheme(Options[1])
-		end
+		local name = NormalizeThemeName(Options[1] or "Default")
+		ApplyGuiTheme(name)
+		if Set.TestingMode then print("GUI Theme:", name) end
 	end,
+})
+
+Options:CreateParagraph({
+	Title = "<b>OG MH</b>",
+	Content = "<i>2017 Miner's Haven style: gray panels, money green, RP blue, flat corners, SourceSans, readable layout text boxes. Select any other theme to return to normal Rayfield. Saved.</i>"
 })
 
 Options:CreateSection("Advanced UI Theme")
@@ -1439,8 +1956,8 @@ Options:CreateColorPicker({Name = "Placeholder Color", Color = Color3.fromRGB(17
 Options:CreateButton({
 	Name = "Apply Custom theme colors",
 	Callback = function()
-		MainUi.ModifyTheme(CustomThemeTable)
-		ThemeDropdown:Set({"Custom"})
+		ApplyGuiTheme("Custom")
+		pcall(function() ThemeDropdown:Set({"Custom"}) end)
 	end,
 })
 
@@ -1464,9 +1981,10 @@ local function RebornPrice(Player)
 end
 
 function BoostOre(Ore)
+	if not HubAlive() then return end
 	if Set.TestingMode then print("Ore boost Start") end 
 	for i,v in Tycoon:GetChildren() do
-		if Set.OreBoostActive == false then break end
+		if not HubAlive() or Set.OreBoostActive == false then break end
 		if not Ore or not v then break end 
 		if Data.MoneyLoopables[v.Name] or table.find(Data.ResettersNames,v.Name) then continue end
 		if v:FindFirstChild("ItemId") and v:FindFirstChild("Plane") then
@@ -1481,8 +1999,15 @@ function BoostOre(Ore)
 				end
 			elseif v.Model:FindFirstChild("Lava") and not v.Model:FindFirstChild("TeleportSend") then
 				if v and v:FindFirstChild("Model") and v.Model:FindFirstChild("Lava") and not v.Model.Lava:FindFirstChild("TeleportSend") then
-					if not v.Model:FindFirstChild("Drop") and (Set.Furnace == nil or Set.Furnace:FindFirstChild("Model") == nil or Set.Furnace.Model:FindFirstChild("Lava") == nil) then 
-						Set.Furnace = v	
+					-- Only auto-assign furnace when Primary is Auto (or preferred missing)
+					local prefer = Set.PrimaryFurnaceName
+					local usingAuto = (not prefer or prefer == "" or prefer == "Auto")
+					if IsFurnaceItem(v) then
+						if usingAuto and (not IsFurnaceItem(Set.Furnace)) then
+							Set.Furnace = v
+						elseif not usingAuto and v.Name == prefer then
+							Set.Furnace = v
+						end
 					end
 					if v.Model:FindFirstChild("Drop") and v.Model:FindFirstChild("Lava") and (Set.IndMine == nil or Set.IndMine:FindFirstChild("Model") == nil) then
 						Set.IndMine = v
@@ -1538,29 +2063,108 @@ function Reset(Ore)
 	end
 end
 
+-- Prefer saved PrimaryFurnaceName; fall back to first valid furnace (old behavior)
 function GetFurnace()
-	for i,v in Tycoon:GetChildren() do
+	local preferred = Set.PrimaryFurnaceName
+	if preferred and preferred ~= "" and preferred ~= "Auto" then
+		local f = Tycoon:FindFirstChild(preferred)
+		if IsFurnaceItem(f) then
+			Set.Furnace = f
+			if Set.TestingMode then print("Primary furnace resolved:", f.Name) end
+		elseif Set.TestingMode then
+			warn("Primary furnace not on base:", preferred, "— using Auto")
+		end
+	end
+
+	for i, v in Tycoon:GetChildren() do
 		if v and v:FindFirstChild("Model") and v.Model:FindFirstChild("Lava") and not v.Model.Lava:FindFirstChild("TeleportSend") then
-			if not v.Model:FindFirstChild("Drop") and not v:FindFirstChild("Upgrade") and (Set.Furnace == nil or Set.Furnace:FindFirstChild("Model") == nil or Set.Furnace.Model:FindFirstChild("Lava") == nil) then 
-				Set.Furnace = v	
+			if IsFurnaceItem(v) then
+				if Set.Furnace == nil or not IsFurnaceItem(Set.Furnace) then
+					Set.Furnace = v
+				end
 			end
-			if v.Model:FindFirstChild("Drop") and v.Model:FindFirstChild("Lava") and (Set.IndMine == nil or Set.IndMine:FindFirstChild("Model") == nil) then
-				Set.IndMine = v
+			if v.Model:FindFirstChild("Drop") and v.Model:FindFirstChild("Lava") then
+				if Set.IndMine == nil or Set.IndMine:FindFirstChild("Model") == nil then
+					Set.IndMine = v
+				end
 			end
 		end
 	end
+	return Set.Furnace
 end
 
 function Sell(Ore)
-	if Set.Furnace == nil or Set.Furnace:FindFirstChild("Model") == nil or Set.Furnace.Model:FindFirstChild("Lava") then 
-		GetFurnace()
+	if not Ore then return end
+	-- Always re-resolve so rebirth / rejoin / name choice still works
+	local furn = nil
+	local preferred = Set.PrimaryFurnaceName
+	if preferred and preferred ~= "" and preferred ~= "Auto" then
+		local f = Tycoon:FindFirstChild(preferred)
+		if IsFurnaceItem(f) then furn = f end
 	end
-	Ore.CFrame = Set.Furnace.Model.Lava.CFrame + Vector3.new(0,1,0)
+	if not furn then
+		if not IsFurnaceItem(Set.Furnace) then
+			GetFurnace()
+		end
+		furn = Set.Furnace
+	else
+		Set.Furnace = furn
+	end
+	if furn and furn:FindFirstChild("Model") and furn.Model:FindFirstChild("Lava") then
+		Ore.CFrame = furn.Model.Lava.CFrame + Vector3.new(0, 1, 0)
+	elseif Set.TestingMode then
+		warn("Sell: no valid furnace found")
+	end
+end
+
+-- Which mine dropped this ore (for Singular Ore mode)
+local function IdentifyOreMine(ore)
+	if not ore then return nil end
+	for _, childName in ipairs({"Source", "Mine", "Origin", "DroppedFrom", "From"}) do
+		local c = ore:FindFirstChild(childName)
+		if c then
+			if c:IsA("ObjectValue") and c.Value then return c.Value.Name end
+			if (c:IsA("StringValue") or c:IsA("StringValue")) and c.Value ~= "" then return c.Value end
+		end
+	end
+	local attrMine = ore:GetAttribute("Mine") or ore:GetAttribute("Source") or ore:GetAttribute("Origin")
+	if attrMine and tostring(attrMine) ~= "" then return tostring(attrMine) end
+
+	-- Closest mine Drop at spawn (most reliable on MH)
+	local bestName, bestDist = nil, 30
+	local pos = ore:IsA("BasePart") and ore.Position or (ore:IsA("Model") and ore:GetPivot().Position)
+	if not pos then return nil end
+	for _, v in Tycoon:GetChildren() do
+		if IsMineItem(v) then
+			local drop = v.Model.Drop
+			local d = (drop.Position - pos).Magnitude
+			if d < bestDist then
+				bestDist = d
+				bestName = v.Name
+			end
+		end
+	end
+	return bestName
+end
+
+local function ShouldOreBoostThisOre(ore)
+	if not Set.SingularOre then return true end
+	local mineName = Set.PrimaryMineName
+	if not mineName or mineName == "" or mineName == "None" then
+		return true -- not configured → boost all (safe default)
+	end
+	local source = IdentifyOreMine(ore)
+	if Set.TestingMode then
+		print("Singular Ore: source=", source, " want=", mineName, " boost=", source == mineName)
+	end
+	return source == mineName
 end
 
 function StartOreBoost(Ore)
+	if not HubAlive() then return end
 	if Set.TestingMode then print("Ore Boost Setting up") end 
-	repeat task.wait() until Ore:FindFirstChild("Cash")
+	repeat task.wait() until not HubAlive() or Ore:FindFirstChild("Cash")
+	if not HubAlive() or not Ore or not Ore:FindFirstChild("Cash") then return end
 	if Ore.Cash.Value <= 0 then
 		Ore.Anchored = false
 		return
@@ -1580,7 +2184,7 @@ function StartOreBoost(Ore)
 			local Info = Data.MoneyLoopables[MoneyLoop.Name]
 			repeat 
 				if not Ore or (Info.MinVal and Ore.Cash.Value < Info.MinVal) then break end
-				if Set.OreBoost == false or Set.OreBoostActive == false then break end
+				if not HubAlive() or Set.OreBoost == false or Set.OreBoostActive == false then break end
 				for a = 1,Set.UpgradeLoopCount do
 					Ore.CFrame = MoneyLoop.Model.Upgrade.CFrame
 					task.wait(Info.MinWait or 0.01)
@@ -1589,7 +2193,7 @@ function StartOreBoost(Ore)
 					end
 				end
 				task.wait(0.05)
-			until Ore == nil or MoneyLoop == nil or MoneyLoop:FindFirstChild("Model") == nil or Ore:FindFirstChild("Cash") == nil or Ore.Cash.Value >= Info.Cap
+			until not HubAlive() or Ore == nil or MoneyLoop == nil or MoneyLoop:FindFirstChild("Model") == nil or Ore:FindFirstChild("Cash") == nil or Ore.Cash.Value >= Info.Cap
 		end
 	end
 	if Set.OreBoostActive then Reset(Ore) end
@@ -1600,13 +2204,115 @@ function StartOreBoost(Ore)
 	end
 end
 
+local function ResolveFireProximityPrompt()
+	if typeof(fireproximityprompt) == "function" then
+		return fireproximityprompt
+	end
+	if getgenv and typeof(getgenv().fireproximityprompt) == "function" then
+		return getgenv().fireproximityprompt
+	end
+	if getrenv then
+		local ok, r = pcall(function() return getrenv().fireproximityprompt end)
+		if ok and typeof(r) == "function" then return r end
+	end
+	return nil
+end
+
+-- Collect every ProximityPrompt under the player's tycoon (skip destroyed)
+local function CollectBaseProximityPrompts()
+	local prompts = {}
+	local seen = {}
+	local function addFrom(root)
+		if not root or not root.Parent then return end
+		local ok, descendants = pcall(function() return root:GetDescendants() end)
+		if not ok or not descendants then return end
+		for _, d in descendants do
+			if d and d.Parent and d:IsA("ProximityPrompt") and not seen[d] then
+				seen[d] = true
+				table.insert(prompts, d)
+			end
+		end
+	end
+	addFrom(Tycoon)
+	pcall(function()
+		if ActiveTycoon and ActiveTycoon.Value and ActiveTycoon.Value ~= Tycoon then
+			addFrom(ActiveTycoon.Value)
+		end
+	end)
+	pcall(function()
+		if Player.PlayerTycoon and Player.PlayerTycoon.Value and Player.PlayerTycoon.Value ~= Tycoon then
+			addFrom(Player.PlayerTycoon.Value)
+		end
+	end)
+	return prompts
+end
+
+--[[
+	Spam-activate ALL base proximity prompts (e.g. "Activate Upgrader" on Martian Lightningbolt Refiner).
+
+	IMPORTANT: we never permanently change prompt properties (that was breaking manual Z
+	and breaking prompts when items were withdrawn). Distance is handled by the executor
+	API + InputHoldBegin/End, not by rewriting MaxActivationDistance every frame.
+]]
+local function FireOneProximityPrompt(prompt, fireFn)
+	if not prompt or not prompt.Parent then return end
+	if not prompt:IsA("ProximityPrompt") then return end
+
+	-- Skip disabled prompts (game intentionally off)
+	if prompt.Enabled == false then return end
+
+	-- 1) Official client API (safe, no property mutation)
+	pcall(function()
+		prompt:InputHoldBegin()
+	end)
+	pcall(function()
+		prompt:InputHoldEnd()
+	end)
+
+	-- 2) Executor fireproximityprompt (usually ignores distance)
+	if fireFn then
+		pcall(fireFn, prompt)
+		pcall(fireFn, prompt, 1)
+	end
+
+	-- 3) Fire Triggered/Hold signals if available (some exploits need this)
+	pcall(function()
+		if firesignal and prompt.Triggered then
+			firesignal(prompt.Triggered, Player)
+		end
+	end)
+	pcall(function()
+		if getconnections then
+			for _, c in getconnections(prompt.Triggered) do
+				if c.Function then pcall(c.Function, Player) end
+			end
+		end
+	end)
+end
+
+local function FireBaseProximityPrompts()
+	if not Set.AutoFirePrompts or not HubAlive() then return end
+	if Set.Rebirthing or Set.LayoutLoading then return end -- don't fight layout withdraw
+
+	local fireFn = ResolveFireProximityPrompt()
+	local prompts = CollectBaseProximityPrompts()
+
+	for _, prompt in ipairs(prompts) do
+		if not HubAlive() then break end
+		-- Item may be deleted mid-loop (withdraw / rebirth) — never error, just skip
+		if prompt and prompt.Parent then
+			pcall(FireOneProximityPrompt, prompt, fireFn)
+		end
+	end
+end
+
 function Load()
 	Set.LayoutLoading = true
 	Set.LayoutVerified = false
 	local expectedFinal = 0
 	local ok, err = pcall(function()
 		if Set.TestingMode then print("Start Layout Loading") end
-		TeleportToOwnBase()
+		TeleportForLayoutLoad() -- skipped when Ghost Load is on
 		task.wait(0.15)
 		if Set.OreBoost then Set.OreBoostActive = true end
 		game.ReplicatedStorage.DestroyAll:InvokeServer()
@@ -1623,7 +2329,7 @@ function Load()
 		local exp1 = LoadOneLayout(Set.Layout1)
 		expectedFinal = exp1 or 0
 		if not looksComplete(expectedFinal, 0.5) then
-			TeleportToOwnBase()
+			TeleportForLayoutLoad()
 			task.wait(0.1)
 			game.ReplicatedStorage.DestroyAll:InvokeServer()
 			task.wait(0.15)
@@ -1638,7 +2344,7 @@ function Load()
 				game.ReplicatedStorage.DestroyAll:InvokeServer()
 				task.wait(0.15)
 			end
-			TeleportToOwnBase()
+			TeleportForLayoutLoad()
 			local exp2 = LoadOneLayout(Set.Layout2)
 			if Set.WithdrawBase then
 				expectedFinal = exp2 or CountPlacedItems()
@@ -1646,7 +2352,7 @@ function Load()
 				expectedFinal = CountPlacedItems()
 			end
 			if not looksComplete(expectedFinal, 0.85) then
-				TeleportToOwnBase()
+				TeleportForLayoutLoad()
 				task.wait(0.1)
 				if Set.WithdrawBase then
 					game.ReplicatedStorage.DestroyAll:InvokeServer()
@@ -1672,7 +2378,11 @@ function Load()
 		Set.LayoutVerified = looksComplete(Set.LayoutExpectedCount, 0.9)
 		if Set.LayoutVerified then Set.LayoutReloadFails = 0 end
 		if Set.AutoResizeUpgraders then ResizeUpgraders() end
-		if Set.TestingMode then print("Layout load done. items=", CountPlacedItems(), " expected=", Set.LayoutExpectedCount, " verified=", Set.LayoutVerified) end
+		-- Re-bind primary furnace / ind mine after layout places (names persist)
+		Set.Furnace = nil
+		Set.IndMine = nil
+		GetFurnace()
+		if Set.TestingMode then print("Layout load done. items=", CountPlacedItems(), " expected=", Set.LayoutExpectedCount, " verified=", Set.LayoutVerified, " furnace=", Set.Furnace and Set.Furnace.Name) end
 	end)
 	Set.LayoutLoading = false
 	if Set.OreBoost then Set.OreBoostActive = true end
@@ -1680,6 +2390,7 @@ function Load()
 end
 
 local function EnsureLayoutLoaded()
+	if not HubAlive() then return end
 	if Set.LayoutLoading or Set.Rebirthing then return end
 	if not Set.AutoRebirth then return end  -- only when Auto Rebirth is on
 	if not Set.LayoutExpectedCount or Set.LayoutExpectedCount <= 0 then return end
@@ -1713,7 +2424,7 @@ local function EnsureLayoutLoaded()
 
 	Set.LayoutLoading = true
 	local ok, err = pcall(function()
-		TeleportToOwnBase()
+		TeleportForLayoutLoad()
 		task.wait(0.1)
 		local finalName = (Set.Layout2 and Set.Layout2 ~= "None") and Set.Layout2 or Set.Layout1
 		game.ReplicatedStorage.DestroyAll:InvokeServer()
@@ -1743,7 +2454,8 @@ end
 
 GetFurnace()
 if Ores then
-	Ores.ChildAdded:Connect(function(Child)
+	Track(Ores.ChildAdded:Connect(function(Child)
+		if not HubAlive() then return end
 		AddTracker(Child)
 		if Set.OreSize > 0 then 
 			Child.Size = Vector3.new(Set.OreSize,Set.OreSize,Set.OreSize)
@@ -1754,12 +2466,16 @@ if Ores then
 					Child.CFrame = Set.IndMine.Model.Lava.CFrame + Vector3.new(0,1,0)
 				end
 				return 
-			end 
+			end
+			-- Singular Ore: only boost the chosen mine's drops
+			if not ShouldOreBoostThisOre(Child) then
+				return -- other mines: normal conveyor (Vulcan etc. still work)
+			end
 			StartOreBoost(Child)
 		elseif Set.FarmRp then
 			Sell(Child)
 		end
-	end)
+	end))
 end
 
 local nextRebirthAt = 0
@@ -1811,6 +2527,7 @@ local function stopAutoRebirthAtLife()
 end
 
 local function TryAutoRebirth()
+	if not HubAlive() then return end
 	if not Set.AutoRebirth then return end
 	if Set.Rebirthing or Set.LayoutLoading then return end
 	if os.clock() < nextRebirthAt then return end
@@ -1880,15 +2597,17 @@ RequestAutoRebirthCheck = function()
 end
 
 if Money then
-	Money.Changed:Connect(function()
+	Track(Money.Changed:Connect(function()
+		if not HubAlive() then return end
 		if Set.AutoRebirth then RequestAutoRebirthCheck() end
-	end)
+	end))
 end
 
 task.spawn(function()
-	while true do
+	while HubAlive() do
 		task.wait(0.35)
-		if Set.AutoRebirth then          -- FIXED: only when Auto Rebirth is on (no longer runs on OreBoost alone)
+		if not HubAlive() then break end
+		if Set.AutoRebirth then
 			local okL, errL = pcall(EnsureLayoutLoaded)
 			if not okL and Set.TestingMode then warn("EnsureLayoutLoaded error:", errL) end
 		end
@@ -1898,8 +2617,9 @@ end)
 
 task.spawn(function()
 	local stuckSince = nil
-	while true do
+	while HubAlive() do
 		task.wait(1)
+		if not HubAlive() then break end
 		if Set.Rebirthing or Set.LayoutLoading then
 			stuckSince = stuckSince or os.clock()
 			if os.clock() - stuckSince > 120 then
@@ -1918,7 +2638,8 @@ end)
 
 for i,v in Boxes:GetChildren() do AddBoxTrack(v) end
 
-game.ReplicatedStorage.ItemObtained.OnClientEvent:Connect(function(Item,Amount)
+Track(game.ReplicatedStorage.ItemObtained.OnClientEvent:Connect(function(Item,Amount)
+	if not HubAlive() then return end
 	if not Item:FindFirstChild("Tier") then return end 
 	if Item.Tier.Value == 78 and Item.Name == Slipstream then
 		BoostToggle:Set(false)
@@ -1927,33 +2648,42 @@ game.ReplicatedStorage.ItemObtained.OnClientEvent:Connect(function(Item,Amount)
 		Set.OreBoostActive = false
 		Set.AutoRebirth = false
 	end
-end)
+end))
 
-game.Workspace.Boxes.ChildAdded:Connect(function(Box) AddBoxTrack(Box) end)
+Track(game.Workspace.Boxes.ChildAdded:Connect(function(Box)
+	if not HubAlive() then return end
+	AddBoxTrack(Box)
+end))
 
-Player.CharacterAdded:Connect(function(character)
+Track(Player.CharacterAdded:Connect(function(character)
+	if not HubAlive() then return end
 	local humanoid = character:WaitForChild("Humanoid")
 	if humanoid.WalkSpeed < Set.WalkSpeed then humanoid.WalkSpeed = Set.WalkSpeed end
 	if humanoid.JumpPower < Set.JumpPower then humanoid.JumpPower = Set.JumpPower end
-	humanoid:GetPropertyChangedSignal("WalkSpeed"):Connect(function()
+	Track(humanoid:GetPropertyChangedSignal("WalkSpeed"):Connect(function()
+		if not HubAlive() then return end
 		if humanoid.WalkSpeed < Set.WalkSpeed then humanoid.WalkSpeed = Set.WalkSpeed end
-	end)
-	humanoid:GetPropertyChangedSignal("JumpPower"):Connect(function()
+	end))
+	Track(humanoid:GetPropertyChangedSignal("JumpPower"):Connect(function()
+		if not HubAlive() then return end
 		if humanoid.JumpPower < Set.JumpPower then humanoid.JumpPower = Set.JumpPower end
-	end)
-end)
+	end))
+end))
 
-game.Lighting.Blur:GetPropertyChangedSignal("Enabled"):Connect(function()
+Track(game.Lighting.Blur:GetPropertyChangedSignal("Enabled"):Connect(function()
+	if not HubAlive() then return end
 	game.Lighting.Blur.Enabled = Set.Blur
-end)
+end))
 
-ActiveTycoon.Changed:Connect(function()
+Track(ActiveTycoon.Changed:Connect(function()
+	if not HubAlive() then return end
 	if (ActiveTycoon.Value == nil or ActiveTycoon.Value.Name ~= Tycoon.Name) and Set.AntiLeaveBase then
 		Player.Character.Humanoid.Health = 0
 	end
-end)
+end))
 
-Chat.OnIncomingMessage = function(Message)
+Hub.ChatHandler = function(Message)
+	if not HubAlive() then return end
 	if Message then
 		if Message.Text and not Message.TextSource then
 			local NewText = Message.Text
@@ -1982,29 +2712,139 @@ Chat.OnIncomingMessage = function(Message)
 		end
 	end
 end
+Chat.OnIncomingMessage = Hub.ChatHandler
 
-game.Players.PlayerAdded:Connect(function(Plr)
+Track(game.Players.PlayerAdded:Connect(function(Plr)
+	if not HubAlive() then return end
 	if not table.find(PlayerList,Plr.Name) then table.insert(PlayerList,Plr.Name) end
 	PlayerSelectDropdown:Refresh(PlayerList)
-end)
-game.Players.PlayerRemoving:Connect(function(Plr)
+end))
+Track(game.Players.PlayerRemoving:Connect(function(Plr)
+	if not HubAlive() then return end
 	local Pos = table.find(PlayerList,Plr.Name)
 	if Pos then table.remove(PlayerList,Pos) end
 	PlayerSelectDropdown:Refresh(PlayerList)
-end)
+end))
 
 local VS = game:GetService("VirtualUser")
-game.Players.LocalPlayer.Idled:Connect(function()
+Track(game.Players.LocalPlayer.Idled:Connect(function()
+	if not HubAlive() then return end
 	VS:CaptureController()
 	VS:ClickButton2(Vector2.new())
-end)
+end))
+
+-- Unload previous instance cleanly (called automatically on re-execute)
+function Hub.Unload()
+	Hub.Alive = false
+
+	-- Hard-stop every feature flag so no background work continues
+	local S = Hub.Set or Set
+	if S then
+		S.AutoRebirth = false
+		S.OreBoost = false
+		S.OreBoostActive = false
+		S.FarmBoxes = false
+		S.OpenBoxes = false
+		S.AutoDrop = false
+		S.AutoFirePrompts = false
+		S.FarmRp = false
+		S.Rebirthing = false
+		S.LayoutLoading = false
+		S.CollectingBoxes = false
+		S.TrackBoxes = false
+		S.OreTracking = false
+		S.AntiLeaveBase = false
+		S.AutoResizeUpgraders = false
+		S.UsingMoneyLoop = false
+	end
+
+	-- Disconnect every tracked signal
+	for _, conn in ipairs(Hub.Connections) do
+		pcall(function()
+			if conn and conn.Disconnect then conn:Disconnect() end
+		end)
+	end
+	table.clear(Hub.Connections)
+
+	-- Tear down ore/box ESP clones
+	if Data then
+		if Data.BoxTrackers then
+			for box, ui in pairs(Data.BoxTrackers) do
+				pcall(function() if ui then ui:Destroy() end end)
+				Data.BoxTrackers[box] = nil
+			end
+		end
+		if Data.OreConnections then
+			for ore, conns in pairs(Data.OreConnections) do
+				if type(conns) == "table" then
+					for _, c in pairs(conns) do
+						pcall(function() if c and c.Disconnect then c:Disconnect() end end)
+					end
+				end
+				Data.OreConnections[ore] = nil
+			end
+		end
+		if Data.OreTrackers then
+			for ore, ui in pairs(Data.OreTrackers) do
+				pcall(function() if ui then ui:Destroy() end end)
+				Data.OreTrackers[ore] = nil
+			end
+		end
+	end
+
+	-- Remove chat spoof handler if it's still ours
+	pcall(function()
+		if Chat.OnIncomingMessage == Hub.ChatHandler then
+			Chat.OnIncomingMessage = nil
+		end
+	end)
+
+	-- Destroy billboard template
+	pcall(function()
+		if Hub.GUi then Hub.GUi:Destroy() end
+	end)
+
+	-- Stop OG MH restyle watchers
+	pcall(function()
+		if StopOldMHRestyleWatch then StopOldMHRestyleWatch() end
+	end)
+
+	-- Destroy Rayfield / hub GUIs
+	DestroyHubGuis()
+	pcall(function()
+		if Rayfield and Rayfield.Destroy then Rayfield:Destroy() end
+	end)
+	pcall(function()
+		if MainUi and MainUi.Destroy then MainUi:Destroy() end
+	end)
+
+	-- Clear global slot so the next execute owns it
+	if ENV[HUB_KEY] == Hub then
+		ENV[HUB_KEY] = nil
+	end
+
+	print("[MX6 Hub] Previous instance unloaded (safe to re-execute).")
+end
 
 Rayfield:LoadConfiguration()
 
+-- Re-apply saved theme after config load (OG MH migrates from old name)
+task.defer(function()
+	if not HubAlive() then return end
+	local theme = NormalizeThemeName(Set.GUIThemeName or "Default")
+	pcall(function()
+		ApplyGuiTheme(theme)
+		if theme == "OG MH" then
+			pcall(function() ThemeDropdown:Set({"OG MH"}) end)
+		end
+	end)
+end)
+
 task.spawn(function()
 	local lastBoxOpen, lastRemoteDrop, lastOreKill = 0, 0, 0
-	while true do
-		task.wait(0.1) 
+	while HubAlive() do
+		task.wait(0.1)
+		if not HubAlive() then break end
 		local now = os.clock()
 		if Set.FarmBoxes then CollectBoxes() end
 		if Set.OpenBoxes and (now - lastBoxOpen >= (Set.BoxWait or 1)) then
@@ -2021,3 +2861,30 @@ task.spawn(function()
 		end
 	end
 end)
+
+-- Dedicated spam loop: every prompt on base, repeatedly, safe if items vanish
+task.spawn(function()
+	local lastCountLog = 0
+	while HubAlive() do
+		if Set.AutoFirePrompts then
+			local ok, err = pcall(FireBaseProximityPrompts)
+			if not ok and Set.TestingMode then
+				warn("FireBaseProximityPrompts error:", err)
+			end
+			if Set.TestingMode and os.clock() - lastCountLog > 4 then
+				lastCountLog = os.clock()
+				local n = #CollectBaseProximityPrompts()
+				local hasFire = ResolveFireProximityPrompt() ~= nil
+				print(string.format(
+					"Auto Fire Prompts: %d prompt(s) | fireproximityprompt=%s",
+					n, tostring(hasFire)
+				))
+			end
+			task.wait(0.08)
+		else
+			task.wait(0.3)
+		end
+	end
+end)
+
+print("[MX6 Hub] Loaded. Re-executing this script will replace this instance cleanly.")
