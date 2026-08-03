@@ -428,7 +428,7 @@ local Set = {
 	AutoResizeUpgraders = false,
 	SelectedPlace = "The Void",
 	BoxFarmSpeed = 30,
-	AutoKillOresWait = 50,
+	AutoKillOresWait = 0,
 	StopLife = 0,
 
 	-- Box Farming toggles (all main ones ON by default)
