@@ -60,7 +60,6 @@ end
 
 local Chat = game:GetService("TextChatService")
 local TeleportService = game:GetService("TeleportService")
-local channel = Chat:WaitForChild('TextChannels').RBXGeneral
 local Player = game.Players.LocalPlayer
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 local MainUi = Rayfield:CreateWindow({
@@ -402,7 +401,6 @@ local Set = {
 	Fuel = false,
 	WalkSpeed = 16,
 	JumpPower = 50,
-	WaitToRebirth = false,
 	Skips = 0,
 	CollectingBoxes = false,
 	Blur = true,
@@ -412,7 +410,6 @@ local Set = {
 	SelectedBox = "Regular",
 	UpgraderSize = 1,
 	SingleItemUpgrade = "",
-	Slipstream = "",
 	ConveyorSpeed = 5,
 	FakeName = "",
 	CTag = "[MX6]",
@@ -448,6 +445,7 @@ local Set = {
 	PrimaryMineName = "None",    -- used when SingularOre is on
 	SingularOre = false,         -- only boost ores from PrimaryMineName
 	AutoFirePrompts = false,     -- fire all ProximityPrompts on your tycoon
+	StopSlipstream = "None",     -- stop auto rebirth when this slipstream is obtained
 
 	-- Teleport behavior (saved)
 	GhostLoad = false,           -- no TP when loading layouts; you must already be on base
@@ -580,7 +578,6 @@ local Data = {
 }
 
 local ELayout = loadstring(game:HttpGet('https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/BasicFirstLife.lua'))()
-local UILib = loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX/UiLib/refs/heads/main/UiLib.lua"))()
 
 for i,v in game.ReplicatedStorage.Items:GetChildren() do
 	if not v:FindFirstChild("Tier") then continue end 
@@ -800,6 +797,7 @@ local function AddTracker(ore)
 	Ui.Parent = ore
 	Ui.Adornee = ore
 	Ui.Enabled = Set.OreTracking
+	Data.OreTrackers[ore] = Ui
 	local connections = {}
 	Data.OreConnections[ore] = connections
 	connections.cashConn = Track(cash.Changed:Connect(function()
@@ -885,37 +883,36 @@ end
 local function ResizeUpgraders()
 	for i,v in Tycoon:GetChildren() do
 		task.spawn(function()
-			if v:FindFirstChild("ItemId") and v:FindFirstChild("Plane") then
-				if not v:FindFirstChild("Model") then return end
-				if v.Model:FindFirstChild("Upgrade") then
-					if not v.Model.Upgrade:FindFirstChild("BaseSize") then
-						local BS = Instance.new("Vector3Value")
-						BS.Value = v.Model.Upgrade.Size
-						BS.Name = "BaseSize"
-						BS.Parent = v.Model.Upgrade
-						task.wait(0.1)
-					end
-					if Set.TestingMode then print(v.Name, "Resized to ",Set.UpgraderSize) end
-					v.Model.Upgrade.Size = v.Model.Upgrade.BaseSize.Value * Set.UpgraderSize
-				end
+			if not v:FindFirstChild("ItemId") then return end
+			local up = FindUpgradePart(v)
+			if not up or not up:IsA("BasePart") then return end
+			if not up:FindFirstChild("BaseSize") then
+				local BS = Instance.new("Vector3Value")
+				BS.Value = up.Size
+				BS.Name = "BaseSize"
+				BS.Parent = up
+				task.wait(0.1)
 			end
+			if Set.TestingMode then print(v.Name, "Resized to ", Set.UpgraderSize) end
+			up.Size = up.BaseSize.Value * Set.UpgraderSize
 		end)
 	end
 end
 
 local function RezieSingleUpgrader(Name)
 	local Item = Tycoon:FindFirstChild(Name)
-	if Item and Item:FindFirstChild("Model") and Item.Model:FindFirstChild("Upgrade") then
-		if not Item.Model.Upgrade:FindFirstChild("BaseSize") then
-			local BS = Instance.new("Vector3Value")
-			BS.Value = Item.Model.Upgrade.Size
-			BS.Name = "BaseSize"
-			BS.Parent = Item.Model.Upgrade
-			task.wait(0.1)
-		end
-		if Set.TestingMode then print(Item.Name, "Resized to ",Set.UpgraderSize) end
-		Item.Model.Upgrade.Size = Item.Model.Upgrade.BaseSize.Value * Set.UpgraderSize
+	if not Item then return end
+	local up = FindUpgradePart(Item)
+	if not up or not up:IsA("BasePart") then return end
+	if not up:FindFirstChild("BaseSize") then
+		local BS = Instance.new("Vector3Value")
+		BS.Value = up.Size
+		BS.Name = "BaseSize"
+		BS.Parent = up
+		task.wait(0.1)
 	end
+	if Set.TestingMode then print(Item.Name, "Resized to ", Set.UpgraderSize) end
+	up.Size = up.BaseSize.Value * Set.UpgraderSize
 end
 
 local function ChangeUi(Name)
@@ -976,18 +973,138 @@ local function ShopSpam()
 	end
 end
 
--- Furnace / mine helpers (needed before UI dropdowns build)
-local function IsFurnaceItem(v)
-	if not v or not v:FindFirstChild("Model") then return false end
-	if not v.Model:FindFirstChild("Lava") then return false end
-	if v.Model.Lava:FindFirstChild("TeleportSend") then return false end
-	if v.Model:FindFirstChild("Drop") then return false end -- mines have Drop
-	return true
+-- Furnace / mine / upgrader helpers (recursive — works for all MH items)
+local function HasNamedScript(root, scriptName)
+	if not root then return false end
+	return root:FindFirstChild(scriptName, true) ~= nil
+end
+
+-- Sell surface: "Lava", "Lava1", "MiniLava", or any BasePart with "lava" in the name (not teleporters)
+local function FindLavaPart(item)
+	if not item then return nil end
+	local model = item:FindFirstChild("Model") or item
+	local preferred = {"Lava", "Lava1", "MiniLava", "Lava2"}
+	for _, n in ipairs(preferred) do
+		local p = model:FindFirstChild(n, true)
+		if p and p:IsA("BasePart") and not p:FindFirstChild("TeleportSend") then
+			return p
+		end
+	end
+	for _, d in ipairs(model:GetDescendants()) do
+		if d:IsA("BasePart") then
+			local ln = string.lower(d.Name)
+			if string.find(ln, "lava", 1, true) and not d:FindFirstChild("TeleportSend") then
+				return d
+			end
+		end
+	end
+	return nil
+end
+
+local function HasTouchInterest(part)
+	if not part then return false end
+	return part:FindFirstChild("TouchInterest") ~= nil
+		or part:FindFirstChildOfClass("TouchTransmitter") ~= nil
+end
+
+-- If "Upgrade" is a Model/Folder, resolve to a real BasePart inside it
+local function ResolveToBasePart(inst)
+	if not inst then return nil end
+	if inst:IsA("BasePart") then return inst end
+	if inst:IsA("Model") or inst:IsA("Folder") or inst:IsA("Configuration") then
+		for _, d in ipairs(inst:GetDescendants()) do
+			if d:IsA("BasePart") and HasTouchInterest(d) then return d end
+		end
+		for _, d in ipairs(inst:GetDescendants()) do
+			if d:IsA("BasePart") then return d end
+		end
+		if inst:IsA("Model") and inst.PrimaryPart then return inst.PrimaryPart end
+	end
+	return nil
+end
+
+--[[
+	Find where to teleport ores for boost.
+	Portable Ore Advancer style: Item → Model → Upgrade (Part + TouchInterest).
+	No upgrade script required — only the Upgrade part matters.
+]]
+local function FindUpgradePart(item)
+	if not item then return nil end
+	local scope = item
+
+	local names = {"Upgrade", "Upgrader", "Scan", "UpgraderPart"}
+
+	-- 1) Named Upgrade* WITH TouchInterest (best)
+	for _, n in ipairs(names) do
+		local p = scope:FindFirstChild(n, true)
+		local part = ResolveToBasePart(p)
+		if part and HasTouchInterest(part) then return part end
+	end
+
+	-- 2) Named Upgrade* even without TouchInterest / without any script
+	for _, n in ipairs(names) do
+		local p = scope:FindFirstChild(n, true)
+		local part = ResolveToBasePart(p)
+		if part then return part end
+	end
+
+	-- 3) Any descendant BasePart named like upgrade + TouchInterest
+	for _, d in ipairs(scope:GetDescendants()) do
+		if d:IsA("BasePart") and HasTouchInterest(d) then
+			local n = string.lower(d.Name)
+			if string.find(n, "upgrade", 1, true)
+				or string.find(n, "scan", 1, true)
+				or string.find(n, "refine", 1, true)
+				or string.find(n, "advanc", 1, true) then
+				return d
+			end
+		end
+	end
+
+	-- 4) UpgraderShip (or similar): any non-lava TouchInterest part
+	if HasNamedScript(scope, "UpgraderShip") then
+		for _, d in ipairs(scope:GetDescendants()) do
+			if d:IsA("BasePart") and HasTouchInterest(d) then
+				local n = string.lower(d.Name)
+				if not string.find(n, "lava", 1, true)
+					and n ~= "hitbox" and n ~= "base" and n ~= "plane" then
+					return d
+				end
+			end
+		end
+	end
+
+	return nil
 end
 
 local function IsMineItem(v)
-	if not v or not v:FindFirstChild("Model") then return false end
-	return v.Model:FindFirstChild("Drop") ~= nil
+	if not v then return false end
+	local model = v:FindFirstChild("Model")
+	if not model then return false end
+	return model:FindFirstChild("Drop", true) ~= nil
+end
+
+-- Furnace = MoneyScript (sell script) and/or lava sell surface; not a mine-only dropper
+local function IsFurnaceItem(v)
+	if not v then return false end
+	local model = v:FindFirstChild("Model")
+	if not model and not v:FindFirstChild("MoneyScript", true) then return false end
+
+	local hasMoney = HasNamedScript(v, "MoneyScript")
+	local lava = FindLavaPart(v)
+
+	-- Teleport pads are not furnaces
+	if lava and lava:FindFirstChild("TeleportSend") then return false end
+
+	if hasMoney then
+		return true -- MoneyScript is definitive (your example)
+	end
+
+	-- Classic furnace: lava sell, no ore Drop
+	if lava and model and not model:FindFirstChild("Drop", true) then
+		return true
+	end
+	return false
 end
 
 local function GetFurnacesOnBase()
@@ -1000,6 +1117,11 @@ local function GetFurnacesOnBase()
 			table.insert(list, v.Name)
 		end
 	end
+	table.sort(list, function(a, b)
+		if a == "Auto" then return true end
+		if b == "Auto" then return false end
+		return a:lower() < b:lower()
+	end)
 	return list
 end
 
@@ -1108,7 +1230,7 @@ BoostPage:CreateDropdown({
 	MultipleOptions = false,
 	Flag = "StopOnSlipsteam",  
 	Callback = function(Options)
-		Slipstream = Options[1]
+		Set.StopSlipstream = Options[1]
 		if Set.TestingMode then print("Stop on Slipstream:",Options[1]) end
 	end,
 })
@@ -1210,7 +1332,7 @@ local BoostToggle = BoostPage:CreateToggle({
 
 BoostPage:CreateParagraph({
 	Title = "<b>Primary Furnace</b>",
-	Content = "<i>Where ore is sold after boosting. Default Auto = first valid furnace found (old behavior). Pick a furnace on your base, or type its name 1:1 (e.g. Oblivion Emission). Saved across rebirth & rejoin.</i>"
+	Content = "<i>Where ore is sold after boosting. Detects ANY furnace with a MoneyScript and/or Lava/Lava1/MiniLava sell part. Default Auto = first found. Pick one on base or type the name 1:1. Hit Refresh after placing. Saved.</i>"
 })
 
 local PrimaryFurnaceDropdown = BoostPage:CreateDropdown({
@@ -1980,90 +2102,107 @@ local function RebornPrice(Player)
 	return cost
 end
 
+local function RunOreThroughPart(Ore, part)
+	if not Ore or not part then return end
+	part = ResolveToBasePart(part) or (part:IsA("BasePart") and part)
+	if not part or not part:IsA("BasePart") then return end
+	local loops = math.max(1, tonumber(Set.UpgradeLoopCount) or 1)
+	for _ = 1, loops do
+		if not HubAlive() or not Set.OreBoostActive or not Ore or not Ore.Parent then break end
+		-- Keep ore still so TouchInterest can register
+		pcall(function()
+			Ore.Anchored = true
+			Ore.AssemblyLinearVelocity = Vector3.zero
+			Ore.AssemblyAngularVelocity = Vector3.zero
+			Ore.CFrame = part.CFrame + Vector3.new(0, 0.5, 0)
+		end)
+		task.wait(0.03)
+		pcall(function()
+			Ore.Anchored = false
+		end)
+		task.wait(0.02)
+	end
+end
+
 function BoostOre(Ore)
 	if not HubAlive() then return end
-	if Set.TestingMode then print("Ore boost Start") end 
-	for i,v in Tycoon:GetChildren() do
+	if not Ore or not Ore.Parent then return end
+	-- Always use current tycoon (not a stale reference)
+	local base = GetPlayerTycoon() or Tycoon
+	if not base then return end
+
+	if Set.TestingMode then print("Ore boost Start on", base.Name) end
+
+	local upgradeCount = 0
+	for _, v in base:GetChildren() do
 		if not HubAlive() or Set.OreBoostActive == false then break end
-		if not Ore or not v then break end 
-		if Data.MoneyLoopables[v.Name] or table.find(Data.ResettersNames,v.Name) then continue end
-		if v:FindFirstChild("ItemId") and v:FindFirstChild("Plane") then
-			if not v:FindFirstChild("Model") then continue end
-			local UpgradePart = v.Model:FindFirstChild("Upgrade") or v.Model:FindFirstChild("Upgrader") or v.Model:FindFirstChild("Scan")
-			if UpgradePart then
-				for a = 1,Set.UpgradeLoopCount do
-					if v and v:FindFirstChild("Model") then
-						Ore.CFrame = UpgradePart.CFrame 
-						task.wait(0.01)
-					end
-				end
-			elseif v.Model:FindFirstChild("Lava") and not v.Model:FindFirstChild("TeleportSend") then
-				if v and v:FindFirstChild("Model") and v.Model:FindFirstChild("Lava") and not v.Model.Lava:FindFirstChild("TeleportSend") then
-					-- Only auto-assign furnace when Primary is Auto (or preferred missing)
-					local prefer = Set.PrimaryFurnaceName
-					local usingAuto = (not prefer or prefer == "" or prefer == "Auto")
-					if IsFurnaceItem(v) then
-						if usingAuto and (not IsFurnaceItem(Set.Furnace)) then
-							Set.Furnace = v
-						elseif not usingAuto and v.Name == prefer then
-							Set.Furnace = v
-						end
-					end
-					if v.Model:FindFirstChild("Drop") and v.Model:FindFirstChild("Lava") and (Set.IndMine == nil or Set.IndMine:FindFirstChild("Model") == nil) then
-						Set.IndMine = v
-					end
+		if not Ore or not Ore.Parent or not v then break end
+		if Data.MoneyLoopables[v.Name] or table.find(Data.ResettersNames, v.Name) then continue end
+
+		-- Do NOT require ItemId — Portable Ore Advancer etc. still have Model.Upgrade
+		local upgradePart = FindUpgradePart(v)
+		if upgradePart then
+			upgradeCount += 1
+			if Set.TestingMode then
+				print("Boost through:", v.Name, "→", upgradePart:GetFullName())
+			end
+			RunOreThroughPart(Ore, upgradePart)
+		elseif IsFurnaceItem(v) then
+			local prefer = Set.PrimaryFurnaceName
+			local usingAuto = (not prefer or prefer == "" or prefer == "Auto")
+			if usingAuto and (not IsFurnaceItem(Set.Furnace)) then
+				Set.Furnace = v
+			elseif not usingAuto and v.Name == prefer then
+				Set.Furnace = v
+			end
+		elseif IsMineItem(v) then
+			local model = v:FindFirstChild("Model")
+			local lava = FindLavaPart(v)
+			if lava and model and model:FindFirstChild("Drop", true) then
+				if Set.IndMine == nil or not Set.IndMine.Parent then
+					Set.IndMine = v
 				end
 			end
 		end
 	end
-	if Set.TestingMode then print("Ore boost End") end 
+
+	if Set.TestingMode then
+		print("Ore boost End — passed", upgradeCount, "upgrader(s)")
+	end
 end
 
 function Reset(Ore)
-	local Dae = Tycoon:FindFirstChild("Daestrophe") 
-	local Sac = Tycoon:FindFirstChild("The Final Upgrader") or Tycoon:FindFirstChild("The Ultimate Sacrifice")  
+	local function passNamed(item)
+		if not item or not Ore or not Set.OreBoostActive then return end
+		local part = FindUpgradePart(item)
+		if part then RunOreThroughPart(Ore, part) end
+	end
+
+	local Dae = Tycoon:FindFirstChild("Daestrophe")
+	local Sac = Tycoon:FindFirstChild("The Final Upgrader") or Tycoon:FindFirstChild("The Ultimate Sacrifice")
 	local Star = Tycoon:FindFirstChild("Void Star") or Tycoon:FindFirstChild("Black Dwarf") or Tycoon:FindFirstChild("⭐ Stargazed Black Dwarf ⭐") or Tycoon:FindFirstChild("⭐ Beloved Black Dwarf ⭐") or Tycoon:FindFirstChild("⭐ Stargazed Void Star ⭐")
-	local Tes = Tycoon:FindFirstChild("Tesla Resetter") or Tycoon:FindFirstChild("⭐ Advanced Tesla Resetter ⭐") or Tycoon:FindFirstChild("⭐ Spooky Tesla Resetter ⭐") or Tycoon:FindFirstChild("Tesla Refuter") or Tycoon:FindFirstChild("⭐ Advanced Tesla Refuter ⭐") 
+	local Tes = Tycoon:FindFirstChild("Tesla Resetter") or Tycoon:FindFirstChild("⭐ Advanced Tesla Resetter ⭐") or Tycoon:FindFirstChild("⭐ Spooky Tesla Resetter ⭐") or Tycoon:FindFirstChild("Tesla Refuter") or Tycoon:FindFirstChild("⭐ Advanced Tesla Refuter ⭐")
+
 	BoostOre(Ore)
-	if Star and Ore and Set.OreBoostActive then 
-		for a = 1,Set.UpgradeLoopCount do
-			if Star and Star:FindFirstChild("Model") then
-				Ore.CFrame = Star.Model.Upgrade.CFrame
-				task.wait(0.01)
-			end
-		end
+	if Star and Ore and Set.OreBoostActive then
+		passNamed(Star)
 		BoostOre(Ore)
 	end
-	if Tes and Ore and Set.OreBoostActive then 
-		for a = 1,Set.UpgradeLoopCount do
-			if Tes and Tes:FindFirstChild("Model") then
-				Ore.CFrame = Tes.Model.Upgrade.CFrame
-				task.wait(0.01)
-			end
-		end
+	if Tes and Ore and Set.OreBoostActive then
+		passNamed(Tes)
 		BoostOre(Ore)
 	end
-	if Sac and Ore and Set.OreBoostActive then  
-		for a = 1,Set.UpgradeLoopCount do
-			if Sac and Sac:FindFirstChild("Model") then
-				Ore.CFrame = Sac.Model.Upgrade.CFrame
-				task.wait(0.01)
-			end
-		end
+	if Sac and Ore and Set.OreBoostActive then
+		passNamed(Sac)
 		BoostOre(Ore)
 	end
-	if Dae and Ore and Set.OreBoostActive then 
-		for a = 1,Set.UpgradeLoopCount do
-			if Dae and Dae:FindFirstChild("Model") then
-				Ore.CFrame = Dae.Model.Upgrade.CFrame
-				task.wait(0.01)
-			end
-		end
+	if Dae and Ore and Set.OreBoostActive then
+		passNamed(Dae)
 		BoostOre(Ore)
 	end
 end
 
--- Prefer saved PrimaryFurnaceName; fall back to first valid furnace (old behavior)
+-- Prefer saved PrimaryFurnaceName; fall back to first MoneyScript / lava furnace
 function GetFurnace()
 	local preferred = Set.PrimaryFurnaceName
 	if preferred and preferred ~= "" and preferred ~= "Auto" then
@@ -2076,17 +2215,15 @@ function GetFurnace()
 		end
 	end
 
-	for i, v in Tycoon:GetChildren() do
-		if v and v:FindFirstChild("Model") and v.Model:FindFirstChild("Lava") and not v.Model.Lava:FindFirstChild("TeleportSend") then
-			if IsFurnaceItem(v) then
-				if Set.Furnace == nil or not IsFurnaceItem(Set.Furnace) then
-					Set.Furnace = v
-				end
+	for _, v in Tycoon:GetChildren() do
+		if IsFurnaceItem(v) then
+			if Set.Furnace == nil or not IsFurnaceItem(Set.Furnace) then
+				Set.Furnace = v
 			end
-			if v.Model:FindFirstChild("Drop") and v.Model:FindFirstChild("Lava") then
-				if Set.IndMine == nil or Set.IndMine:FindFirstChild("Model") == nil then
-					Set.IndMine = v
-				end
+		end
+		if IsMineItem(v) then
+			if Set.IndMine == nil or not Set.IndMine.Parent then
+				Set.IndMine = v
 			end
 		end
 	end
@@ -2095,7 +2232,6 @@ end
 
 function Sell(Ore)
 	if not Ore then return end
-	-- Always re-resolve so rebirth / rejoin / name choice still works
 	local furn = nil
 	local preferred = Set.PrimaryFurnaceName
 	if preferred and preferred ~= "" and preferred ~= "Auto" then
@@ -2110,10 +2246,11 @@ function Sell(Ore)
 	else
 		Set.Furnace = furn
 	end
-	if furn and furn:FindFirstChild("Model") and furn.Model:FindFirstChild("Lava") then
-		Ore.CFrame = furn.Model.Lava.CFrame + Vector3.new(0, 1, 0)
+	local lava = furn and FindLavaPart(furn)
+	if lava then
+		Ore.CFrame = lava.CFrame + Vector3.new(0, 1, 0)
 	elseif Set.TestingMode then
-		warn("Sell: no valid furnace found")
+		warn("Sell: no valid furnace/lava found (need MoneyScript and/or Lava part)")
 	end
 end
 
@@ -2185,11 +2322,13 @@ function StartOreBoost(Ore)
 			repeat 
 				if not Ore or (Info.MinVal and Ore.Cash.Value < Info.MinVal) then break end
 				if not HubAlive() or Set.OreBoost == false or Set.OreBoostActive == false then break end
+				local loopPart = FindUpgradePart(MoneyLoop) or (MoneyLoop.Model and MoneyLoop.Model:FindFirstChild("Upgrade", true))
+				local protectPart = Protect and (FindUpgradePart(Protect) or (Protect.Model and Protect.Model:FindFirstChild("Upgrade", true)))
 				for a = 1,Set.UpgradeLoopCount do
-					Ore.CFrame = MoneyLoop.Model.Upgrade.CFrame
+					if loopPart then Ore.CFrame = loopPart.CFrame end
 					task.wait(Info.MinWait or 0.01)
-					if LooperStats.Effect ~= nil and Protect ~= nil then
-						Ore.CFrame = Protect.Model.Upgrade.CFrame
+					if LooperStats.Effect ~= nil and protectPart then
+						Ore.CFrame = protectPart.CFrame
 					end
 				end
 				task.wait(0.05)
@@ -2462,8 +2601,11 @@ if Ores then
 		end
 		if Set.OreBoost then
 			if Child:FindFirstChild("Fuel") and Set.Fuel then
-				if Set.IndMine and Set.IndMine:FindFirstChild("Model") then
-					Child.CFrame = Set.IndMine.Model.Lava.CFrame + Vector3.new(0,1,0)
+				if Set.IndMine then
+					local lava = FindLavaPart(Set.IndMine)
+					if lava then
+						Child.CFrame = lava.CFrame + Vector3.new(0, 1, 0)
+					end
 				end
 				return 
 			end
@@ -2641,7 +2783,7 @@ for i,v in Boxes:GetChildren() do AddBoxTrack(v) end
 Track(game.ReplicatedStorage.ItemObtained.OnClientEvent:Connect(function(Item,Amount)
 	if not HubAlive() then return end
 	if not Item:FindFirstChild("Tier") then return end 
-	if Item.Tier.Value == 78 and Item.Name == Slipstream then
+	if Item.Tier.Value == 78 and Item.Name == Set.StopSlipstream then
 		BoostToggle:Set(false)
 		AutoRebithToggle:Set(false)
 		Set.OreBoost = false
