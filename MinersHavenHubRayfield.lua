@@ -157,7 +157,7 @@ local Set = {
 	AutoResizeUpgraders = false,
 	SelectedPlace = "The Void",
 	BoxFarmSpeed = 30,
-	AutoKillOresWait = 50,
+	AutoKillOresWait = 0,
 	StopLife = 0,
 
 }
