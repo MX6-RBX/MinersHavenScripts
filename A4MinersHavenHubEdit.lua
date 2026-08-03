@@ -2102,6 +2102,7 @@ local function RebornPrice(Player)
 	return cost
 end
 
+-- Same consistent method as before — only the waits are shorter
 local function RunOreThroughPart(Ore, part)
 	if not Ore or not part then return end
 	part = ResolveToBasePart(part) or (part:IsA("BasePart") and part)
@@ -2109,25 +2110,23 @@ local function RunOreThroughPart(Ore, part)
 	local loops = math.max(1, tonumber(Set.UpgradeLoopCount) or 1)
 	for _ = 1, loops do
 		if not HubAlive() or not Set.OreBoostActive or not Ore or not Ore.Parent then break end
-		-- Keep ore still so TouchInterest can register
 		pcall(function()
 			Ore.Anchored = true
 			Ore.AssemblyLinearVelocity = Vector3.zero
 			Ore.AssemblyAngularVelocity = Vector3.zero
 			Ore.CFrame = part.CFrame + Vector3.new(0, 0.5, 0)
 		end)
-		task.wait(0.03)
+		task.wait(0.008) -- was 0.03 — same snap, less delay
 		pcall(function()
 			Ore.Anchored = false
 		end)
-		task.wait(0.02)
+		task.wait(0.004) -- was 0.02
 	end
 end
 
 function BoostOre(Ore)
 	if not HubAlive() then return end
 	if not Ore or not Ore.Parent then return end
-	-- Always use current tycoon (not a stale reference)
 	local base = GetPlayerTycoon() or Tycoon
 	if not base then return end
 
@@ -2139,7 +2138,6 @@ function BoostOre(Ore)
 		if not Ore or not Ore.Parent or not v then break end
 		if Data.MoneyLoopables[v.Name] or table.find(Data.ResettersNames, v.Name) then continue end
 
-		-- Do NOT require ItemId — Portable Ore Advancer etc. still have Model.Upgrade
 		local upgradePart = FindUpgradePart(v)
 		if upgradePart then
 			upgradeCount += 1
@@ -2178,10 +2176,15 @@ function Reset(Ore)
 		if part then RunOreThroughPart(Ore, part) end
 	end
 
-	local Dae = Tycoon:FindFirstChild("Daestrophe")
-	local Sac = Tycoon:FindFirstChild("The Final Upgrader") or Tycoon:FindFirstChild("The Ultimate Sacrifice")
-	local Star = Tycoon:FindFirstChild("Void Star") or Tycoon:FindFirstChild("Black Dwarf") or Tycoon:FindFirstChild("⭐ Stargazed Black Dwarf ⭐") or Tycoon:FindFirstChild("⭐ Beloved Black Dwarf ⭐") or Tycoon:FindFirstChild("⭐ Stargazed Void Star ⭐")
-	local Tes = Tycoon:FindFirstChild("Tesla Resetter") or Tycoon:FindFirstChild("⭐ Advanced Tesla Resetter ⭐") or Tycoon:FindFirstChild("⭐ Spooky Tesla Resetter ⭐") or Tycoon:FindFirstChild("Tesla Refuter") or Tycoon:FindFirstChild("⭐ Advanced Tesla Refuter ⭐")
+	local base = GetPlayerTycoon() or Tycoon
+	if not base then
+		base = Tycoon
+	end
+
+	local Dae = base:FindFirstChild("Daestrophe")
+	local Sac = base:FindFirstChild("The Final Upgrader") or base:FindFirstChild("The Ultimate Sacrifice")
+	local Star = base:FindFirstChild("Void Star") or base:FindFirstChild("Black Dwarf") or base:FindFirstChild("⭐ Stargazed Black Dwarf ⭐") or base:FindFirstChild("⭐ Beloved Black Dwarf ⭐") or base:FindFirstChild("⭐ Stargazed Void Star ⭐")
+	local Tes = base:FindFirstChild("Tesla Resetter") or base:FindFirstChild("⭐ Advanced Tesla Resetter ⭐") or base:FindFirstChild("⭐ Spooky Tesla Resetter ⭐") or base:FindFirstChild("Tesla Refuter") or base:FindFirstChild("⭐ Advanced Tesla Refuter ⭐")
 
 	BoostOre(Ore)
 	if Star and Ore and Set.OreBoostActive then
@@ -2299,7 +2302,7 @@ end
 
 function StartOreBoost(Ore)
 	if not HubAlive() then return end
-	if Set.TestingMode then print("Ore Boost Setting up") end 
+	if Set.TestingMode then print("Ore Boost Setting up") end
 	repeat task.wait() until not HubAlive() or Ore:FindFirstChild("Cash")
 	if not HubAlive() or not Ore or not Ore:FindFirstChild("Cash") then return end
 	if Ore.Cash.Value <= 0 then
@@ -2307,38 +2310,39 @@ function StartOreBoost(Ore)
 		return
 	end
 	local MoneyLoop, LooperStats, Protect
-	if Set.UsingMoneyLoop then
-		for i,v in Data.MoneyLoopables do
-			if Tycoon:FindFirstChild(i) then 
-				MoneyLoop = Tycoon:FindFirstChild(i)
+	local base = GetPlayerTycoon() or Tycoon
+	if Set.UsingMoneyLoop and base then
+		for i, v in Data.MoneyLoopables do
+			if base:FindFirstChild(i) then
+				MoneyLoop = base:FindFirstChild(i)
 				LooperStats = i
 			end
 		end
-		for i,v in Data.EffectRemovers do
-			if Tycoon:FindFirstChild(i) then Protect = Tycoon:FindFirstChild(i) end
+		for i, v in Data.EffectRemovers do
+			if base:FindFirstChild(v) then Protect = base:FindFirstChild(v) end
 		end
 		if MoneyLoop then
 			local Info = Data.MoneyLoopables[MoneyLoop.Name]
-			repeat 
+			repeat
 				if not Ore or (Info.MinVal and Ore.Cash.Value < Info.MinVal) then break end
 				if not HubAlive() or Set.OreBoost == false or Set.OreBoostActive == false then break end
 				local loopPart = FindUpgradePart(MoneyLoop) or (MoneyLoop.Model and MoneyLoop.Model:FindFirstChild("Upgrade", true))
 				local protectPart = Protect and (FindUpgradePart(Protect) or (Protect.Model and Protect.Model:FindFirstChild("Upgrade", true)))
-				for a = 1,Set.UpgradeLoopCount do
+				for a = 1, Set.UpgradeLoopCount do
 					if loopPart then Ore.CFrame = loopPart.CFrame end
 					task.wait(Info.MinWait or 0.01)
-					if LooperStats.Effect ~= nil and protectPart then
+					if Info.Effect ~= nil and protectPart then
 						Ore.CFrame = protectPart.CFrame
 					end
 				end
-				task.wait(0.05)
+				task.wait(0.02)
 			until not HubAlive() or Ore == nil or MoneyLoop == nil or MoneyLoop:FindFirstChild("Model") == nil or Ore:FindFirstChild("Cash") == nil or Ore.Cash.Value >= Info.Cap
 		end
 	end
 	if Set.OreBoostActive then Reset(Ore) end
 	if Ore then
-		Ore.AssemblyAngularVelocity = Vector3.new(0,0,0)
-		Ore.AssemblyLinearVelocity = Vector3.new(0,0,0)
+		Ore.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
+		Ore.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
 		Sell(Ore)
 	end
 end
