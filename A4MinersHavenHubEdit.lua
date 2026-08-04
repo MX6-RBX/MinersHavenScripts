@@ -66,7 +66,7 @@ local MainUi = Rayfield:CreateWindow({
 	Name = "MX6 Miners Haven Hub",
 	Icon = 0,
 	LoadingTitle = "MX6 Miners Haven Hub",
-	LoadingSubtitle = "by MX6",
+	LoadingSubtitle = "by MX6 and A4",
 	ShowText = "Using Rayfield UI",
 	Theme = "Default", 
 
