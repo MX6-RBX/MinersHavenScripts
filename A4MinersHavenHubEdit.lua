@@ -41,6 +41,7 @@ DestroyHubGuis()
 local Hub = {
 	Alive = true,
 	Connections = {},
+	ConnectionIndices = {},
 	Set = nil,
 	ChatHandler = nil,
 	GUi = nil,
@@ -48,9 +49,42 @@ local Hub = {
 ENV[HUB_KEY] = Hub
 
 local function Track(conn)
-	if conn then
+	if conn and not Hub.ConnectionIndices[conn] then
 		table.insert(Hub.Connections, conn)
+		Hub.ConnectionIndices[conn] = #Hub.Connections
 	end
+	return conn
+end
+
+local function Untrack(conn)
+	if not conn then return end
+	local index = Hub.ConnectionIndices[conn]
+	if not index then return end
+	local lastIndex = #Hub.Connections
+	local lastConn = Hub.Connections[lastIndex]
+	Hub.Connections[index] = lastConn
+	Hub.Connections[lastIndex] = nil
+	Hub.ConnectionIndices[conn] = nil
+	if index < lastIndex and lastConn then
+		Hub.ConnectionIndices[lastConn] = index
+	end
+end
+
+local function DisconnectTracked(conn)
+	if not conn then return end
+	pcall(function() conn:Disconnect() end)
+	Untrack(conn)
+end
+
+local function TrackForInstance(instance, conn)
+	Track(conn)
+	if not instance or not conn then return conn end
+	local destroyConn
+	destroyConn = instance.Destroying:Connect(function()
+		DisconnectTracked(conn)
+		DisconnectTracked(destroyConn)
+	end)
+	Track(destroyConn)
 	return conn
 end
 
@@ -243,7 +277,7 @@ local function StyleInstanceOldMH(inst)
 		-- Only re-fix text color when focusing (cheap) — not every property change
 		if not inst:GetAttribute("MX6_OGFix") then
 			inst:SetAttribute("MX6_OGFix", true)
-			Track(inst.Focused:Connect(function()
+			TrackForInstance(inst, inst.Focused:Connect(function()
 				if not OldMHStyleActive then return end
 				pcall(function()
 					inst.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -301,7 +335,7 @@ local function StopOldMHRestyleWatch()
 	OldMHStyleActive = false
 	OldMHRestylePending = false
 	for _, c in ipairs(OldMHDescConns) do
-		pcall(function() c:Disconnect() end)
+		DisconnectTracked(c)
 	end
 	table.clear(OldMHDescConns)
 end
@@ -368,6 +402,7 @@ local ActiveTycoon = Player.ActiveTycoon
 local AdjustSpeed = Tycoon.AdjustSpeed
 local Ores = game.Workspace.DroppedParts:FindFirstChild(Tycoon.Name)
 local GUI = Player.PlayerGui:WaitForChild("GUI")
+local Menus = Player.PlayerGui:WaitForChild("Menus")
 local PlaceItem = Net.PlaceItem 
 local buyItem = Net.BuyItem 
 local RemoteDrop = Net.RemoteDrop
@@ -780,11 +815,13 @@ local function AddBoxTrack(Box)
 	end
 	Ui.Enabled = Set.TrackBoxes
 	Data.BoxTrackers[Box] = Ui
-	Track(Box.AncestryChanged:Connect(function(_, parent)
+	local ancestryConn
+	ancestryConn = Track(Box.AncestryChanged:Connect(function(_, parent)
 		if not HubAlive() then return end
 		if not parent then
 			if Ui then Ui:Destroy() end
 			Data.BoxTrackers[Box] = nil
+			DisconnectTracked(ancestryConn)
 		end
 	end))
 end
@@ -803,12 +840,15 @@ local function AddTracker(ore)
 	Data.OreTrackers[ore] = Ui
 	local connections = {}
 	Data.OreConnections[ore] = connections
+	local cleaned = false
 	connections.cashConn = Track(cash.Changed:Connect(function()
 		if not HubAlive() then return end
 		if Ui and Ui.Parent then Ui.Box.Text = "$" .. shorten(cash.Value or 0) end
 	end))
 	local function cleanup()
-		for _, conn in pairs(connections) do if conn then pcall(function() conn:Disconnect() end) end end
+		if cleaned then return end
+		cleaned = true
+		for _, conn in pairs(connections) do DisconnectTracked(conn) end
 		if Ui then Ui:Destroy() end
 		Data.OreTrackers[ore] = nil
 		Data.OreConnections[ore] = nil
@@ -883,22 +923,22 @@ function TeleportToBase(SP)
 	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Base.Base.CFrame + Vector3.new(0,10,0)
 end
 
+local FindUpgradePart
+
 local function ResizeUpgraders()
-	for i,v in Tycoon:GetChildren() do
-		task.spawn(function()
-			if not v:FindFirstChild("ItemId") then return end
-			local up = FindUpgradePart(v)
-			if not up or not up:IsA("BasePart") then return end
-			if not up:FindFirstChild("BaseSize") then
-				local BS = Instance.new("Vector3Value")
-				BS.Value = up.Size
-				BS.Name = "BaseSize"
-				BS.Parent = up
-				task.wait(0.1)
-			end
-			if Set.TestingMode then print(v.Name, "Resized to ", Set.UpgraderSize) end
-			up.Size = up.BaseSize.Value * Set.UpgraderSize
-		end)
+	for _, v in Tycoon:GetChildren() do
+		if not v:FindFirstChild("ItemId") then continue end
+		local up = FindUpgradePart(v)
+		if not up or not up:IsA("BasePart") then continue end
+		local baseSize = up:FindFirstChild("BaseSize")
+		if not baseSize then
+			baseSize = Instance.new("Vector3Value")
+			baseSize.Name = "BaseSize"
+			baseSize.Value = up.Size
+			baseSize.Parent = up
+		end
+		if Set.TestingMode then print(v.Name, "Resized to ", Set.UpgraderSize) end
+		up.Size = baseSize.Value * Set.UpgraderSize
 	end
 end
 
@@ -907,28 +947,48 @@ local function RezieSingleUpgrader(Name)
 	if not Item then return end
 	local up = FindUpgradePart(Item)
 	if not up or not up:IsA("BasePart") then return end
-	if not up:FindFirstChild("BaseSize") then
-		local BS = Instance.new("Vector3Value")
-		BS.Value = up.Size
-		BS.Name = "BaseSize"
-		BS.Parent = up
-		task.wait(0.1)
+	local baseSize = up:FindFirstChild("BaseSize")
+	if not baseSize then
+		baseSize = Instance.new("Vector3Value")
+		baseSize.Name = "BaseSize"
+		baseSize.Value = up.Size
+		baseSize.Parent = up
 	end
 	if Set.TestingMode then print(Item.Name, "Resized to ", Set.UpgraderSize) end
-	up.Size = up.BaseSize.Value * Set.UpgraderSize
+	up.Size = baseSize.Value * Set.UpgraderSize
 end
 
 local function ChangeUi(Name)
-	if GUI.FocusWindow.Value then  
-		GUI.FocusWindow.Value.Visible = false
+	if GUI.FocusWindow.Value then
+		local focused = GUI.FocusWindow.Value
+		if focused:IsA("LayerCollector") then
+			focused.Enabled = false
+		elseif focused:IsA("GuiObject") then
+			focused.Visible = false
+		end
 		task.wait(0.01)
 		GUI.FocusWindow.Value = nil
 	end
-	local Ui = GUI:FindFirstChild(Name)
+	local Ui = Menus:FindFirstChild(Name, true) or GUI:FindFirstChild(Name, true)
 	if Ui then
-		Ui.Visible = true
+		if Ui:IsA("LayerCollector") then
+			Ui.Enabled = true
+		elseif Ui:IsA("GuiObject") then
+			Ui.Visible = true
+		else
+			warn("Vendor UI is not a GUI object:", Name, Ui:GetFullName())
+			return
+		end
 		GUI.FocusWindow.Value = Ui
-		if Set.TestingMode then print("Toggled: "..Name) end
+		--if Set.TestingMode then print("Toggled: "..Name) end
+	else
+		local available = {}
+		for _, child in ipairs(Menus:GetDescendants()) do
+			if child:IsA("GuiObject") or child:IsA("LayerCollector") then
+				table.insert(available, child.Name)
+			end
+		end
+		warn("Vendor menu not found:", Name, "Available menus:", table.concat(available, ", "))
 	end
 end
 
@@ -1031,7 +1091,7 @@ end
 	Portable Ore Advancer style: Item → Model → Upgrade (Part + TouchInterest).
 	No upgrade script required — only the Upgrade part matters.
 ]]
-local function FindUpgradePart(item)
+FindUpgradePart = function(item)
 	if not item then return nil end
 	local scope = item
 
@@ -1639,13 +1699,13 @@ BoostPage:CreateButton({
 local VendorsPage = MainUi:CreateTab("Vendors",6031097225)
 VendorsPage:CreateSection("GUI's")
 VendorsPage:CreateButton({Name = "Open Crafts Man", Callback = function() ChangeUi("Craftsman") end})
-VendorsPage:CreateButton({Name = "Open Masked Man", Callback = function() ChangeUi("EventShop") end})
-VendorsPage:CreateButton({Name = "Open Box man", Callback = function() ChangeUi("SpookMcDookShop") end})
-VendorsPage:CreateButton({Name = "Open Superstitious Crafting", Callback = function() ChangeUi("SuperstitiousCrafting") end})
-VendorsPage:CreateButton({Name = "Open True Book Of Knowlage", Callback = function() ChangeUi("BOKBook") end})
+VendorsPage:CreateButton({Name = "Open Masked Man", Callback = function() ChangeUi("MaskedMan") end})
+VendorsPage:CreateButton({Name = "Open Box man", Callback = function() ChangeUi("SpookMcDook") end})
+VendorsPage:CreateButton({Name = "Open Superstitious Crafting", Callback = function() ChangeUi("Superstitious") end})
+VendorsPage:CreateButton({Name = "Open True Book Of Knowledge", Callback = function() ChangeUi("BookOfKnowledge") end})
 VendorsPage:CreateButton({Name = "Open Phantasm", Callback = function() ChangeUi("Phantasm") end})
 VendorsPage:CreateButton({Name = "Open Fleabag", Callback = function() ChangeUi("Fleabag") end})
-VendorsPage:CreateButton({Name = "Open Event", Callback = function() ChangeUi("EventMenu") end})
+VendorsPage:CreateButton({Name = "Open Event", Callback = function() ChangeUi("Event") end})
 
 local PlayerList = {}
 for i,v in game.Players:GetChildren() do table.insert(PlayerList,v.Name) end
@@ -2947,19 +3007,36 @@ Track(game.Workspace.Boxes.ChildAdded:Connect(function(Box)
 	AddBoxTrack(Box)
 end))
 
+local CharacterConnections = {}
+local function ClearCharacterConnections()
+	for i = #CharacterConnections, 1, -1 do
+		DisconnectTracked(CharacterConnections[i])
+		CharacterConnections[i] = nil
+	end
+end
+
+local function TrackCharacterConnection(conn)
+	Track(conn)
+	if conn then table.insert(CharacterConnections, conn) end
+	return conn
+end
+
 Track(Player.CharacterAdded:Connect(function(character)
 	if not HubAlive() then return end
-	local humanoid = character:WaitForChild("Humanoid")
+	ClearCharacterConnections()
+	local humanoid = character:WaitForChild("Humanoid", 10)
+	if not humanoid or not HubAlive() then return end
 	if humanoid.WalkSpeed < Set.WalkSpeed then humanoid.WalkSpeed = Set.WalkSpeed end
 	if humanoid.JumpPower < Set.JumpPower then humanoid.JumpPower = Set.JumpPower end
-	Track(humanoid:GetPropertyChangedSignal("WalkSpeed"):Connect(function()
+	TrackCharacterConnection(humanoid:GetPropertyChangedSignal("WalkSpeed"):Connect(function()
 		if not HubAlive() then return end
 		if humanoid.WalkSpeed < Set.WalkSpeed then humanoid.WalkSpeed = Set.WalkSpeed end
 	end))
-	Track(humanoid:GetPropertyChangedSignal("JumpPower"):Connect(function()
+	TrackCharacterConnection(humanoid:GetPropertyChangedSignal("JumpPower"):Connect(function()
 		if not HubAlive() then return end
 		if humanoid.JumpPower < Set.JumpPower then humanoid.JumpPower = Set.JumpPower end
 	end))
+	TrackCharacterConnection(character.Destroying:Connect(ClearCharacterConnections))
 end))
 
 Track(game.Lighting.Blur:GetPropertyChangedSignal("Enabled"):Connect(function()
@@ -3051,12 +3128,11 @@ function Hub.Unload()
 	end
 
 	-- Disconnect every tracked signal
-	for _, conn in ipairs(Hub.Connections) do
-		pcall(function()
-			if conn and conn.Disconnect then conn:Disconnect() end
-		end)
+	for i = #Hub.Connections, 1, -1 do
+		DisconnectTracked(Hub.Connections[i])
 	end
 	table.clear(Hub.Connections)
+	table.clear(Hub.ConnectionIndices)
 
 	-- Tear down ore/box ESP clones
 	if Data then
