@@ -1,18 +1,15 @@
---[[
-	MX6 Miners Haven Hub — single-instance guard
-	Re-executing unloads the previous run (flags, connections, loops, GUI)
-	so you never get double Auto Rebirth / Farm Boxes / stuck toggles.
+--[[ This was made by MX6, and contributed by A4.
+     #PCALLSPAM!!!!!
 ]]
+
 local ENV = (getgenv and getgenv()) or _G
 local HUB_KEY = "MX6_MinersHavenHub"
 
--- Tear down any previous execution first
 if type(ENV[HUB_KEY]) == "table" and type(ENV[HUB_KEY].Unload) == "function" then
 	pcall(ENV[HUB_KEY].Unload)
 	task.wait(0.2)
 end
 
--- Nuke leftover Rayfield / hub GUIs that may survive a bad unload
 local function DestroyHubGuis()
 	local function wipe(parent)
 		if not parent then return end
@@ -31,7 +28,6 @@ local function DestroyHubGuis()
 		local lp = game:GetService("Players").LocalPlayer
 		if lp then wipe(lp:FindFirstChild("PlayerGui")) end
 	end)
-	-- Some Rayfield builds parent under gethui()
 	pcall(function()
 		if gethui then wipe(gethui()) end
 	end)
@@ -117,7 +113,7 @@ local MainUi = Rayfield:CreateWindow({
 
 	Discord = {
 		Enabled = false, 
-		Invite = "discord.gg/eCQnApxxgd", 
+		Invite = "discord.gg/eCQnApxxgd", -- please join thanks
 		RememberJoins = true
 	},
 
@@ -168,8 +164,6 @@ local CustomThemeTable = {
 	PlaceholderColor = Color3.fromRGB(178, 178, 178)
 }
 
--- Classic ~2017 Miner's Haven UI palette
--- NOTE: inputs use DARK fields + light text (Rayfield shares TextColor; light boxes made text unreadable)
 local OldMinersHavenTheme = {
 	TextColor = Color3.fromRGB(245, 245, 245),
 	Background = Color3.fromRGB(68, 68, 74),
@@ -199,14 +193,13 @@ local OldMinersHavenTheme = {
 	ToggleDisabledOuterStroke = Color3.fromRGB(38, 38, 42),
 	DropdownSelected = Color3.fromRGB(65, 150, 215),
 	DropdownUnselected = Color3.fromRGB(70, 70, 78),
-	-- Mid-dark inputs so white typed text + gray placeholder stay visible
 	InputBackground = Color3.fromRGB(58, 58, 66),
 	InputStroke = Color3.fromRGB(100, 100, 110),
 	PlaceholderColor = Color3.fromRGB(180, 180, 190),
 }
 
 local OldMHStyleActive = false
-local OldMHDescConns = {} -- disconnected when leaving OG MH
+local OldMHDescConns = {}
 local OldMHRestylePending = false
 
 local function FindRayfieldRoots()
@@ -239,7 +232,6 @@ local function FindRayfieldRoots()
 	return roots
 end
 
--- One-shot style pass: flat corners, SourceSans, readable inputs (NO property spam / NO lag loops)
 local function StyleInstanceOldMH(inst)
 	if not inst or not inst.Parent then return end
 
@@ -274,7 +266,6 @@ local function StyleInstanceOldMH(inst)
 		if corner then
 			corner.CornerRadius = UDim.new(0, 3)
 		end
-		-- Only re-fix text color when focusing (cheap) — not every property change
 		if not inst:GetAttribute("MX6_OGFix") then
 			inst:SetAttribute("MX6_OGFix", true)
 			TrackForInstance(inst, inst.Focused:Connect(function()
@@ -319,7 +310,6 @@ local function RestyleRayfieldOldMH()
 	end
 end
 
--- Debounced restyle when Rayfield creates new tab content (not a tight loop)
 local function QueueOldMHRestyle()
 	if not OldMHStyleActive or OldMHRestylePending then return end
 	OldMHRestylePending = true
@@ -347,7 +337,6 @@ local function StartOldMHRestyleWatch()
 	for _, root in ipairs(FindRayfieldRoots()) do
 		local c = root.DescendantAdded:Connect(function(d)
 			if not OldMHStyleActive then return end
-			-- Style only the new instance (cheap), debounce full pass
 			task.defer(function() StyleInstanceOldMH(d) end)
 			QueueOldMHRestyle()
 		end)
@@ -355,7 +344,6 @@ local function StartOldMHRestyleWatch()
 		Track(c)
 	end
 
-	-- Few delayed one-shots after theme swap (Rayfield rebuilds UI async) — NOT a forever loop
 	RestyleRayfieldOldMH()
 	task.delay(0.25, function() if OldMHStyleActive then RestyleRayfieldOldMH() end end)
 	task.delay(0.8, function() if OldMHStyleActive then RestyleRayfieldOldMH() end end)
@@ -410,7 +398,6 @@ local ClearBase = Net.DestroyAll
 local Money = GUI:FindFirstChild("Money")
 local Boxes = game.Workspace.Boxes
 
---Main script variables. Uses table to prevent hitting local var limit
 local Set = {
 	Layout1 = "Layout1",
 	Layout2 = "None",
@@ -466,7 +453,6 @@ local Set = {
 	AutoKillOresWait = 0,
 	StopLife = 0,
 
-	-- Box Farming toggles (all main ones ON by default)
 	FarmResearch = true,
 	FarmGolden = true,
 	FarmDiamond = true,
@@ -475,20 +461,17 @@ local Set = {
 	FarmCrystal = true,
 	FarmOthers = true,
 
-	-- Ore Boost targeting (saved via Rayfield Flags)
-	PrimaryFurnaceName = "Auto", -- "Auto" = first valid furnace on base (old behavior)
-	PrimaryMineName = "None",    -- used when SingularOre is on
-	SingularOre = false,         -- only boost ores from PrimaryMineName
-	AutoFirePrompts = false,     -- fire all ProximityPrompts on your tycoon
-	StopSlipstream = "None",     -- stop auto rebirth when this slipstream is obtained
+	PrimaryFurnaceName = "Auto",
+	PrimaryMineName = "None",
+	SingularOre = false,
+	AutoFirePrompts = false,
+	StopSlipstream = "None",
 
-	-- Teleport behavior (saved)
-	GhostLoad = false,           -- no TP when loading layouts; you must already be on base
-	AntiBaseSafety = false,      -- when ON: yank back to base after box farm / keep-on-base TPs (use in private servers)
-	GUIThemeName = "Default",   -- saved theme: Default | OG MH | built-ins | Custom
+	GhostLoad = false,
+	AntiBaseSafety = false,
+	GUIThemeName = "Default",
 }
 
--- Expose Set to the hub so Unload can hard-stop every feature
 Hub.Set = Set
 
 
@@ -576,7 +559,6 @@ local Data = {
 		["Suspended Lava Refiner"]={ Cap = 1e+27,Effect = nil,MinVal = nil},
 		["Ore Transistor"]={Cap = 1e+30,Effect = nil,MinVal = 1e+24},
 		["Ore Transponder"]={ Cap = 1e+33,Effect = nil,MinVal = nil},
-		-- Stars: IsStar + Cooldown — same ore cannot re-touch the same star too soon or it shreds
 		["Morning Star"]={ Cap = 1e+30, Effect = "Fire", MinVal = nil, MinWait = 0.12, IsStar = true, Cooldown = 1.55 },
 		["⭐ Celestial Morning Star ⭐"]={ Cap = 1e+30, Effect = "Fire", MinVal = nil, MinWait = 0.12, IsStar = true, Cooldown = 1.55 },
 		["Red Giant"]={ Cap = 1e+60, Effect = "Fire", MinVal = nil, MinWait = 0.12, IsStar = true, Cooldown = 1.55 },
@@ -676,7 +658,6 @@ local function TeleportToOwnBase()
 	return true
 end
 
--- Layout loads: skip TP when Ghost Load is on (you must already be on base)
 local function TeleportForLayoutLoad()
 	if Set.GhostLoad then
 		if Set.TestingMode then print("Ghost Load: skipped teleport for layout") end
@@ -685,7 +666,6 @@ local function TeleportForLayoutLoad()
 	return TeleportToOwnBase()
 end
 
--- Box farm / keep-on-base: only yank home when Anti-Base Safety is on (private servers)
 local function TeleportForBaseSafety()
 	if not Set.AntiBaseSafety then
 		if Set.TestingMode then print("Anti-Base Safety off: skipped return teleport") end
@@ -727,7 +707,7 @@ local function LoadExternlLayout(Layout)
 		local expected = TableEntryCount(Layout)
 		for i,v in pairs(Layout) do
 			task.spawn(function()
-				local Item = game.ReplicatedStorage.Items:FindFirstChild(v["Name"])--Gets real item in the game by name
+				local Item = game.ReplicatedStorage.Items:FindFirstChild(v["Name"])
 				if not Item then return end
 				local P = string.split(v["Pos"],",")
 				local Pos = CFrame.new(P[1],P[2],P[3],P[4],P[5],P[6],P[7],P[8],P[9],P[10],P[11],P[12])
@@ -735,7 +715,7 @@ local function LoadExternlLayout(Layout)
 				if not base or not base:FindFirstChild("Base") then return end
 				if Item.ItemType.Value >=1 and Item.ItemType.Value <5 then
 					if Player.PlayerGui.GUI.Money.Value >= Item.Cost.Value then
-						buyItem:Invoke(Item:GetAttribute("ItemId"),1)--Use to use Item.Name now uses Item:GetAttribute("ItemId")
+						buyItem:Invoke(Item:GetAttribute("ItemId"),1)
 						PlaceItem:Invoke(Item:GetAttribute("ItemId"), Pos+base.Base.Position, {base.Base}) 
 					end
 				else
@@ -859,7 +839,6 @@ local function AddTracker(ore)
 	end))
 end
 
--- Compact box filter (no extra local function needed later)
 local function CollectBoxes()
 	if not HubAlive() then return end
 	if not Set.FarmBoxes or Set.Rebirthing or Set.LayoutLoading or Set.CollectingBoxes then return end
@@ -898,7 +877,6 @@ local function CollectBoxes()
 			end
 			task.wait(Set.BoxFarmSpeed/100)
 		end
-		-- Only yank back to base when Anti-Base Safety is on (default off = no spam TP)
 		TeleportForBaseSafety()
 	end)
 	Set.CollectingBoxes = false
@@ -980,7 +958,6 @@ local function ChangeUi(Name)
 			return
 		end
 		GUI.FocusWindow.Value = Ui
-		--if Set.TestingMode then print("Toggled: "..Name) end
 	else
 		local available = {}
 		for _, child in ipairs(Menus:GetDescendants()) do
@@ -1036,13 +1013,11 @@ local function ShopSpam()
 	end
 end
 
--- Furnace / mine / upgrader helpers (recursive — works for all MH items)
 local function HasNamedScript(root, scriptName)
 	if not root then return false end
 	return root:FindFirstChild(scriptName, true) ~= nil
 end
 
--- Sell surface: "Lava", "Lava1", "MiniLava", or any BasePart with "lava" in the name (not teleporters)
 local function FindLavaPart(item)
 	if not item then return nil end
 	local model = item:FindFirstChild("Model") or item
@@ -1070,7 +1045,6 @@ local function HasTouchInterest(part)
 		or part:FindFirstChildOfClass("TouchTransmitter") ~= nil
 end
 
--- If "Upgrade" is a Model/Folder, resolve to a real BasePart inside it
 local function ResolveToBasePart(inst)
 	if not inst then return nil end
 	if inst:IsA("BasePart") then return inst end
@@ -1085,33 +1059,24 @@ local function ResolveToBasePart(inst)
 	end
 	return nil
 end
-
---[[
-	Find where to teleport ores for boost.
-	Portable Ore Advancer style: Item → Model → Upgrade (Part + TouchInterest).
-	No upgrade script required — only the Upgrade part matters.
-]]
 FindUpgradePart = function(item)
 	if not item then return nil end
 	local scope = item
 
 	local names = {"Upgrade", "Upgrader", "Scan", "UpgraderPart"}
 
-	-- 1) Named Upgrade* WITH TouchInterest (best)
 	for _, n in ipairs(names) do
 		local p = scope:FindFirstChild(n, true)
 		local part = ResolveToBasePart(p)
 		if part and HasTouchInterest(part) then return part end
 	end
 
-	-- 2) Named Upgrade* even without TouchInterest / without any script
 	for _, n in ipairs(names) do
 		local p = scope:FindFirstChild(n, true)
 		local part = ResolveToBasePart(p)
 		if part then return part end
 	end
 
-	-- 3) Any descendant BasePart named like upgrade + TouchInterest
 	for _, d in ipairs(scope:GetDescendants()) do
 		if d:IsA("BasePart") and HasTouchInterest(d) then
 			local n = string.lower(d.Name)
@@ -1124,7 +1089,6 @@ FindUpgradePart = function(item)
 		end
 	end
 
-	-- 4) UpgraderShip (or similar): any non-lava TouchInterest part
 	if HasNamedScript(scope, "UpgraderShip") then
 		for _, d in ipairs(scope:GetDescendants()) do
 			if d:IsA("BasePart") and HasTouchInterest(d) then
@@ -1147,7 +1111,6 @@ local function IsMineItem(v)
 	return model:FindFirstChild("Drop", true) ~= nil
 end
 
--- Furnace = MoneyScript (sell script) and/or lava sell surface; not a mine-only dropper
 local function IsFurnaceItem(v)
 	if not v then return false end
 	local model = v:FindFirstChild("Model")
@@ -1156,14 +1119,12 @@ local function IsFurnaceItem(v)
 	local hasMoney = HasNamedScript(v, "MoneyScript")
 	local lava = FindLavaPart(v)
 
-	-- Teleport pads are not furnaces
 	if lava and lava:FindFirstChild("TeleportSend") then return false end
 
 	if hasMoney then
-		return true -- MoneyScript is definitive (your example)
+		return true
 	end
 
-	-- Classic furnace: lava sell, no ore Drop
 	if lava and model and not model:FindFirstChild("Drop", true) then
 		return true
 	end
@@ -1407,7 +1368,7 @@ local PrimaryFurnaceDropdown = BoostPage:CreateDropdown({
 	Callback = function(Options)
 		local name = Options[1] or "Auto"
 		Set.PrimaryFurnaceName = name
-		Set.Furnace = nil -- force re-resolve
+		Set.Furnace = nil
 		GetFurnace()
 		if Set.TestingMode then print("Primary Furnace:", name) end
 	end,
@@ -2100,7 +2061,6 @@ Options:CreateParagraph({
 Options:CreateSection("Advanced UI Theme")
 Options:CreateParagraph({Title = "<b>Advanced Color Editing</b>", Content = "This allows for individual control of each color for parts of the gui"})
 
--- Color pickers (no local vars needed)
 Options:CreateColorPicker({Name = "Text Color", Color = Color3.fromRGB(240, 240, 240), Flag = "TextColor", Callback = function(Value) CustomThemeTable.TextColor = Value or Color3.fromRGB(240, 240, 240) end})
 Options:CreateColorPicker({Name = "Background", Color = Color3.fromRGB(25, 25, 25), Flag = "Background", Callback = function(Value) CustomThemeTable.Background = Value or Color3.fromRGB(25, 25, 25) end})
 Options:CreateColorPicker({Name = "Topbar", Color = Color3.fromRGB(34, 34, 34), Flag = "Topbar", Callback = function(Value) CustomThemeTable.Topbar = Value or Color3.fromRGB(34, 34, 34) end})
@@ -2160,7 +2120,6 @@ local function RebornPrice(Player)
 	return cost
 end
 
--- Same consistent method as before — only the waits are shorter
 local function RunOreThroughPart(Ore, part)
 	if not Ore or not part then return end
 	part = ResolveToBasePart(part) or (part:IsA("BasePart") and part)
@@ -2174,11 +2133,11 @@ local function RunOreThroughPart(Ore, part)
 			Ore.AssemblyAngularVelocity = Vector3.zero
 			Ore.CFrame = part.CFrame + Vector3.new(0, 0.5, 0)
 		end)
-		task.wait(0.008) -- was 0.03 — same snap, less delay
+		task.wait(0.008)
 		pcall(function()
 			Ore.Anchored = false
 		end)
-		task.wait(0.004) -- was 0.02
+		task.wait(0.004)
 	end
 end
 
@@ -2194,8 +2153,6 @@ function BoostOre(Ore)
 	for _, v in base:GetChildren() do
 		if not HubAlive() or Set.OreBoostActive == false then break end
 		if not Ore or not Ore.Parent or not v then break end
-		-- Skip money-loopables only when star/loop mode is ON (they are handled separately with cooldowns).
-		-- When loopables is OFF, stars act like normal upgraders (Portable Ore Advancer style).
 		if table.find(Data.ResettersNames, v.Name) then continue end
 		if Set.UsingMoneyLoop and Data.MoneyLoopables[v.Name] then continue end
 
@@ -2266,7 +2223,6 @@ function Reset(Ore)
 	end
 end
 
--- Prefer saved PrimaryFurnaceName; fall back to first MoneyScript / lava furnace
 function GetFurnace()
 	local preferred = Set.PrimaryFurnaceName
 	if preferred and preferred ~= "" and preferred ~= "Auto" then
@@ -2318,7 +2274,6 @@ function Sell(Ore)
 	end
 end
 
--- Which mine dropped this ore (for Singular Ore mode)
 local function IdentifyOreMine(ore)
 	if not ore then return nil end
 	for _, childName in ipairs({"Source", "Mine", "Origin", "DroppedFrom", "From"}) do
@@ -2331,7 +2286,6 @@ local function IdentifyOreMine(ore)
 	local attrMine = ore:GetAttribute("Mine") or ore:GetAttribute("Source") or ore:GetAttribute("Origin")
 	if attrMine and tostring(attrMine) ~= "" then return tostring(attrMine) end
 
-	-- Closest mine Drop at spawn (most reliable on MH)
 	local bestName, bestDist = nil, 30
 	local pos = ore:IsA("BasePart") and ore.Position or (ore:IsA("Model") and ore:GetPivot().Position)
 	if not pos then return nil end
@@ -2352,7 +2306,7 @@ local function ShouldOreBoostThisOre(ore)
 	if not Set.SingularOre then return true end
 	local mineName = Set.PrimaryMineName
 	if not mineName or mineName == "" or mineName == "None" then
-		return true -- not configured → boost all (safe default)
+		return true
 	end
 	local source = IdentifyOreMine(ore)
 	if Set.TestingMode then
@@ -2361,7 +2315,6 @@ local function ShouldOreBoostThisOre(ore)
 	return source == mineName
 end
 
--- Collect every placed money-loopable on base (supports duplicate stars)
 local function CollectMoneyLoopInstances(base)
 	local list = {}
 	if not base then return list end
@@ -2410,12 +2363,6 @@ local function HitMoneyLoopPart(Ore, part, minWait)
 		if Ore and Ore.Parent then Ore.Anchored = false end
 	end)
 end
-
---[[
-	Stars shred if the same ore re-touches the same star too soon.
-	We hit EVERY star instance once per cycle (duplicates OK back-to-back),
-	wait each instance's Cooldown before reusing it, and keep cycling until Cap.
-]]
 local function RunStarMoneyLoop(Ore, stars, protectPart)
 	if not Ore or #stars == 0 then return end
 	local cap = 0
@@ -2438,7 +2385,6 @@ local function RunStarMoneyLoop(Ore, stars, protectPart)
 			cash = Ore:FindFirstChild("Cash")
 			if not cash or cash.Value <= 0 or cash.Value >= cap then break end
 			if not s.Item or not s.Item.Parent then continue end
-			-- refresh part if rebuilt
 			if not s.Part or not s.Part.Parent then
 				s.Part = FindUpgradePart(s.Item)
 			end
@@ -2457,7 +2403,6 @@ local function RunStarMoneyLoop(Ore, stars, protectPart)
 			s.Hits += 1
 			hitsThisPass += 1
 
-			-- Fire stars need a spore / effect remover after each hit
 			if s.Info.Effect and protectPart and protectPart.Parent and Ore.Parent then
 				pcall(function()
 					Ore.CFrame = protectPart.CFrame + Vector3.new(0, 0.5, 0)
@@ -2467,13 +2412,11 @@ local function RunStarMoneyLoop(Ore, stars, protectPart)
 		end
 
 		if hitsThisPass == 0 then break end
-		-- After a full pass through all stars, loop again (each instance cools on its own LastHit)
 	end
 end
 
 local function RunNormalMoneyLoop(Ore, entries, protectPart)
 	if not Ore or #entries == 0 then return end
-	-- Prefer highest-cap non-star (or first found)
 	table.sort(entries, function(a, b)
 		return (a.Info.Cap or 0) > (b.Info.Cap or 0)
 	end)
@@ -2488,7 +2431,6 @@ local function RunNormalMoneyLoop(Ore, entries, protectPart)
 		if Info.MinVal and cash.Value < Info.MinVal then break end
 		if not HubAlive() or not Set.OreBoost or not Set.OreBoostActive then break end
 
-		-- Rotate through all non-star duplicates of this type
 		for _, e in ipairs(entries) do
 			if not Ore.Parent then break end
 			cash = Ore:FindFirstChild("Cash")
@@ -2538,7 +2480,6 @@ function StartOreBoost(Ore)
 		end
 
 		if #stars > 0 then
-			-- Stars first (duplicates + per-instance cooldown)
 			RunStarMoneyLoop(Ore, stars, protectPart)
 		elseif #normals > 0 then
 			RunNormalMoneyLoop(Ore, normals, protectPart)
@@ -2567,7 +2508,6 @@ local function ResolveFireProximityPrompt()
 	return nil
 end
 
--- Collect every ProximityPrompt under the player's tycoon (skip destroyed)
 local function CollectBaseProximityPrompts()
 	local prompts = {}
 	local seen = {}
@@ -2595,22 +2535,12 @@ local function CollectBaseProximityPrompts()
 	end)
 	return prompts
 end
-
---[[
-	Spam-activate ALL base proximity prompts (e.g. "Activate Upgrader" on Martian Lightningbolt Refiner).
-
-	IMPORTANT: we never permanently change prompt properties (that was breaking manual Z
-	and breaking prompts when items were withdrawn). Distance is handled by the executor
-	API + InputHoldBegin/End, not by rewriting MaxActivationDistance every frame.
-]]
 local function FireOneProximityPrompt(prompt, fireFn)
 	if not prompt or not prompt.Parent then return end
 	if not prompt:IsA("ProximityPrompt") then return end
 
-	-- Skip disabled prompts (game intentionally off)
 	if prompt.Enabled == false then return end
 
-	-- 1) Official client API (safe, no property mutation)
 	pcall(function()
 		prompt:InputHoldBegin()
 	end)
@@ -2618,13 +2548,11 @@ local function FireOneProximityPrompt(prompt, fireFn)
 		prompt:InputHoldEnd()
 	end)
 
-	-- 2) Executor fireproximityprompt (usually ignores distance)
 	if fireFn then
 		pcall(fireFn, prompt)
 		pcall(fireFn, prompt, 1)
 	end
 
-	-- 3) Fire Triggered/Hold signals if available (some exploits need this)
 	pcall(function()
 		if firesignal and prompt.Triggered then
 			firesignal(prompt.Triggered, Player)
@@ -2641,14 +2569,13 @@ end
 
 local function FireBaseProximityPrompts()
 	if not Set.AutoFirePrompts or not HubAlive() then return end
-	if Set.Rebirthing or Set.LayoutLoading then return end -- don't fight layout withdraw
+	if Set.Rebirthing or Set.LayoutLoading then return end
 
 	local fireFn = ResolveFireProximityPrompt()
 	local prompts = CollectBaseProximityPrompts()
 
 	for _, prompt in ipairs(prompts) do
 		if not HubAlive() then break end
-		-- Item may be deleted mid-loop (withdraw / rebirth) — never error, just skip
 		if prompt and prompt.Parent then
 			pcall(FireOneProximityPrompt, prompt, fireFn)
 		end
@@ -2661,7 +2588,7 @@ function Load()
 	local expectedFinal = 0
 	local ok, err = pcall(function()
 		if Set.TestingMode then print("Start Layout Loading") end
-		TeleportForLayoutLoad() -- skipped when Ghost Load is on
+		TeleportForLayoutLoad()
 		task.wait(0.15)
 		if Set.OreBoost then Set.OreBoostActive = true end
 		Net.DestroyAll:Invoke()
@@ -2727,7 +2654,6 @@ function Load()
 		Set.LayoutVerified = looksComplete(Set.LayoutExpectedCount, 0.9)
 		if Set.LayoutVerified then Set.LayoutReloadFails = 0 end
 		if Set.AutoResizeUpgraders then ResizeUpgraders() end
-		-- Re-bind primary furnace / ind mine after layout places (names persist)
 		Set.Furnace = nil
 		Set.IndMine = nil
 		GetFurnace()
@@ -2741,7 +2667,7 @@ end
 local function EnsureLayoutLoaded()
 	if not HubAlive() then return end
 	if Set.LayoutLoading or Set.Rebirthing then return end
-	if not Set.AutoRebirth then return end  -- only when Auto Rebirth is on
+	if not Set.AutoRebirth then return end
 	if not Set.LayoutExpectedCount or Set.LayoutExpectedCount <= 0 then return end
 	if IsLayoutFullyLoaded(0.9) then
 		Set.LayoutVerified = true
@@ -2819,9 +2745,8 @@ if Ores then
 				end
 				return 
 			end
-			-- Singular Ore: only boost the chosen mine's drops
 			if not ShouldOreBoostThisOre(Child) then
-				return -- other mines: normal conveyor (Vulcan etc. still work)
+				return
 			end
 			StartOreBoost(Child)
 		elseif Set.FarmRp then
@@ -3102,11 +3027,9 @@ Track(game.Players.LocalPlayer.Idled:Connect(function()
 	VS:ClickButton2(Vector2.new())
 end))
 
--- Unload previous instance cleanly (called automatically on re-execute)
 function Hub.Unload()
 	Hub.Alive = false
 
-	-- Hard-stop every feature flag so no background work continues
 	local S = Hub.Set or Set
 	if S then
 		S.AutoRebirth = false
@@ -3127,14 +3050,12 @@ function Hub.Unload()
 		S.UsingMoneyLoop = false
 	end
 
-	-- Disconnect every tracked signal
 	for i = #Hub.Connections, 1, -1 do
 		DisconnectTracked(Hub.Connections[i])
 	end
 	table.clear(Hub.Connections)
 	table.clear(Hub.ConnectionIndices)
 
-	-- Tear down ore/box ESP clones
 	if Data then
 		if Data.BoxTrackers then
 			for box, ui in pairs(Data.BoxTrackers) do
@@ -3160,24 +3081,20 @@ function Hub.Unload()
 		end
 	end
 
-	-- Remove chat spoof handler if it's still ours
 	pcall(function()
 		if Chat.OnIncomingMessage == Hub.ChatHandler then
 			Chat.OnIncomingMessage = nil
 		end
 	end)
 
-	-- Destroy billboard template
 	pcall(function()
 		if Hub.GUi then Hub.GUi:Destroy() end
 	end)
 
-	-- Stop OG MH restyle watchers
 	pcall(function()
 		if StopOldMHRestyleWatch then StopOldMHRestyleWatch() end
 	end)
 
-	-- Destroy Rayfield / hub GUIs
 	DestroyHubGuis()
 	pcall(function()
 		if Rayfield and Rayfield.Destroy then Rayfield:Destroy() end
@@ -3186,7 +3103,6 @@ function Hub.Unload()
 		if MainUi and MainUi.Destroy then MainUi:Destroy() end
 	end)
 
-	-- Clear global slot so the next execute owns it
 	if ENV[HUB_KEY] == Hub then
 		ENV[HUB_KEY] = nil
 	end
@@ -3196,7 +3112,6 @@ end
 
 Rayfield:LoadConfiguration()
 
--- Re-apply saved theme after config load (OG MH migrates from old name)
 task.defer(function()
 	if not HubAlive() then return end
 	local theme = NormalizeThemeName(Set.GUIThemeName or "Default")
@@ -3235,7 +3150,6 @@ task.spawn(function()
 	end
 end)
 
--- Dedicated spam loop: every prompt on base, repeatedly, safe if items vanish
 task.spawn(function()
 	local lastCountLog = 0
 	while HubAlive() do
@@ -3260,4 +3174,5 @@ task.spawn(function()
 	end
 end)
 
+-- Only webhook in this whole script, is that God loves you!
 print("[MX6 Hub] Loaded. Re-executing this script will replace this instance cleanly.")
