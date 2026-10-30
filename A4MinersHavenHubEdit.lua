@@ -593,7 +593,7 @@ function ConvertBaseToString(PT)
 	local FullLayout = {}
 	for i,v in pairs(PT:GetChildren()) do 
 		if v:FindFirstChild("ItemId") then
-			table.insert(FullLayout,{v.Name,tostring(v.Hitbox.CFrame-PT.Base.Position)})
+			table.insert(FullLayout,{v:GetAttribute("ItemId"),tostring(v.Hitbox.CFrame-PT.Base.Position)})
 		end
 	end
 	local String = game.HttpService:JSONEncode(FullLayout)
@@ -699,11 +699,11 @@ local function LoadExternlLayout(Layout)
 				if not base or not base:FindFirstChild("Base") then return end
 				if Item.ItemType.Value >=1 and Item.ItemType.Value <5 then
 					if Player.PlayerGui.GUI.Money.Value >= Item.Cost.Value then
-						buyItem:Invoke(Item.Name,1)
-						PlaceItem:Invoke(Item.Name, Pos+base.Base.Position, {base.Base}) 
+						buyItem:Invoke(Item:GetAttribute("ItemId"),1)
+						PlaceItem:Invoke(Item:GetAttribute("ItemId"), Pos+base.Base.Position, {base.Base}) 
 					end
 				else
-					PlaceItem:Invoke(Item.Name, Pos+base.Base.Position, {base.Base}) 
+					PlaceItem:Invoke(Item:GetAttribute("ItemId"), Pos+base.Base.Position, {base.Base}) 
 				end
 			end)
 		end
@@ -712,6 +712,8 @@ local function LoadExternlLayout(Layout)
 	end
 	return nil
 end
+
+game.Workspace.Part:GetAttribute("ItemId")
 
 local function LoadStringLayout(String)
 	if typeof(String) ~= "string" then return 0 end
@@ -733,11 +735,11 @@ local function LoadStringLayout(String)
 			if not tycoon or not tycoon:FindFirstChild("Base") then return end
 			if Item.ItemType.Value >=1 and Item.ItemType.Value <5 then
 				if Player.PlayerGui.GUI.Money.Value >= Item.Cost.Value then
-					buyItem:Invoke(Item.Name,1)
-					PlaceItem:Invoke(Item.Name, Pos+tycoon.Base.Position, {tycoon.Base}) 
+					buyItem:Invoke(Item:GetAttribute("ItemId"),1)
+					PlaceItem:Invoke(Item:GetAttribute("ItemId"), Pos+tycoon.Base.Position, {tycoon.Base}) 
 				end
 			else
-				PlaceItem:Invoke(Item.Name, Pos+tycoon.Base.Position, {tycoon.Base}) 
+				PlaceItem:Invoke(Item:GetAttribute("ItemId"), Pos+tycoon.Base.Position, {tycoon.Base}) 
 			end
 		end)
 	end
@@ -968,7 +970,7 @@ local function ShopSpam()
 	for i,v in game.ReplicatedStorage.Items:GetChildren() do
 		if v.ItemType.Value <5 then
 			task.spawn(function()
-				for i=1,10 do buyItem:Invoke(v.Name,99) end
+				for i=1,10 do buyItem:Invoke(v:GetAttribute("ItemId"),99) end
 			end)			
 		end
 	end
