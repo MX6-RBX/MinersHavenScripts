@@ -367,7 +367,7 @@ local Tycoon = Player.PlayerTycoon.Value
 local ActiveTycoon = Player.ActiveTycoon
 local AdjustSpeed = Tycoon.AdjustSpeed
 local Ores = game.Workspace.DroppedParts:FindFirstChild(Tycoon.Name)
-local GUI = Player.PlayerGui:WaitForChild("GUI")
+local GUI,Menus  = Player.PlayerGui:WaitForChild("GUI") Player.PlayerGui:WaitForChild("Menus")
 local PlaceItem = Net.PlaceItem 
 local buyItem = Net.BuyItem 
 local RemoteDrop = Net.RemoteDrop
@@ -407,7 +407,6 @@ local Set = {
 	Blur = true,
 	WithdrawBase = false,
 	OpenBoxes = false,
-	UseCloversValue = Player:FindFirstChild("UseClover"),
 	SelectedBox = "Regular",
 	UpgraderSize = 1,
 	SingleItemUpgrade = "",
@@ -457,7 +456,7 @@ local Set = {
 -- Expose Set to the hub so Unload can hard-stop every feature
 Hub.Set = Set
 
-local UseClovers = Set.UseCloversValue
+
 
 local GUi = Instance.new("BillboardGui")
 local Box = Instance.new("TextLabel")
@@ -691,7 +690,7 @@ local function LoadExternlLayout(Layout)
 		local expected = TableEntryCount(Layout)
 		for i,v in pairs(Layout) do
 			task.spawn(function()
-				local Item = game.ReplicatedStorage.Items:FindFirstChild(v["Name"])
+				local Item = game.ReplicatedStorage.Items:FindFirstChild(v["Name"])--Gets real item in the game by name
 				if not Item then return end
 				local P = string.split(v["Pos"],",")
 				local Pos = CFrame.new(P[1],P[2],P[3],P[4],P[5],P[6],P[7],P[8],P[9],P[10],P[11],P[12])
@@ -699,7 +698,7 @@ local function LoadExternlLayout(Layout)
 				if not base or not base:FindFirstChild("Base") then return end
 				if Item.ItemType.Value >=1 and Item.ItemType.Value <5 then
 					if Player.PlayerGui.GUI.Money.Value >= Item.Cost.Value then
-						buyItem:Invoke(Item:GetAttribute("ItemId"),1)
+						buyItem:Invoke(Item:GetAttribute("ItemId"),1)--Use to use Item.Name now uses Item:GetAttribute("ItemId")
 						PlaceItem:Invoke(Item:GetAttribute("ItemId"), Pos+base.Base.Position, {base.Base}) 
 					end
 				else
@@ -923,7 +922,7 @@ local function ChangeUi(Name)
 		task.wait(0.01)
 		GUI.FocusWindow.Value = nil
 	end
-	local Ui = GUI:FindFirstChild(Name)
+	local Ui = Menus:FindFirstChild(Name)
 	if Ui then
 		Ui.Visible = true
 		GUI.FocusWindow.Value = Ui
@@ -1716,16 +1715,6 @@ VendorsPage:CreateDropdown({
 	end,
 })
 
-VendorsPage:CreateToggle({
-	Name = "Use Clovers",
-	CurrentValue = UseClovers,
-	Flag = nil,  
-	Callback = function(Value)
-		if Set.TestingMode then print("Toggled Clovers:",Value) end
-		Net.ToggleBoxItem:Invoke("Clover")
-		UseClovers = Value
-	end,
-})
 
 VendorsPage:CreateToggle({
 	Name = "Auto Open Selected box",
