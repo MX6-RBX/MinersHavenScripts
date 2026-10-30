@@ -713,7 +713,6 @@ local function LoadExternlLayout(Layout)
 	return nil
 end
 
-game.Workspace.Part:GetAttribute("ItemId")
 
 local function LoadStringLayout(String)
 	if typeof(String) ~= "string" then return 0 end
