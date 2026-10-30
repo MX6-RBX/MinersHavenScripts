@@ -361,16 +361,16 @@ if not Player:FindFirstChild("BaseDataLoaded") then
 		Image = 4483362458,
 	})
 end
-
+local Net = require(game.ReplicatedStorage.Modules.Networking.Net)
 local Tycoon = Player.PlayerTycoon.Value
 local ActiveTycoon = Player.ActiveTycoon
 local AdjustSpeed = Tycoon.AdjustSpeed
 local Ores = game.Workspace.DroppedParts:FindFirstChild(Tycoon.Name)
 local GUI = Player.PlayerGui:WaitForChild("GUI")
-local PlaceItem = game.ReplicatedStorage.PlaceItem 
-local buyItem = game.ReplicatedStorage.BuyItem 
-local RemoteDrop = game.ReplicatedStorage.RemoteDrop
-local ClearBase = game.ReplicatedStorage.DestroyAll
+local PlaceItem = Net.PlaceItem 
+local buyItem = Net.BuyItem 
+local RemoteDrop = Net.RemoteDrop
+local ClearBase = Net.DestroyAll
 local Money = GUI:FindFirstChild("Money")
 local Boxes = game.Workspace.Boxes
 
@@ -698,11 +698,11 @@ local function LoadExternlLayout(Layout)
 				if not base or not base:FindFirstChild("Base") then return end
 				if Item.ItemType.Value >=1 and Item.ItemType.Value <5 then
 					if Player.PlayerGui.GUI.Money.Value >= Item.Cost.Value then
-						buyItem:InvokeServer(Item.Name,1)
-						PlaceItem:InvokeServer(Item.Name, Pos+base.Base.Position, {base.Base}) 
+						buyItem:Invoke(Item.Name,1)
+						PlaceItem:Invoke(Item.Name, Pos+base.Base.Position, {base.Base}) 
 					end
 				else
-					PlaceItem:InvokeServer(Item.Name, Pos+base.Base.Position, {base.Base}) 
+					PlaceItem:Invoke(Item.Name, Pos+base.Base.Position, {base.Base}) 
 				end
 			end)
 		end
@@ -732,11 +732,11 @@ local function LoadStringLayout(String)
 			if not tycoon or not tycoon:FindFirstChild("Base") then return end
 			if Item.ItemType.Value >=1 and Item.ItemType.Value <5 then
 				if Player.PlayerGui.GUI.Money.Value >= Item.Cost.Value then
-					buyItem:InvokeServer(Item.Name,1)
-					PlaceItem:InvokeServer(Item.Name, Pos+tycoon.Base.Position, {tycoon.Base}) 
+					buyItem:Invoke(Item.Name,1)
+					PlaceItem:Invoke(Item.Name, Pos+tycoon.Base.Position, {tycoon.Base}) 
 				end
 			else
-				PlaceItem:InvokeServer(Item.Name, Pos+tycoon.Base.Position, {tycoon.Base}) 
+				PlaceItem:Invoke(Item.Name, Pos+tycoon.Base.Position, {tycoon.Base}) 
 			end
 		end)
 	end
@@ -954,8 +954,8 @@ end
 
 function BuyBlueprints()
 	for i,v in Data.Blueprints do
-		if game.ReplicatedStorage.CraftsmanEvents:InvokeServer("type:hasblueprint", v[1]) then continue end
-		local Bought = game.ReplicatedStorage.CraftsmanEvents:InvokeServer("type:buyblueprint", v[1])
+		if Net.CraftsmanEvents:Invoke("type:hasblueprint", v[1]) then continue end
+		local Bought = Net.CraftsmanEvents:Invoke("type:buyblueprint", v[1])
 		if Bought then 
 			Set.BlueprintsCost -= v[2]
 			Set.BlueprintCount -= 1
@@ -967,7 +967,7 @@ local function ShopSpam()
 	for i,v in game.ReplicatedStorage.Items:GetChildren() do
 		if v.ItemType.Value <5 then
 			task.spawn(function()
-				for i=1,10 do buyItem:InvokeServer(v.Name,99) end
+				for i=1,10 do buyItem:Invoke(v.Name,99) end
 			end)			
 		end
 	end
@@ -1593,7 +1593,7 @@ BoostPage:CreateButton({
 	Name = "Load Basic First Life Setup(15qd-390qd, Warning loud)",
 	Callback = function()
 		if Set.TestingMode then print("Loading Basic First Life Layout.") end
-		ClearBase:InvokeServer()
+		ClearBase:Invoke()
 		LoadExternlLayout(ELayout)
 	end,
 })
@@ -1613,7 +1613,7 @@ BoostPage:CreateButton({
 	Name = "Load a layout from the inputed string",
 	Callback = function()
 		if Set.TestingMode then print("Loading Basic First Life Layout.") end
-		ClearBase:InvokeServer()
+		ClearBase:Invoke()
 		LoadStringLayout(Set.externalLayoutString)
 	end,
 })
@@ -1676,7 +1676,7 @@ VendorsPage:CreateButton({
 	Name = "Teleport To Solo Island",
 	Callback = function()
 		if Set.TestingMode then print("Teleporting to Solo Island",Set.SelectedIsland) end
-		game.ReplicatedStorage.PlaySolo:InvokeServer(Set.SelectedIsland)
+		Net.PlaySolo:Invoke(Set.SelectedIsland)
 	end,
 })
 
@@ -1720,7 +1720,7 @@ VendorsPage:CreateToggle({
 	Flag = nil,  
 	Callback = function(Value)
 		if Set.TestingMode then print("Toggled Clovers:",Value) end
-		game.ReplicatedStorage.ToggleBoxItem:InvokeServer("Clover")
+		Net.ToggleBoxItem:Invoke("Clover")
 		UseClovers = Value
 	end,
 })
@@ -1742,7 +1742,7 @@ VendorsPage:CreateButton({Name = "Shop Spam Troll", Callback = function() ShopSp
 VendorsPage:CreateSection("Blueprints")
 task.spawn(function()
 	for i,v in Data.Blueprints do
-		if not game.ReplicatedStorage.CraftsmanEvents:InvokeServer("type:hasblueprint",v[1]) then
+		if not Net.CraftsmanEvents:Invoke("type:hasblueprint",v[1]) then
 			Set.BlueprintCount += 1
 			Set.BlueprintsCost += v[2]
 		end
@@ -2458,7 +2458,7 @@ function Load()
 		TeleportForLayoutLoad() -- skipped when Ghost Load is on
 		task.wait(0.15)
 		if Set.OreBoost then Set.OreBoostActive = true end
-		game.ReplicatedStorage.DestroyAll:InvokeServer()
+		Net.DestroyAll:Invoke()
 		task.wait(0.15)
 
 		local function looksComplete(expected, fraction)
@@ -2474,7 +2474,7 @@ function Load()
 		if not looksComplete(expectedFinal, 0.5) then
 			TeleportForLayoutLoad()
 			task.wait(0.1)
-			game.ReplicatedStorage.DestroyAll:InvokeServer()
+			Net.DestroyAll:Invoke()
 			task.wait(0.15)
 			expectedFinal = LoadOneLayout(Set.Layout1) or expectedFinal
 		end
@@ -2484,7 +2484,7 @@ function Load()
 			Set.OreBoostActive = false
 			task.wait(0.3)
 			if Set.WithdrawBase then
-				game.ReplicatedStorage.DestroyAll:InvokeServer()
+				Net.DestroyAll:Invoke()
 				task.wait(0.15)
 			end
 			TeleportForLayoutLoad()
@@ -2498,7 +2498,7 @@ function Load()
 				TeleportForLayoutLoad()
 				task.wait(0.1)
 				if Set.WithdrawBase then
-					game.ReplicatedStorage.DestroyAll:InvokeServer()
+					Net:Invoke()
 					task.wait(0.15)
 				end
 				local exp2b = LoadOneLayout(Set.Layout2)
@@ -2570,7 +2570,7 @@ local function EnsureLayoutLoaded()
 		TeleportForLayoutLoad()
 		task.wait(0.1)
 		local finalName = (Set.Layout2 and Set.Layout2 ~= "None") and Set.Layout2 or Set.Layout1
-		game.ReplicatedStorage.DestroyAll:InvokeServer()
+		Net.DestroyAll:Invoke()
 		task.wait(0.15)
 		local exp = LoadOneLayout(finalName)
 		if exp and exp > 0 then
@@ -2704,7 +2704,7 @@ local function TryAutoRebirth()
 	local lifeBefore = Player.Rebirths.Value
 	local ranOk, ranErr = pcall(function()
 		task.wait(0.1)
-		game.ReplicatedStorage.Rebirth:InvokeServer()
+		Net.Rebirth:Invoke()
 		local deadline = os.clock() + 3
 		while Player.Rebirths.Value <= lifeBefore and os.clock() < deadline do
 			task.wait(0.1)
@@ -2994,7 +2994,7 @@ task.spawn(function()
 		local now = os.clock()
 		if Set.FarmBoxes then CollectBoxes() end
 		if Set.OpenBoxes and (now - lastBoxOpen >= (Set.BoxWait or 1)) then
-			game.ReplicatedStorage.MysteryBox:InvokeServer(Set.SelectedBox or "Regular")
+			Net.MysteryBox:Invoke(Set.SelectedBox or "Regular")
 			lastBoxOpen = now
 		end
 		if Set.AutoDrop and (now - lastRemoteDrop >= 0.5) then
@@ -3024,7 +3024,7 @@ task.spawn(function()
 				print(string.format(
 					"Auto Fire Prompts: %d prompt(s) | fireproximityprompt=%s",
 					n, tostring(hasFire)
-				))
+					))
 			end
 			task.wait(0.08)
 		else
