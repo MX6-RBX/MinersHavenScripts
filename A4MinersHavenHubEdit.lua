@@ -2775,7 +2775,7 @@ end)
 
 for i,v in Boxes:GetChildren() do AddBoxTrack(v) end
 
-Track(game.ReplicatedStorage.ItemObtained:Connect(function(Item,Amount)
+Track(Net.ItemObtained:Connect(function(Item,Amount)
 	if not HubAlive() then return end
 	if not Item:FindFirstChild("Tier") then return end 
 	if Item.Tier.Value == 78 and Item.Name == Set.StopSlipstream then
