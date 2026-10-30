@@ -362,6 +362,7 @@ if not Player:FindFirstChild("BaseDataLoaded") then
 	})
 end
 local Net = require(game.ReplicatedStorage.Modules.Networking.Net)
+local Layouts = require(game.ReplicatedStorage.Modules.Networking.Remotes).Layouts
 local Tycoon = Player.PlayerTycoon.Value
 local ActiveTycoon = Player.ActiveTycoon
 local AdjustSpeed = Tycoon.AdjustSpeed
@@ -754,7 +755,7 @@ local function LoadOneLayout(layoutName)
 		Rayfield:Notify({Title = "Layout string erorr", Content = "Layout String missing, cant load from layout string", Duration = 10})
 		return 0
 	end
-	game.ReplicatedStorage.Layouts:InvokeServer("Load", layoutName)
+	Layouts:InvokeServer("Load", layoutName)
 	local settled = WaitForLayoutSettle(14, 1)
 	if Set.TestingMode then print("Saved layout", layoutName, "settled count:", settled) end
 	return settled
@@ -2784,7 +2785,7 @@ end)
 
 for i,v in Boxes:GetChildren() do AddBoxTrack(v) end
 
-Track(Net.ItemObtained:Connect(function(Item,Amount)
+Track(game.ReplicatedStorage.ItemObtained:Connect(function(Item,Amount)
 	if not HubAlive() then return end
 	if not Item:FindFirstChild("Tier") then return end 
 	if Item.Tier.Value == 78 and Item.Name == Set.StopSlipstream then
