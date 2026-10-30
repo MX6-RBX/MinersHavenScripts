@@ -367,7 +367,7 @@ local Tycoon = Player.PlayerTycoon.Value
 local ActiveTycoon = Player.ActiveTycoon
 local AdjustSpeed = Tycoon.AdjustSpeed
 local Ores = game.Workspace.DroppedParts:FindFirstChild(Tycoon.Name)
-local GUI,Menus  = Player.PlayerGui:WaitForChild("GUI") Player.PlayerGui:WaitForChild("Menus")
+local GUI = Player.PlayerGui:WaitForChild("GUI")
 local PlaceItem = Net.PlaceItem 
 local buyItem = Net.BuyItem 
 local RemoteDrop = Net.RemoteDrop
@@ -541,18 +541,20 @@ local Data = {
 		["Suspended Lava Refiner"]={ Cap = 1e+27,Effect = nil,MinVal = nil},
 		["Ore Transistor"]={Cap = 1e+30,Effect = nil,MinVal = 1e+24},
 		["Ore Transponder"]={ Cap = 1e+33,Effect = nil,MinVal = nil},
-		["Morning Star"]={ Cap = 1e+30,Effect = "Fire",MinVal = nil,MinWait = 1.5},
-		["⭐ Celestial Morning Star ⭐"]={Cap = 1e+30,Effect = "Fire",MinVal = nil,MinWait = 1.5},
-		["Red Giant"]={ Cap = 1e+60,Effect = "Fire",MinVal = nil,MinWait = 1.5},
-		["⭐ Wholesome Red Giant ⭐"]={ Cap = 1e+60,Effect = "Fire",MinVal = nil,MinWait = 1.5},
-		["Catalyzed Star"]={ Cap = 1e+60,Effect = "Fire",MinVal = nil,MinWait = 1.5},
-		["Neutron Star"]={ Cap = 1e+72,Effect = "Fire",MinVal = nil,MinWait = 1.5},
-		["⭐ Wholesome Neutron Star ⭐"]={ Cap = 1e+72,Effect = "Fire",MinVal = nil,MinWait = 1.5},
-		["Blue Supergiant"]={ Cap = 1e+90,Effect = "Fire",MinVal = nil,MinWait = 1.5},
-		["⭐ Hypergiant Blue Supergiant ⭐"]={ Cap = 1e+90,Effect = "Fire",MinVal = nil,MinWait = 1.5},
-		["Sinister Sepulcher"]={ Cap = 1e+99,Effect = nil,MinVal = nil,MinWait = nil},
-		["Renegade Sinister Sepulcher"]={ Cap = 1e+99,Effect = nil,MinVal = nil,MinWait = nil},
-		["⭐ Ornate Sinister Sepulcher ⭐"]={ Cap = 1e+99,Effect = nil,MinVal = nil,MinWait = nil},
+		-- Stars: IsStar + Cooldown — same ore cannot re-touch the same star too soon or it shreds
+		["Morning Star"]={ Cap = 1e+30, Effect = "Fire", MinVal = nil, MinWait = 0.12, IsStar = true, Cooldown = 1.55 },
+		["⭐ Celestial Morning Star ⭐"]={ Cap = 1e+30, Effect = "Fire", MinVal = nil, MinWait = 0.12, IsStar = true, Cooldown = 1.55 },
+		["Red Giant"]={ Cap = 1e+60, Effect = "Fire", MinVal = nil, MinWait = 0.12, IsStar = true, Cooldown = 1.55 },
+		["⭐ Wholesome Red Giant ⭐"]={ Cap = 1e+60, Effect = "Fire", MinVal = nil, MinWait = 0.12, IsStar = true, Cooldown = 1.55 },
+		["Catalyzed Star"]={ Cap = 1e+60, Effect = "Fire", MinVal = nil, MinWait = 0.12, IsStar = true, Cooldown = 1.55 },
+		["Neutron Star"]={ Cap = 1e+72, Effect = "Fire", MinVal = nil, MinWait = 0.12, IsStar = true, Cooldown = 1.55 },
+		["⭐ Wholesome Neutron Star ⭐"]={ Cap = 1e+72, Effect = "Fire", MinVal = nil, MinWait = 0.12, IsStar = true, Cooldown = 1.55 },
+		["Blue Supergiant"]={ Cap = 1e+90, Effect = "Fire", MinVal = nil, MinWait = 0.12, IsStar = true, Cooldown = 1.55 },
+		["⭐ Hypergiant Blue Supergiant ⭐"]={ Cap = 1e+90, Effect = "Fire", MinVal = nil, MinWait = 0.12, IsStar = true, Cooldown = 1.55 },
+		["Nova Star"]={ Cap = 1e+72, Effect = "Fire", MinVal = nil, MinWait = 0.12, IsStar = true, Cooldown = 1.55 },
+		["Sinister Sepulcher"]={ Cap = 1e+99, Effect = nil, MinVal = nil, MinWait = nil },
+		["Renegade Sinister Sepulcher"]={ Cap = 1e+99, Effect = nil, MinVal = nil, MinWait = nil },
+		["⭐ Ornate Sinister Sepulcher ⭐"]={ Cap = 1e+99, Effect = nil, MinVal = nil, MinWait = nil },
 	},
 	ResettersNames = {
 		"Tesla Resetter","Tesla Refuter","Black Dwarf","Void Star","The Ultimate Sacrifice",
@@ -922,7 +924,7 @@ local function ChangeUi(Name)
 		task.wait(0.01)
 		GUI.FocusWindow.Value = nil
 	end
-	local Ui = Menus:FindFirstChild(Name)
+	local Ui = GUI:FindFirstChild(Name)
 	if Ui then
 		Ui.Visible = true
 		GUI.FocusWindow.Value = Ui
@@ -1462,6 +1464,11 @@ BoostPage:CreateToggle({
 		Set.UsingMoneyLoop = Value
 		if Set.TestingMode then print("Money Loopables: ",Value) end 
 	end,
+})
+
+BoostPage:CreateParagraph({
+	Title = "<b>Money Loopables / Stars</b>",
+	Content = "<i>OFF: stars work like normal upgraders in the ore-boost path (one pass each). ON: special star farming — rotates duplicates + cooldowns so ores don't shred. If you're farming stars this way, use a mine like Symmetrium!</i>"
 })
 
 BoostPage:CreateToggle({
@@ -2127,7 +2134,10 @@ function BoostOre(Ore)
 	for _, v in base:GetChildren() do
 		if not HubAlive() or Set.OreBoostActive == false then break end
 		if not Ore or not Ore.Parent or not v then break end
-		if Data.MoneyLoopables[v.Name] or table.find(Data.ResettersNames, v.Name) then continue end
+		-- Skip money-loopables only when star/loop mode is ON (they are handled separately with cooldowns).
+		-- When loopables is OFF, stars act like normal upgraders (Portable Ore Advancer style).
+		if table.find(Data.ResettersNames, v.Name) then continue end
+		if Set.UsingMoneyLoop and Data.MoneyLoopables[v.Name] then continue end
 
 		local upgradePart = FindUpgradePart(v)
 		if upgradePart then
@@ -2291,6 +2301,158 @@ local function ShouldOreBoostThisOre(ore)
 	return source == mineName
 end
 
+-- Collect every placed money-loopable on base (supports duplicate stars)
+local function CollectMoneyLoopInstances(base)
+	local list = {}
+	if not base then return list end
+	for name, info in pairs(Data.MoneyLoopables) do
+		for _, child in base:GetChildren() do
+			if child.Name == name then
+				local part = FindUpgradePart(child)
+				if part then
+					table.insert(list, {
+						Item = child,
+						Name = name,
+						Info = info,
+						Part = part,
+						LastHit = 0,
+						Hits = 0,
+					})
+				end
+			end
+		end
+	end
+	return list
+end
+
+local function GetProtectPart(base)
+	if not base then return nil end
+	for _, name in ipairs(Data.EffectRemovers) do
+		local item = base:FindFirstChild(name)
+		if item then
+			local p = FindUpgradePart(item)
+			if p then return p end
+		end
+	end
+	return nil
+end
+
+local function HitMoneyLoopPart(Ore, part, minWait)
+	if not Ore or not part or not part.Parent then return end
+	pcall(function()
+		Ore.Anchored = true
+		Ore.AssemblyLinearVelocity = Vector3.zero
+		Ore.AssemblyAngularVelocity = Vector3.zero
+		Ore.CFrame = part.CFrame + Vector3.new(0, 0.5, 0)
+	end)
+	task.wait(minWait or 0.1)
+	pcall(function()
+		if Ore and Ore.Parent then Ore.Anchored = false end
+	end)
+end
+
+--[[
+	Stars shred if the same ore re-touches the same star too soon.
+	We hit EVERY star instance once per cycle (duplicates OK back-to-back),
+	wait each instance's Cooldown before reusing it, and keep cycling until Cap.
+]]
+local function RunStarMoneyLoop(Ore, stars, protectPart)
+	if not Ore or #stars == 0 then return end
+	local cap = 0
+	for _, s in ipairs(stars) do
+		if s.Info.Cap and s.Info.Cap > cap then cap = s.Info.Cap end
+	end
+	if cap <= 0 then cap = 1e30 end
+
+	if Set.TestingMode then
+		print("Star money loop:", #stars, "star instance(s), cap=", cap)
+	end
+
+	while HubAlive() and Ore and Ore.Parent and Set.OreBoost and Set.OreBoostActive and Set.UsingMoneyLoop do
+		local cash = Ore:FindFirstChild("Cash")
+		if not cash or cash.Value <= 0 or cash.Value >= cap then break end
+
+		local hitsThisPass = 0
+		for _, s in ipairs(stars) do
+			if not HubAlive() or not Ore or not Ore.Parent then break end
+			cash = Ore:FindFirstChild("Cash")
+			if not cash or cash.Value <= 0 or cash.Value >= cap then break end
+			if not s.Item or not s.Item.Parent then continue end
+			-- refresh part if rebuilt
+			if not s.Part or not s.Part.Parent then
+				s.Part = FindUpgradePart(s.Item)
+			end
+			if not s.Part then continue end
+
+			local cd = s.Info.Cooldown or 1.55
+			local now = os.clock()
+			local need = (s.LastHit + cd) - now
+			if need > 0 then
+				task.wait(need)
+			end
+			if not Ore.Parent or not s.Part.Parent then continue end
+
+			HitMoneyLoopPart(Ore, s.Part, s.Info.MinWait or 0.12)
+			s.LastHit = os.clock()
+			s.Hits += 1
+			hitsThisPass += 1
+
+			-- Fire stars need a spore / effect remover after each hit
+			if s.Info.Effect and protectPart and protectPart.Parent and Ore.Parent then
+				pcall(function()
+					Ore.CFrame = protectPart.CFrame + Vector3.new(0, 0.5, 0)
+				end)
+				task.wait(0.06)
+			end
+		end
+
+		if hitsThisPass == 0 then break end
+		-- After a full pass through all stars, loop again (each instance cools on its own LastHit)
+	end
+end
+
+local function RunNormalMoneyLoop(Ore, entries, protectPart)
+	if not Ore or #entries == 0 then return end
+	-- Prefer highest-cap non-star (or first found)
+	table.sort(entries, function(a, b)
+		return (a.Info.Cap or 0) > (b.Info.Cap or 0)
+	end)
+	local primary = entries[1]
+	local Info = primary.Info
+	local cap = Info.Cap or 1e30
+
+	repeat
+		if not Ore or not Ore.Parent then break end
+		local cash = Ore:FindFirstChild("Cash")
+		if not cash or cash.Value <= 0 then break end
+		if Info.MinVal and cash.Value < Info.MinVal then break end
+		if not HubAlive() or not Set.OreBoost or not Set.OreBoostActive then break end
+
+		-- Rotate through all non-star duplicates of this type
+		for _, e in ipairs(entries) do
+			if not Ore.Parent then break end
+			cash = Ore:FindFirstChild("Cash")
+			if not cash or cash.Value >= cap then break end
+			if not e.Part or not e.Part.Parent then
+				e.Part = e.Item and FindUpgradePart(e.Item)
+			end
+			if e.Part then
+				for _ = 1, math.max(1, tonumber(Set.UpgradeLoopCount) or 1) do
+					HitMoneyLoopPart(Ore, e.Part, Info.MinWait or 0.01)
+					if Info.Effect and protectPart then
+						pcall(function() Ore.CFrame = protectPart.CFrame end)
+						task.wait(0.03)
+					end
+				end
+			end
+		end
+		task.wait(0.02)
+	until not HubAlive() or not Ore or not Ore.Parent
+		or not Ore:FindFirstChild("Cash")
+		or Ore.Cash.Value >= cap
+		or Ore.Cash.Value <= 0
+end
+
 function StartOreBoost(Ore)
 	if not HubAlive() then return end
 	if Set.TestingMode then print("Ore Boost Setting up") end
@@ -2300,36 +2462,29 @@ function StartOreBoost(Ore)
 		Ore.Anchored = false
 		return
 	end
-	local MoneyLoop, LooperStats, Protect
+
 	local base = GetPlayerTycoon() or Tycoon
 	if Set.UsingMoneyLoop and base then
-		for i, v in Data.MoneyLoopables do
-			if base:FindFirstChild(i) then
-				MoneyLoop = base:FindFirstChild(i)
-				LooperStats = i
+		local all = CollectMoneyLoopInstances(base)
+		local protectPart = GetProtectPart(base)
+
+		local stars, normals = {}, {}
+		for _, e in ipairs(all) do
+			if e.Info.IsStar then
+				table.insert(stars, e)
+			else
+				table.insert(normals, e)
 			end
 		end
-		for i, v in Data.EffectRemovers do
-			if base:FindFirstChild(v) then Protect = base:FindFirstChild(v) end
-		end
-		if MoneyLoop then
-			local Info = Data.MoneyLoopables[MoneyLoop.Name]
-			repeat
-				if not Ore or (Info.MinVal and Ore.Cash.Value < Info.MinVal) then break end
-				if not HubAlive() or Set.OreBoost == false or Set.OreBoostActive == false then break end
-				local loopPart = FindUpgradePart(MoneyLoop) or (MoneyLoop.Model and MoneyLoop.Model:FindFirstChild("Upgrade", true))
-				local protectPart = Protect and (FindUpgradePart(Protect) or (Protect.Model and Protect.Model:FindFirstChild("Upgrade", true)))
-				for a = 1, Set.UpgradeLoopCount do
-					if loopPart then Ore.CFrame = loopPart.CFrame end
-					task.wait(Info.MinWait or 0.01)
-					if Info.Effect ~= nil and protectPart then
-						Ore.CFrame = protectPart.CFrame
-					end
-				end
-				task.wait(0.02)
-			until not HubAlive() or Ore == nil or MoneyLoop == nil or MoneyLoop:FindFirstChild("Model") == nil or Ore:FindFirstChild("Cash") == nil or Ore.Cash.Value >= Info.Cap
+
+		if #stars > 0 then
+			-- Stars first (duplicates + per-instance cooldown)
+			RunStarMoneyLoop(Ore, stars, protectPart)
+		elseif #normals > 0 then
+			RunNormalMoneyLoop(Ore, normals, protectPart)
 		end
 	end
+
 	if Set.OreBoostActive then Reset(Ore) end
 	if Ore then
 		Ore.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
@@ -2989,7 +3144,12 @@ task.spawn(function()
 			lastBoxOpen = now
 		end
 		if Set.AutoDrop and (now - lastRemoteDrop >= 0.5) then
-			RemoteDrop:FireServer()
+			if RemoteDrop and type(RemoteDrop.Fire) == "function" then
+				RemoteDrop:Fire()
+			else
+				warn("[MX6] Auto Remote drops unavailable: Net.RemoteDrop does not expose Fire().")
+				Set.AutoDrop = false
+			end
 			lastRemoteDrop = now
 		end
 		if Set.AutoKillOresWait > 0 and (now - lastOreKill >= Set.AutoKillOresWait) then
