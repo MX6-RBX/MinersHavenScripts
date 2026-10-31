@@ -100,17 +100,16 @@ local AdjustSpeed = Tycoon.AdjustSpeed
 local Ores = game.Workspace.DroppedParts:FindFirstChild(Tycoon.Name)
 local GUI = Player.PlayerGui:WaitForChild("GUI")
 local Menus  = Player.PlayerGui.Menus
-local PlaceItem = game.ReplicatedStorage.PlaceItem 
-local buyItem = game.ReplicatedStorage.BuyItem 
-local RemoteDrop = game.ReplicatedStorage.RemoteDrop
-local ClearBase = game.ReplicatedStorage.DestroyAll
 local Money = GUI:FindFirstChild("Money")
 local Boxes = game.Workspace.Boxes
 
 --Main scipt variables. Uses table to prevent hitting local var limit
 local Set = {
-
-	
+	Layout1 = "Layout1",
+	Layout2 = "None",
+	MinWait = 20,
+	LayoutWaitTime = 10,
+	AutoRebirth = false,
 	Rebirthing = false,
 	UsingMoneyLoop = false,
 	OreBoost = false,
@@ -129,8 +128,10 @@ local Set = {
 	Skips = 0,
 	CollectingBoxes = false,
 	Blur = true,
+	WithdrawBase = false,
 	UpgraderSize = 1,
 	SingleItemUpgrade = "",
+	Slipstream = "",
 	ConveyorSpeed = 5,
 	FakeName = "",
 	CTag = "[MX6]",
@@ -139,7 +140,11 @@ local Set = {
 	LifeVal = 0 ,
 	FarmBoxes = false,
 	UpgradeLoopCount = 1,
+	externalLayoutString = "",
+	BlueprintCount = 0,
+	BlueprintsCost = 0,
 	SelectedPlayer = game.Players.LocalPlayer.Name,
+	SelectedIsland = "Default",
 	AntiLeaveBase = false,
 	OreSize= 0,
 	AutoResizeUpgraders = false,
@@ -228,8 +233,22 @@ local Data = {
 		"QnQGNT", "sxQGNT", "SpQGNT", "OQQGNT", "NQQGNT", "SXGNTL", "USXGNTL", "DSXGNTL", "TSXGNTL", "QTSXGNTL", "QNSXGNTL", "SXSXGNTL", "SPSXGNTL", 
 		"OSXGNTL", "NVSXGNTL", "SPTGNTL", "USPTGNTL", "DSPTGNTL", "TSPTGNTL", "QTSPTGNTL", "QNSPTGNTL", "SXSPTGNTL", "SPSPTGNTL", "OSPTGNTL",
 		"NVSPTGNTL", "OTGNTL", "UOTGNTL", "DOTGNTL", "TOTGNTL", "QTOTGNTL","QNOTGNTL", "SXOTGNTL", "SPOTGNTL", "OTOTGNTL", "NVOTGNTL", "NONGNTL", 
-		"UNONGNTL", "DNONGNTL", "TNONGNTL", "QTNONGNTL", "QNNONGNTL", "SXNONGNTL", "SPNONGNTL", "OTNONGNTL", "NONONGNTL", "CENT", "UNCENT","inf" }  
+		"UNONGNTL", "DNONGNTL", "TNONGNTL", "QTNONGNTL", "QNNONGNTL", "SXNONGNTL", "SPNONGNTL", "OTNONGNTL", "NONONGNTL", "CENT", "UNCENT","inf" 
+	},
+	Buttons = {
+		Layout1Button = game:GetService("Players").LocalPlayer.PlayerGui.Menus.Layouts.Contents.Layout1.Card.Load.Button,
+		Layout2Button = game:GetService("Players").LocalPlayer.PlayerGui.Menus.Layouts.Contents.Layout2.Card.Load.Button,
+		Layout3Button = game:GetService("Players").LocalPlayer.PlayerGui.Menus.Layouts.Contents.Layout3.Card.Load.Button,
+		RebirthButton =  game:GetService("Players").LocalPlayer.PlayerGui.Rebirth.Frame.Rebirth_Content.Content.Rebirth.Frame.Bottom.Reborn,
+		RebirthConfirm =  game:GetService("Players").LocalPlayer.PlayerGui.Rebirth.Frame.Rebirth_Content.Content.Rebirth.Frame.Confirm.Yes,
+		BaseSettings = game:GetService("Players").LocalPlayer.PlayerGui.Menus.Settings.Tabs.Base.Button,
+		WithdrawButton = game:GetService("Players").LocalPlayer.PlayerGui.Menus.Settings.Contents.Columns.Left["Withdraw All"].Card.Action.Button,
+		PromptConfirm = game:GetService("Players").LocalPlayer.PlayerGui.GUI.InputPrompt.InputPrompt.Yes,
+	}  
 }
+
+
+local UseClovers = Set.UseCloversValue
 
 
 local GUi = Instance.new("BillboardGui")
@@ -259,6 +278,7 @@ Box.BackgroundTransparency = 1
 
 UICorner.Parent = Box
 
+
 local function shorten(Input)
 	local Negative = Input < 0
 	Input = math.abs(Input)
@@ -284,6 +304,8 @@ local function shorten(Input)
 	return Input
 end
 
+
+
 local ELayout = loadstring(game:HttpGet('https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/BasicFirstLife.lua'))()
 local UILib = loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX/UiLib/refs/heads/main/UiLib.lua"))()
 
@@ -300,7 +322,6 @@ function ConvertBaseToString(PT)--Converts The players current base to a layout 
 	Set.externalLayoutString = String
 	setclipboard(String)
 end
-
 
 
 local function AddBoxTrack(Box)
@@ -370,7 +391,6 @@ local function AddTracker(ore)
 		end
 	end)
 end
-
 local function CollectBoxes()--Collectes all the boxes on the map
 	if not Set.CollectingBoxes then
 		local Pos = Player.Character.HumanoidRootPart.CFrame 
@@ -388,6 +408,9 @@ local function CollectBoxes()--Collectes all the boxes on the map
 		Player.Character.HumanoidRootPart.CFrame = Pos
 	end
 end
+
+
+
 
 local function ToggleBoxTrack(Val)--Toggles the Box tracking
 	Set.TrackBoxes = Val
@@ -453,17 +476,29 @@ local function RezieSingleUpgrader(Name)--Resizes the set upgrader to the set si
 	end
 end
 
-local function ChangeUi(Name)
+local function ClickButton(Button)
+	local Inset = game:GetService("GuiService"):GetGuiInset()
+	local ButtonPos = Vector2.new(Button.AbsolutePosition.X+Button.AbsoluteSize.X/2,Button.AbsolutePosition.Y+Button.AbsoluteSize.Y/2+Inset.Y)
+	local MousePos = game:GetService("UserInputService"):GetMouseLocation()
+	local MoveMouse =  ButtonPos-MousePos
+	mousemoverel(math.floor(MoveMouse.X), math.floor(MoveMouse.Y))
+	mousemoverel(math.floor(2), math.floor(2))
+	wait(0.1)
+	mouse1press()
+	wait(0.1)
+	mouse1release()
+end
+
+local function ChangeUi(Ui)
 	if GUI.FocusWindow.Value then  
 		GUI.FocusWindow.Value.Visible = false
 		task.wait(0.01)
 		GUI.FocusWindow.Value = nil
 	end
-	local Ui = Menus:FindFirstChild(Name)
 	if Ui then
 		Ui.Visible = true
 		GUI.FocusWindow.Value = Ui
-		if Set.TestingMode then print("Toggled: "..Name) end
+		if Set.TestingMode then print("Toggled: "..Ui.Name) end
 	end
 end
 
@@ -498,10 +533,29 @@ local function KillOres()--kills all ores in the tycoon
 	end
 end
 
+function Clearbase()
+	ChangeUi(Menus.Settings)
+	ClickButton(Data.Buttons.BaseSettings)
+	task.wait(0.1)
+	ClickButton(Data.Buttons.WithdrawButton)
+	task.wait(0.3)
+	ClickButton(Data.Buttons.PromptConfirm)
+end
 
 --Ui Library hanlding 
 local BoostPage = MainUi:CreateTab("Boost Options", 130772689610761) 
-local AutoRebirthSection = BoostPage:CreateSection("Automation")
+local AutoRebirthSection = BoostPage:CreateSection("Auto Rebirth")
+local AutoRebithToggle = BoostPage:CreateToggle({
+	Name = "Auto Rebirth",
+	CurrentValue = false,
+	Flag = "Auto Rebirth",
+	Callback = function(Value)
+		Set.AutoRebirth = Value or false
+		if Set.TestingMode then
+			print("Auto Rebirth:",Value)
+		end
+	end,
+})
 
 local AntiLeaveBaseToggle = BoostPage:CreateToggle({
 	Name = "Anti Leave Base",
@@ -511,6 +565,116 @@ local AntiLeaveBaseToggle = BoostPage:CreateToggle({
 		Set.AntiLeaveBase = Value or false
 		if Set.TestingMode then
 			print("Anti Leave Base:",Value)
+		end
+	end,
+})
+
+local WaitForSkips = BoostPage:CreateSlider({
+	Name = "Wait for skips",
+	Range = {0, 20},
+	Increment = 1,
+	Suffix = "Skips",
+	CurrentValue = 0,
+	Flag = "Skips",
+	Callback = function(Value)
+		Set.Skips = Value or 0
+		if Set.TestingMode then
+			print(" Wait for Skips:",Value)
+		end
+	end,
+})
+
+local MinWaitTime = BoostPage:CreateInput({
+	Name = "Min Rebirth time",
+	CurrentValue = "20",
+	PlaceholderText = "20",
+	RemoveTextAfterFocusLost = false,
+	Flag = "MinWait",
+	Callback = function(Text)
+		Set.MinWait = tonumber(Text) or 20
+		if Set.TestingMode then
+			print("Min Wait Time:",Text)
+		end
+	end,
+})
+
+local WaitRandom = BoostPage:CreateToggle({
+	Name = "Add Wait Randomnes",
+	CurrentValue = false,
+	Flag = "WaitRandomnes", 
+	Callback = function(Value)
+		Set.AddRandomness = Value
+		if Set.TestingMode then
+			print("Add Wait Randomness:",Value)
+		end
+	end,
+})
+
+
+local StopOnLifeBox = BoostPage:CreateInput({
+	Name = "Stop On Life(Set 0 to disable)",
+	CurrentValue = "0",
+	PlaceholderText = "0",
+	RemoveTextAfterFocusLost = false,
+	Flag = "StopLife",
+	Callback = function(Text)
+		Set.StopLife = tonumber(Text) or 0
+		if Set.TestingMode then
+			print("Stop on life set to:",Text)
+		end
+	end,
+})
+
+local Layout1Dropdown = BoostPage:CreateDropdown({
+	Name = "First Layout",
+	Options = {"Layout1","Layout2","Layout3"},
+	CurrentOption = {"Layout1"},
+	MultipleOptions = false,
+	Flag = "Layout1",  
+	Callback = function(Options)
+		Set.Layout1 = Options[1]
+		if Set.TestingMode then	
+			print("First Layout:",Options[1])
+		end
+	end,
+})
+
+local LayoutWaitBox = BoostPage:CreateInput({
+	Name = "Layout 2 Load Wait",
+	CurrentValue = "5",
+	PlaceholderText = "5",
+	RemoveTextAfterFocusLost = false,
+	Flag = "LayoutLoadWait",
+	Callback = function(Text)
+		Set.LayoutWaitTime = tonumber(Text) or 5
+		if Set.TestingMode then
+			print("Layout 2 Load Wait:",Text)
+		end
+	end,
+})
+
+local WithdrawLayoutToggle = BoostPage:CreateToggle({
+	Name = "Withdraw between layouts",
+	CurrentValue = false,
+	Flag = "WithdrawBase",  
+	Callback = function(Value)
+		Set.WithdrawBase = Value
+		if Set.TestingMode then
+			print("Add Wait Randomness:",Value)
+		end
+	end,
+})
+
+local Layout2Dropdown = BoostPage:CreateDropdown({
+	Name = "Second Layout",
+	Options = {"None" ,"Layout1","Layout2","Layout3","Layout String"},
+	CurrentOption = {"None"},
+	MultipleOptions = false,
+	Flag = "Layout2",  
+	Callback = function(Options)
+		Set.Layout2 = Options[1]
+		if Set.TestingMode then	
+			print("Second Layout:",Options[1])
 		end
 	end,
 })
@@ -577,6 +741,7 @@ local FarmRpToggle = BoostPage:CreateToggle({
 		Set.FarmRp = Value
 		if Set.OreBoost then
 			BoostToggle:Set(false)
+			AutoRebithToggle:Set(false)
 			Set.OreBoost = false
 			Set.OreBoostActive = false
 			Set.AutoRebirth = false
@@ -717,6 +882,17 @@ local OreTrackToggle = BoostPage:CreateToggle({
 	end,
 })
 
+local LayoutStringBox = BoostPage:CreateInput({
+	Name = "Layout load String ",
+	CurrentValue = "",
+	PlaceholderText = "String",
+	RemoveTextAfterFocusLost = false,
+	Flag = "",
+	Callback = function(Text)
+		Set.externalLayoutString = Text
+	end,
+})
+
 local SetBaseToLayoutStringButton = BoostPage:CreateButton({
 	Name = "Makes the Layout string your current base(Also set clipboard to)",
 	Callback = function()
@@ -726,8 +902,7 @@ local SetBaseToLayoutStringButton = BoostPage:CreateButton({
 		--ClearBase:InvokeServer()
 		ConvertBaseToString(Tycoon)
 		task.wait(3)
-		setclipboard(Set.externalLayoutString)
-		--LayoutStringBox:Set(Set.externalLayoutString) 
+		LayoutStringBox:Set(Set.externalLayoutString) 
 	end,
 })
 
@@ -735,61 +910,17 @@ local SetBaseToLayoutStringButton = BoostPage:CreateButton({
 
 local VendorsPage = MainUi:CreateTab("Vendors",6031097225)
 local GuiInteractions = VendorsPage:CreateSection("GUI's")
-local Craftsman = VendorsPage:CreateButton({
-	Name = "Open Crafts Man",
-	Callback = function()
-		ChangeUi("Craftsman")
-	end,
-})
-
-local MaksedMan = VendorsPage:CreateButton({
-	Name = "Open Masked Man",
-	Callback = function()
-		ChangeUi("EventShop")
-	end,
-})
-
-local Boxman = VendorsPage:CreateButton({
-	Name = "Open Box man",
-	Callback = function()
-		ChangeUi("SpookMcDookShop")
-	end,
-})
-
-local Superstitious = VendorsPage:CreateButton({
-	Name = "Open Superstitious Crafting",
-	Callback = function()
-		ChangeUi("SuperstitiousCrafting")
-	end,
-})
-
-local TBOK = VendorsPage:CreateButton({
-	Name = "Open True Book Of Knowlage",
-	Callback = function()
-		ChangeUi("BOKBook")
-	end,
-})
-
-local Phantasm = VendorsPage:CreateButton({
-	Name = "Open Phantasm",
-	Callback = function()
-		ChangeUi("Phantasm")
-	end,
-})
-
-local Fleabag = VendorsPage:CreateButton({
-	Name = "Open Fleabag",
-	Callback = function()
-		ChangeUi("Fleabag")
-	end,
-})
-
-local EventMenu = VendorsPage:CreateButton({
-	Name = "Open Event",
-	Callback = function()
-		ChangeUi("EventMenu")
-	end,
-})
+VendorsPage:CreateButton({Name = "Open Crafts Man", Callback = function() ChangeUi(Menus.Craftsman) end})
+VendorsPage:CreateButton({Name = "Open Masked Man", Callback = function() ChangeUi(Menus.MaskedMan) end})
+VendorsPage:CreateButton({Name = "Open Box man", Callback = function() ChangeUi(Menus.SpookMcDook) end})
+VendorsPage:CreateButton({Name = "Open Superstitious Crafting", Callback = function() ChangeUi(Menus.Superstitious) end})
+VendorsPage:CreateButton({Name = "Open True Book Of Knowledge", Callback = function() ChangeUi(Menus.BookOfKnowledge) end})
+VendorsPage:CreateButton({Name = "Open Phantasm", Callback = function() ChangeUi(Menus.Phantasm) end})
+VendorsPage:CreateButton({Name = "Open Fleabag", Callback = function() ChangeUi(Menus.Fleabag) end})
+VendorsPage:CreateButton({Name = "Open Event", Callback = function() ChangeUi(Menus.Event) end})
+VendorsPage:CreateButton({Name = "Open Index",Callback = function()ChangeUi(Menus.Index)end,})
+VendorsPage:CreateButton({Name = "Open Challenges",Callback = function()ChangeUi(Menus.Challenges)end,})
+VendorsPage:CreateButton({Name = "Open Updates",Callback = function()ChangeUi(Menus.Updates)end,})
 
 
 local PlayerList = {}
@@ -815,6 +946,30 @@ local BaseTP = VendorsPage:CreateButton({
 			print("Teleporting to base")
 		end
 		TeleportToBase(Set.SelectedPlayer)
+	end,
+})
+
+local IsnaldSection = VendorsPage:CreateSection("Solo Island")
+local IslandSelectDropdown = VendorsPage:CreateDropdown({
+	Name = "Select Island Type",
+	Options = {"Default","Executive","Mars","Sporest","Void"},
+	CurrentOption = {"Default"},
+	MultipleOptions = false,
+	Flag = "IslandSelected",  
+	Callback = function(Options)
+		Set.SelectedIsland = Options[1]
+		if Set.TestingMode then	
+			print("Seletced Island:",Options[1])
+		end
+	end,
+})
+local IslandTP = VendorsPage:CreateButton({
+	Name = "Teleport To Solo Island",
+	Callback = function()
+		if Set.TestingMode then
+			print("Teleporting to Solo Island",Set.SelectedIsland)
+		end
+		game.ReplicatedStorage.PlaySolo:InvokeServer(Set.SelectedIsland)
 	end,
 })
 
@@ -956,6 +1111,28 @@ local CharJump = OtherOptionsPage:CreateSlider({
 	end,
 })
 
+local ExternalSection = OtherOptionsPage:CreateSection("Useful Scripts")
+local LayoutStealer = OtherOptionsPage:CreateButton({
+	Name = "Layout Stealer(Keybind N)",
+	Callback = function()
+		if Set.TestingMode then
+			print("Loading External Script: Layout Stealer")
+		end
+		if game.CoreGui:FindFirstChild("LayoutsStealer") then return end
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/LayoutLoaderRaw.lua"))()
+	end,
+})
+
+local ItemTracker = OtherOptionsPage:CreateButton({
+	Name = "Item Tracker(Keybnd T)",
+	Callback = function()
+		if Set.TestingMode then
+			print("Loading External Script: Item Tracker")
+		end
+		if game.CoreGui:FindFirstChild("ItemTracker") then return end
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/MinersHavenItemTracker.lua"))()
+	end,
+})
 
 local SpoofPage = MainUi:CreateTab("Spoofer",6031215978)
 local InfoSection = SpoofPage:CreateSection("Info")
@@ -1408,7 +1585,7 @@ function BoostOre(Ore) --Sends the Ore through all upgraders on the tycoon
 		if not Ore then break end 
 		if not v  then break end 
 		if Data.MoneyLoopables[v.Name] or table.find(Data.ResettersNames,v.Name) then continue end--Passes money loops and resetters
-		if v:FindFirstChild("ItemId") and v:FindFirstChild("Plane")  then
+		if v:FindFirstChild("Plane") and ( v:FindFirstChild("ItemId") or v:GetAttribute("ItemId"))  then
 			if not v:FindFirstChild("Model") then continue end
 			local UpgradePart = v.Model:FindFirstChild("Upgrade") or v.Model:FindFirstChild("Upgrader") or v.Model:FindFirstChild("Scan")
 			if UpgradePart then
@@ -1614,9 +1791,57 @@ function StartOreBoost(Ore)--Starts the ore boost process
 		Sell(Ore)
 	end
 end
+function Rebirth()
+	ChangeUi(game:GetService("Players").LocalPlayer.PlayerGui.Rebirth.Frame)
+	wait(0.1)
+	ClickButton(Data.Buttons.RebirthButton)
+	wait(0.1)
+	ClickButton(Data.Buttons.RebirthConfirm)	
+end
 
 function Load()--Loads the players layout(s) after rebirthing if auto rebirth is on
-	print("layout Loading is not enabled for your executor")
+	if Set.TestingMode then
+		print("Start Layout Loading")
+	end 
+	if Set.OreBoost then
+		Set.OreBoostActive = true
+	end
+	Clearbase()
+	task.wait(0.1)
+	if Set.TestingMode then
+		print("Load First Layout")
+	end 
+	local Button = Data.Buttons[Set.Layout1.."Button"]
+	ChangeUi(Menus.Layouts)
+	ClickButton(Button)
+
+	if Set.Layout2 ~= "None" then
+		if Set.TestingMode then
+			print("Using Second Layout")
+		end 
+		task.wait(Set.LayoutWaitTime)
+		Set.OreBoostActive = false
+		task.wait(0.3)
+		if Set.WithdrawBase then
+			Clearbase()
+			task.wait(0.1)
+		end
+
+		if Set.TestingMode then
+			print("Load Second Layout")
+		end 
+		local Button = Data.Buttons[Set.Layout2.."Button"]
+		ChangeUi(Menus.Layouts)
+		ClickButton(Button)
+		--game.ReplicatedStorage.Layouts:InvokeServer("Load",Set.Layout2)
+		task.wait(0.1)
+		if Set.OreBoost then
+			Set.OreBoostActive = true
+		end
+	end
+	if Set.AutoResizeUpgraders then
+		ResizeUpgraders()
+	end
 end
 
 GetFurnace()
@@ -1659,7 +1884,36 @@ Money:GetPropertyChangedSignal("Value"):Connect(function()--Detects when money i
 
 	if Set.AutoRebirth and not rebirthing and os.time()-LastRebirth >= WaitTime and Tycoon.Name == ActiveTycoon.Value.Name  then
 		if Money.Value > RB then
-			print("You can rebirth")
+			if Set.StopLife >0 and  Player.Rebirths.Value >= Set.StopLife then
+				return
+			end			
+			if Set.TestingMode then
+				print("Is on their tycoon")
+			end 
+			rebirthing = true
+			Set.OreBoostActive = false
+			task.wait(0.1)
+			Rebirth()
+			
+			task.wait(1)
+			rebirthing = false
+			LastRebirth = os.time()
+			WaitTime = 0
+			if Set.AutoRebirth then
+				if Set.TestingMode then
+					print("Rebirthed")
+				end 
+				if Player.Rebirths.Value+1 == Set.StopLife then 
+					BoostToggle:Set(false)
+					AutoRebithToggle:Set(false)
+					Set.OreBoost = false
+					Set.OreBoostActive = false
+					Set.AutoRebirth = false
+				else
+					Load()
+				end
+
+			end
 		end	
 	end
 end)
@@ -1667,6 +1921,7 @@ end)
 for i,v in Boxes:GetChildren(1) do--Adds Crate trackers to already spawned boxes
 	AddBoxTrack(v)
 end
+
 
 game.Workspace.Boxes.ChildAdded:Connect(function(Box)--Added Crate tracking to newly spawn boxes
 	AddBoxTrack(Box)
