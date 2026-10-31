@@ -1,5 +1,5 @@
 --[[ This was made by MX6, and contributed by A4.
-     WHERE'S THE LAMB SAUCE?!
+     Happy Halloween! 2026/10/31 (2026, OCT. 31ST)
 ]]
 
 local ENV = (getgenv and getgenv()) or _G
@@ -510,6 +510,7 @@ local Set = {
 
 	PrimaryFurnaceName = "Auto",
 	PrimaryMineName = "None",
+	SelectedOreMines = {},
 	SingularOre = false,
 	AutoFirePrompts = false,
 	StopSlipstream = "None",
@@ -635,6 +636,8 @@ local Data = {
 	OreConnections = {},
 	ActiveOreBoosts = {},
 	ActiveOreBoostCount = 0,
+	OreMineCache = setmetatable({}, {__mode = "k"}),
+	SelectedOreMineSet = {},
 	Places = {
 		["Restore Data 2"] = 1778064565,
 		["The Void"] = 4464946645,
@@ -1550,45 +1553,46 @@ BoostPage:CreateButton({
 })
 
 BoostPage:CreateParagraph({
-	Title = "<b>Singular Ore</b>",
-	Content = "<i>Singular Ore targets ONE mine's ore only. Only that mine is ore-boosted (path + sell). Other mines' ores are left alone (normal conveyor behavior — so setups like Vulcan's Wrath still work). Pick a mine on your base or type the name 1:1 (e.g. Havium Mine). Saved.</i>"
+	Title = "<b>Selected Mine Boosting</b>",
+	Content = "<i>Leave this empty to boost every mine. Select one or more mines to boost only those ores; all other mines stay on their normal conveyors. Selected ores get the priority worker pool.</i>"
 })
 
-local SingularOreToggle = BoostPage:CreateToggle({
-	Name = "Singular Ore",
-	CurrentValue = false,
-	Flag = "SingularOre",
-	Callback = function(Value)
-		Set.SingularOre = Value
-		if Set.TestingMode then print("Singular Ore:", Value) end
-	end,
-})
+local function UpdateSelectedOreMines(options)
+	table.clear(Data.SelectedOreMineSet)
+	Set.SelectedOreMines = {}
+	for _, name in ipairs(options or {}) do
+		if name and name ~= "" and name ~= "None" then
+			Data.SelectedOreMineSet[name] = true
+			table.insert(Set.SelectedOreMines, name)
+		end
+	end
+end
 
-local PrimaryMineDropdown = BoostPage:CreateDropdown({
-	Name = "Primary Mine (Singular Ore)",
+local SelectedMineDropdown = BoostPage:CreateDropdown({
+	Name = "Mines to Boost (leave empty for all)",
 	Options = GetMinesOnBase(),
-	CurrentOption = {Set.PrimaryMineName or "None"},
-	MultipleOptions = false,
-	Flag = "PrimaryMineName",
+	CurrentOption = Set.SelectedOreMines,
+	MultipleOptions = true,
+	Flag = "SelectedOreMines",
 	Callback = function(Options)
-		local name = Options[1] or "None"
-		Set.PrimaryMineName = name
-		if Set.TestingMode then print("Primary Mine:", name) end
+		UpdateSelectedOreMines(Options)
 	end,
 })
 
 BoostPage:CreateInput({
-	Name = "Primary Mine Name (exact, 1:1)",
-	CurrentValue = (Set.PrimaryMineName and Set.PrimaryMineName ~= "None") and Set.PrimaryMineName or "",
-	PlaceholderText = 'e.g. Havium Mine  (or None)',
+	Name = "Mines to Boost (exact names, comma-separated)",
+	CurrentValue = "",
+	PlaceholderText = "e.g. Havium Mine, Pumpkinite Mine",
 	RemoveTextAfterFocusLost = false,
-	Flag = "PrimaryMineNameInput",
+	Flag = "SelectedOreMinesInput",
 	Callback = function(Text)
-		local name = (Text and Text:match("^%s*(.-)%s*$")) or ""
-		if name == "" then name = "None" end
-		Set.PrimaryMineName = name
-		pcall(function() PrimaryMineDropdown:Set({name}) end)
-		if Set.TestingMode then print("Primary Mine (typed):", name) end
+		local names = {}
+		for name in string.gmatch(Text or "", "[^,]+") do
+			name = name:match("^%s*(.-)%s*$")
+			if name ~= "" then table.insert(names, name) end
+		end
+		UpdateSelectedOreMines(names)
+		pcall(function() SelectedMineDropdown:Set(names) end)
 	end,
 })
 
@@ -1596,7 +1600,7 @@ BoostPage:CreateButton({
 	Name = "Refresh Mine List",
 	Callback = function()
 		local opts = GetMinesOnBase()
-		pcall(function() PrimaryMineDropdown:Refresh(opts) end)
+		pcall(function() SelectedMineDropdown:Refresh(opts) end)
 		if Set.TestingMode then print("Mines:", table.concat(opts, ", ")) end
 	end,
 })
@@ -2430,43 +2434,55 @@ end
 
 local function IdentifyOreMine(ore)
 	if not ore then return nil end
+	local cached = Data.OreMineCache[ore]
+	if cached ~= nil then return cached or nil end
+	local result
 	for _, childName in ipairs({"Source", "Mine", "Origin", "DroppedFrom", "From"}) do
 		local c = ore:FindFirstChild(childName)
 		if c then
-			if c:IsA("ObjectValue") and c.Value then return c.Value.Name end
-			if (c:IsA("StringValue") or c:IsA("StringValue")) and c.Value ~= "" then return c.Value end
+			if c:IsA("ObjectValue") and c.Value then result = c.Value.Name break end
+			if c:IsA("StringValue") and c.Value ~= "" then result = c.Value break end
 		end
 	end
-	local attrMine = ore:GetAttribute("Mine") or ore:GetAttribute("Source") or ore:GetAttribute("Origin")
-	if attrMine and tostring(attrMine) ~= "" then return tostring(attrMine) end
-
-	local bestName, bestDist = nil, 30
-	local pos = ore:IsA("BasePart") and ore.Position or (ore:IsA("Model") and ore:GetPivot().Position)
-	if not pos then return nil end
-	for _, v in Tycoon:GetChildren() do
-		if IsMineItem(v) then
-			local drop = v.Model.Drop
-			local d = (drop.Position - pos).Magnitude
-			if d < bestDist then
-				bestDist = d
-				bestName = v.Name
+	if not result then
+		local attrMine = ore:GetAttribute("Mine") or ore:GetAttribute("Source") or ore:GetAttribute("Origin")
+		if attrMine and tostring(attrMine) ~= "" then result = tostring(attrMine) end
+	end
+	if not result then
+		local bestName, bestDist = nil, 30
+		local pos = ore:IsA("BasePart") and ore.Position or (ore:IsA("Model") and ore:GetPivot().Position)
+		if pos then
+			for _, v in Tycoon:GetChildren() do
+				if IsMineItem(v) then
+					local drop = v.Model:FindFirstChild("Drop", true)
+					if drop and drop:IsA("BasePart") then
+						local d = (drop.Position - pos).Magnitude
+						if d < bestDist then
+							bestDist = d
+							bestName = v.Name
+						end
+					end
+				end
 			end
 		end
+		result = bestName
 	end
-	return bestName
+	Data.OreMineCache[ore] = result or false
+	return result
 end
 
 local function ShouldOreBoostThisOre(ore)
-	if not Set.SingularOre then return true end
-	local mineName = Set.PrimaryMineName
-	if not mineName or mineName == "" or mineName == "None" then
-		return true
+	if next(Data.SelectedOreMineSet) then
+		local source = IdentifyOreMine(ore)
+		return Data.SelectedOreMineSet[source] == true, true
 	end
-	local source = IdentifyOreMine(ore)
-	if Set.TestingMode then
-		print("Singular Ore: source=", source, " want=", mineName, " boost=", source == mineName)
+
+	local legacyMine = Set.PrimaryMineName
+	if Set.SingularOre and legacyMine and legacyMine ~= "" and legacyMine ~= "None" then
+		return IdentifyOreMine(ore) == legacyMine, true
 	end
-	return source == mineName
+
+	return true, false
 end
 
 local function CollectMoneyLoopInstances(base)
@@ -2648,11 +2664,13 @@ local function RunOreBoost(Ore)
 	end
 end
 
-local MAX_ACTIVE_ORE_BOOSTS = 2
+local MAX_DEFAULT_ORE_BOOSTS = 2
+local MAX_SELECTED_MINE_BOOSTS = 8
 
-function StartOreBoost(Ore)
+function StartOreBoost(Ore, selectedMine)
 	if not HubAlive() or not Ore or not Ore.Parent then return end
-	if Data.ActiveOreBoosts[Ore] or Data.ActiveOreBoostCount >= MAX_ACTIVE_ORE_BOOSTS then return end
+	local maxWorkers = selectedMine and MAX_SELECTED_MINE_BOOSTS or MAX_DEFAULT_ORE_BOOSTS
+	if Data.ActiveOreBoosts[Ore] or Data.ActiveOreBoostCount >= maxWorkers then return end
 
 	Data.ActiveOreBoosts[Ore] = true
 	Data.ActiveOreBoostCount += 1
@@ -2921,10 +2939,11 @@ if Ores then
 				end
 				return 
 			end
-			if not ShouldOreBoostThisOre(Child) then
+			local shouldBoost, selectedMine = ShouldOreBoostThisOre(Child)
+			if not shouldBoost then
 				return
 			end
-			StartOreBoost(Child)
+			StartOreBoost(Child, selectedMine)
 		elseif Set.FarmRp then
 			Sell(Child)
 		end
