@@ -30,6 +30,13 @@ local function DestroyHubGuis()
 	pcall(function()
 		if gethui then wipe(gethui()) end
 	end)
+	pcall(function()
+		for _, child in ipairs(game:GetService("Workspace"):GetDescendants()) do
+			if child:IsA("BillboardGui") and child.Name == "GUi" then
+				child:Destroy()
+			end
+		end
+	end)
 end
 DestroyHubGuis()
 
@@ -220,6 +227,8 @@ local OldMinersHavenTheme = {
 
 local OldMHStyleActive = false
 local OldMHDescConns = {}
+local OldMHInputConns = {}
+local OldMHStyledInputs = {}
 local OldMHRestylePending = false
 
 local function FindRayfieldRoots()
@@ -290,7 +299,8 @@ local function StyleInstanceOldMH(inst)
 		end
 		if not inst:GetAttribute("MX6_OGFix") then
 			inst:SetAttribute("MX6_OGFix", true)
-			TrackForInstance(inst, inst.Focused:Connect(function()
+			table.insert(OldMHStyledInputs, inst)
+			local focusedConn = Track(inst.Focused:Connect(function()
 				if not OldMHStyleActive then return end
 				pcall(function()
 					inst.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -298,6 +308,7 @@ local function StyleInstanceOldMH(inst)
 					inst.BackgroundColor3 = Color3.fromRGB(55, 55, 62)
 				end)
 			end))
+			table.insert(OldMHInputConns, focusedConn)
 		end
 		return
 	end
@@ -350,6 +361,14 @@ local function StopOldMHRestyleWatch()
 		DisconnectTracked(c)
 	end
 	table.clear(OldMHDescConns)
+	for _, c in ipairs(OldMHInputConns) do
+		DisconnectTracked(c)
+	end
+	table.clear(OldMHInputConns)
+	for _, input in ipairs(OldMHStyledInputs) do
+		pcall(function() input:SetAttribute("MX6_OGFix", nil) end)
+	end
+	table.clear(OldMHStyledInputs)
 end
 
 local function StartOldMHRestyleWatch()
@@ -466,6 +485,7 @@ local Set = {
 	SpoofName = false,
 	LifeVal = 0,
 	FarmBoxes = false,
+	AutoCandyConfirm = false,
 	UpgradeLoopCount = 1,
 	externalLayoutString = "",
 	BlueprintCount = 0,
@@ -507,6 +527,7 @@ local GUi = Instance.new("BillboardGui")
 local Box = Instance.new("TextLabel")
 local UICorner = Instance.new("UICorner")
 GUi.Name = "GUi"
+GUi:SetAttribute("MX6HubOwned", true)
 Hub.GUi = GUi
 GUi.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 GUi.Active = true
@@ -610,7 +631,10 @@ local Data = {
 	Blueprints = {},
 	OreTrackers = {},
 	BoxTrackers = {},
+	BoxConnections = {},
 	OreConnections = {},
+	ActiveOreBoosts = {},
+	ActiveOreBoostCount = 0,
 	Places = {
 		["Restore Data 2"] = 1778064565,
 		["The Void"] = 4464946645,
@@ -732,23 +756,21 @@ end
 local function LoadExternlLayout(Layout)
 	if Layout then 
 		local expected = TableEntryCount(Layout)
-		for i,v in pairs(Layout) do
-			task.spawn(function()
-				local Item = game.ReplicatedStorage.Items:FindFirstChild(v["Name"])
-				if not Item then return end
-				local P = string.split(v["Pos"],",")
-				local Pos = CFrame.new(P[1],P[2],P[3],P[4],P[5],P[6],P[7],P[8],P[9],P[10],P[11],P[12])
+		for _, v in ipairs(Layout) do
+			if not HubAlive() then break end
+			local Item = game.ReplicatedStorage.Items:FindFirstChild(v["Name"])
+			if Item then
+				local P = string.split(v["Pos"], ",")
+				local Pos = CFrame.new(tonumber(P[1]), tonumber(P[2]), tonumber(P[3]), tonumber(P[4]), tonumber(P[5]), tonumber(P[6]), tonumber(P[7]), tonumber(P[8]), tonumber(P[9]), tonumber(P[10]), tonumber(P[11]), tonumber(P[12]))
 				local base = GetPlayerTycoon()
-				if not base or not base:FindFirstChild("Base") then return end
-				if Item.ItemType.Value >=1 and Item.ItemType.Value <5 then
-					if Player.PlayerGui.GUI.Money.Value >= Item.Cost.Value then
-						buyItem:Invoke(Item:GetAttribute("ItemId"),1)
-						PlaceItem:Invoke(Item:GetAttribute("ItemId"), Pos+base.Base.Position, {base.Base}) 
+				if base and base:FindFirstChild("Base") then
+					if Item.ItemType.Value >= 1 and Item.ItemType.Value < 5 then
+						if Player.PlayerGui.GUI.Money.Value >= Item.Cost.Value then buyItem:Invoke(Item:GetAttribute("ItemId"), 1) end
 					end
-				else
-					PlaceItem:Invoke(Item:GetAttribute("ItemId"), Pos+base.Base.Position, {base.Base}) 
+					PlaceItem:Invoke(Item:GetAttribute("ItemId"), Pos + base.Base.Position, {base.Base})
 				end
-			end)
+			end
+			task.wait(0.03)
 		end
 		WaitForLayoutSettle(15, math.max(1, math.floor(expected * 0.5)))
 		return expected
@@ -767,23 +789,21 @@ local function LoadStringLayout(String)
 	local expected = TableEntryCount(Layout)
 	local base = GetPlayerTycoon()
 	if not base or not base:FindFirstChild("Base") then return 0 end
-	for i,v in pairs(Layout) do
-		task.spawn(function()
-			local Item = game.ReplicatedStorage.Items:FindFirstChild(v[1])
-			if not Item then return end
-			local P = string.split(v[2],",")
-			local Pos = CFrame.new(P[1],P[2],P[3],P[4],P[5],P[6],P[7],P[8],P[9],P[10],P[11],P[12])
+	for _, v in ipairs(Layout) do
+		if not HubAlive() then break end
+		local Item = game.ReplicatedStorage.Items:FindFirstChild(v[1])
+		if Item then
+			local P = string.split(v[2], ",")
+			local Pos = CFrame.new(tonumber(P[1]), tonumber(P[2]), tonumber(P[3]), tonumber(P[4]), tonumber(P[5]), tonumber(P[6]), tonumber(P[7]), tonumber(P[8]), tonumber(P[9]), tonumber(P[10]), tonumber(P[11]), tonumber(P[12]))
 			local tycoon = GetPlayerTycoon()
-			if not tycoon or not tycoon:FindFirstChild("Base") then return end
-			if Item.ItemType.Value >=1 and Item.ItemType.Value <5 then
-				if Player.PlayerGui.GUI.Money.Value >= Item.Cost.Value then
-					buyItem:Invoke(Item:GetAttribute("ItemId"),1)
-					PlaceItem:Invoke(Item:GetAttribute("ItemId"), Pos+tycoon.Base.Position, {tycoon.Base}) 
+			if tycoon and tycoon:FindFirstChild("Base") then
+				if Item.ItemType.Value >= 1 and Item.ItemType.Value < 5 then
+					if Player.PlayerGui.GUI.Money.Value >= Item.Cost.Value then buyItem:Invoke(Item:GetAttribute("ItemId"), 1) end
 				end
-			else
-				PlaceItem:Invoke(Item:GetAttribute("ItemId"), Pos+tycoon.Base.Position, {tycoon.Base}) 
+				PlaceItem:Invoke(Item:GetAttribute("ItemId"), Pos + tycoon.Base.Position, {tycoon.Base})
 			end
-		end)
+		end
+		task.wait(0.03)
 	end
 	local settled = WaitForLayoutSettle(18, math.max(1, math.floor(expected * 0.5)))
 	if Set.TestingMode then print("LoadStringLayout settled:", settled, "/", expected) end
@@ -805,8 +825,50 @@ local function LoadOneLayout(layoutName)
 	return settled
 end
 
+local MAX_TRACKED_ORES = 50
+local MAX_TRACKED_BOXES = 25
+
+local function TrackerCount(trackers)
+	local count = 0
+	for _ in pairs(trackers) do count += 1 end
+	return count
+end
+
+local function ClearBoxTracker(box)
+	local connections = Data.BoxConnections[box]
+	if connections then
+		for _, connection in pairs(connections) do
+			DisconnectTracked(connection)
+		end
+		Data.BoxConnections[box] = nil
+	end
+	local ui = Data.BoxTrackers[box]
+	pcall(function() if ui then ui:Destroy() end end)
+	Data.BoxTrackers[box] = nil
+end
+
+local function ClearBoxTrackers()
+	local tracked = {}
+	for box in pairs(Data.BoxTrackers) do table.insert(tracked, box) end
+	for _, box in ipairs(tracked) do ClearBoxTracker(box) end
+end
+
+local function ClearOreTrackers()
+	for ore, connections in pairs(Data.OreConnections) do
+		for _, connection in pairs(connections) do
+			DisconnectTracked(connection)
+		end
+		Data.OreConnections[ore] = nil
+	end
+	for ore, ui in pairs(Data.OreTrackers) do
+		pcall(function() if ui then ui:Destroy() end end)
+		Data.OreTrackers[ore] = nil
+	end
+end
+
 local function AddBoxTrack(Box)
-	if not Box or Data.BoxTrackers[Box] then return end
+	if not Set.TrackBoxes or not Box or Data.BoxTrackers[Box] then return end
+	if TrackerCount(Data.BoxTrackers) >= MAX_TRACKED_BOXES then return end
 	local Ui = GUi:Clone()
 	Ui.Box.Text = Box.Name
 	Ui.AlwaysOnTop = true
@@ -822,20 +884,23 @@ local function AddBoxTrack(Box)
 	end
 	Ui.Enabled = Set.TrackBoxes
 	Data.BoxTrackers[Box] = Ui
-	local ancestryConn
-	ancestryConn = Track(Box.AncestryChanged:Connect(function(_, parent)
+	local connections = {}
+	Data.BoxConnections[Box] = connections
+	connections.ancestryConn = Track(Box.AncestryChanged:Connect(function(_, parent)
 		if not HubAlive() then return end
-		if not parent then
-			if Ui then Ui:Destroy() end
-			Data.BoxTrackers[Box] = nil
-			DisconnectTracked(ancestryConn)
+		if not parent or not Box:IsDescendantOf(Boxes) then
+			ClearBoxTracker(Box)
 		end
+	end))
+	connections.destroyConn = Track(Box.Destroying:Connect(function()
+		ClearBoxTracker(Box)
 	end))
 end
 
 local function AddTracker(ore)
 	if not HubAlive() then return end
-	if not ore or Data.OreConnections[ore] then return end
+	if not Set.OreTracking or not ore or Data.OreConnections[ore] then return end
+	if TrackerCount(Data.OreTrackers) >= MAX_TRACKED_ORES then return end
 	local cash = ore:WaitForChild("Cash", 5) 
 	if not cash or not ore.Parent then return end
 	local Ui = GUi:Clone()
@@ -865,6 +930,46 @@ local function AddTracker(ore)
 		if not parent then cleanup() end
 	end))
 end
+
+local lastCandyConfirm = 0
+
+local function ConfirmCandyCollection()
+	if not Set.AutoCandyConfirm or os.clock() - lastCandyConfirm < 0.4 then return end
+	local gui = Player:FindFirstChild("PlayerGui")
+	local gameGui = gui and gui:FindFirstChild("GUI")
+	local promptGui = gameGui and gameGui:FindFirstChild("InputPrompt")
+	local prompt = promptGui and promptGui:FindFirstChild("InputPrompt")
+	local title = prompt and prompt:FindFirstChild("Title")
+	local yes = prompt and prompt:FindFirstChild("Yes")
+	if not (prompt and title and yes and prompt.Visible and yes.Visible) then return end
+
+	local promptText = string.lower(title.Text or "")
+	if not (string.find(promptText, "collect", 1, true) and string.find(promptText, "candy", 1, true)) then return end
+
+	local clicked = false
+	if getconnections then
+		for _, connection in ipairs(getconnections(yes.MouseButton1Click)) do
+			if connection.Function then
+				local ok = pcall(connection.Function)
+				clicked = clicked or ok
+			end
+		end
+	end
+	if not clicked and firesignal then
+		clicked = pcall(firesignal, yes.MouseButton1Click)
+	end
+	if not clicked then
+		clicked = pcall(function() yes:Activate() end)
+	end
+	if clicked then lastCandyConfirm = os.clock() end
+end
+
+task.spawn(function()
+	while HubAlive() do
+		ConfirmCandyCollection()
+		task.wait(0.1)
+	end
+end)
 
 local function CollectBoxes()
 	if not HubAlive() then return end
@@ -912,13 +1017,23 @@ end
 
 local function ToggleBoxTrack(Val)
 	Set.TrackBoxes = Val
-	for i,v in Data.BoxTrackers do v.Enabled = Set.TrackBoxes end
+	if not Val then
+		ClearBoxTrackers()
+		return
+	end
+	for _, box in ipairs(Boxes:GetChildren()) do
+		AddBoxTrack(box)
+	end
 end
 
 local function ToggleOreTrack(Val)
 	Set.OreTracking = Val
-	for i,v in Data.OreTrackers do
-		if v and v.Parent then v.Enabled = Set.OreTracking end
+	if not Val then
+		ClearOreTrackers()
+		return
+	end
+	for _, ore in ipairs(Ores:GetChildren()) do
+		AddTracker(ore)
 	end
 end
 
@@ -1031,13 +1146,20 @@ function BuyBlueprints()
 end
 
 local function ShopSpam()
-	for i,v in game.ReplicatedStorage.Items:GetChildren() do
-		if v.ItemType.Value <5 then
-			task.spawn(function()
-				for i=1,10 do buyItem:Invoke(v:GetAttribute("ItemId"),99) end
-			end)			
+	task.spawn(function()
+		for _, item in ipairs(game.ReplicatedStorage.Items:GetChildren()) do
+			if not HubAlive() then break end
+			local itemType = item:FindFirstChild("ItemType")
+			local itemId = item:GetAttribute("ItemId")
+			if itemType and itemType.Value < 5 and itemId then
+				for _ = 1, 10 do
+					if not HubAlive() then break end
+					pcall(function() buyItem:Invoke(itemId, 99) end)
+					task.wait(0.03)
+				end
+			end
 		end
-	end
+	end)
 end
 
 local function HasNamedScript(root, scriptName)
@@ -1817,6 +1939,15 @@ BoxFarmPage:CreateToggle({
 })
 
 BoxFarmPage:CreateToggle({
+	Name = "Auto Confirm Candy (Yes)",
+	CurrentValue = false,
+	Flag = "AutoCandyConfirm",
+	Callback = function(Value)
+		Set.AutoCandyConfirm = Value
+	end,
+})
+
+BoxFarmPage:CreateToggle({
 	Name = "Ghost Load",
 	CurrentValue = false,
 	Flag = "GhostLoad",
@@ -2478,7 +2609,7 @@ local function RunNormalMoneyLoop(Ore, entries, protectPart)
 		or Ore.Cash.Value <= 0
 end
 
-function StartOreBoost(Ore)
+local function RunOreBoost(Ore)
 	if not HubAlive() then return end
 	if Set.TestingMode then print("Ore Boost Setting up") end
 	repeat task.wait() until not HubAlive() or Ore:FindFirstChild("Cash")
@@ -2515,6 +2646,20 @@ function StartOreBoost(Ore)
 		Ore.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
 		Sell(Ore)
 	end
+end
+
+local MAX_ACTIVE_ORE_BOOSTS = 2
+
+function StartOreBoost(Ore)
+	if not HubAlive() or not Ore or not Ore.Parent then return end
+	if Data.ActiveOreBoosts[Ore] or Data.ActiveOreBoostCount >= MAX_ACTIVE_ORE_BOOSTS then return end
+
+	Data.ActiveOreBoosts[Ore] = true
+	Data.ActiveOreBoostCount += 1
+	local ok, err = pcall(RunOreBoost, Ore)
+	Data.ActiveOreBoosts[Ore] = nil
+	Data.ActiveOreBoostCount = math.max(0, Data.ActiveOreBoostCount - 1)
+	if not ok and Set.TestingMode then warn("Ore boost error:", err) end
 end
 
 local function ResolveFireProximityPrompt()
@@ -2573,7 +2718,7 @@ local function FireOneProximityPrompt(prompt, fireFn)
 
 	if fireFn then
 		pcall(fireFn, prompt)
-		pcall(fireFn, prompt, 1)
+		return
 	end
 
 	pcall(function()
@@ -2590,14 +2735,22 @@ local function FireOneProximityPrompt(prompt, fireFn)
 	end)
 end
 
+local cachedBasePrompts = {}
+local nextPromptScanAt = 0
+
 local function FireBaseProximityPrompts()
 	if not Set.AutoFirePrompts or not HubAlive() then return end
 	if Set.Rebirthing or Set.LayoutLoading then return end
 
-	local fireFn = ResolveFireProximityPrompt()
-	local prompts = CollectBaseProximityPrompts()
+	local now = os.clock()
+	if now >= nextPromptScanAt then
+		cachedBasePrompts = CollectBaseProximityPrompts()
+		nextPromptScanAt = now + 1
+	end
 
-	for _, prompt in ipairs(prompts) do
+	local fireFn = ResolveFireProximityPrompt()
+
+	for _, prompt in ipairs(cachedBasePrompts) do
 		if not HubAlive() then break end
 		if prompt and prompt.Parent then
 			pcall(FireOneProximityPrompt, prompt, fireFn)
@@ -2754,7 +2907,7 @@ GetFurnace()
 if Ores then
 	Track(Ores.ChildAdded:Connect(function(Child)
 		if not HubAlive() then return end
-		AddTracker(Child)
+		if Set.OreTracking then AddTracker(Child) end
 		if Set.OreSize > 0 then 
 			Child.Size = Vector3.new(Set.OreSize,Set.OreSize,Set.OreSize)
 		end
@@ -2936,7 +3089,9 @@ task.spawn(function()
 	end
 end)
 
-for i,v in Boxes:GetChildren() do AddBoxTrack(v) end
+if Set.TrackBoxes then
+	for _, box in ipairs(Boxes:GetChildren()) do AddBoxTrack(box) end
+end
 
 Track(Net.ItemObtained:Connect(function(Item,Amount)
 	if not HubAlive() then return end
@@ -2952,7 +3107,7 @@ end))
 
 Track(game.Workspace.Boxes.ChildAdded:Connect(function(Box)
 	if not HubAlive() then return end
-	AddBoxTrack(Box)
+	if Set.TrackBoxes then AddBoxTrack(Box) end
 end))
 
 local CharacterConnections = {}
@@ -3059,6 +3214,7 @@ function Hub.Unload()
 		S.OreBoost = false
 		S.OreBoostActive = false
 		S.FarmBoxes = false
+		S.AutoCandyConfirm = false
 		S.OpenBoxes = false
 		S.AutoDrop = false
 		S.AutoFirePrompts = false
@@ -3080,29 +3236,13 @@ function Hub.Unload()
 	table.clear(Hub.ConnectionIndices)
 
 	if Data then
-		if Data.BoxTrackers then
-			for box, ui in pairs(Data.BoxTrackers) do
-				pcall(function() if ui then ui:Destroy() end end)
-				Data.BoxTrackers[box] = nil
-			end
-		end
-		if Data.OreConnections then
-			for ore, conns in pairs(Data.OreConnections) do
-				if type(conns) == "table" then
-					for _, c in pairs(conns) do
-						pcall(function() if c and c.Disconnect then c:Disconnect() end end)
-					end
-				end
-				Data.OreConnections[ore] = nil
-			end
-		end
-		if Data.OreTrackers then
-			for ore, ui in pairs(Data.OreTrackers) do
-				pcall(function() if ui then ui:Destroy() end end)
-				Data.OreTrackers[ore] = nil
-			end
-		end
+		ClearBoxTrackers()
+		ClearOreTrackers()
+		table.clear(Data.ActiveOreBoosts)
+		Data.ActiveOreBoostCount = 0
 	end
+	table.clear(cachedBasePrompts)
+	ClearCharacterConnections()
 
 	pcall(function()
 		if Chat.OnIncomingMessage == Hub.ChatHandler then
@@ -3190,7 +3330,7 @@ task.spawn(function()
 					n, tostring(hasFire)
 					))
 			end
-			task.wait(0.08)
+			task.wait(0.5)
 		else
 			task.wait(0.3)
 		end
