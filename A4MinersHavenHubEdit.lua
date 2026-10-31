@@ -1,5 +1,5 @@
 --[[ This was made by MX6, and contributed by A4.
-     #PCALLSPAM!!!!!
+     WHERE'S THE LAMB SAUCE?!
 ]]
 
 local ENV = (getgenv and getgenv()) or _G
@@ -23,7 +23,6 @@ local function DestroyHubGuis()
 			end
 		end
 	end
-	pcall(function() wipe(game:GetService("CoreGui")) end)
 	pcall(function()
 		local lp = game:GetService("Players").LocalPlayer
 		if lp then wipe(lp:FindFirstChild("PlayerGui")) end
@@ -88,10 +87,31 @@ local function HubAlive()
 	return Hub.Alive == true and ENV[HUB_KEY] == Hub
 end
 
+local function HttpGetText(url)
+	local httpRequest = request or http_request
+	if type(httpRequest) ~= "function" then
+		error("Executor HTTP request API is unavailable")
+	end
+	local response = httpRequest({Url = url, Method = "GET"})
+	if type(response) ~= "table" or response.Success ~= true or type(response.Body) ~= "string" then
+		error("HTTP request failed for " .. url .. ": " .. tostring(response and response.StatusCode))
+	end
+	return response.Body
+end
+
+local function LoadExternal(url)
+	local source = HttpGetText(url)
+	local chunk, compileError = loadstring(source)
+	if type(chunk) ~= "function" then
+		error("Failed to compile " .. url .. ": " .. tostring(compileError))
+	end
+	return chunk()
+end
+
 local Chat = game:GetService("TextChatService")
 local TeleportService = game:GetService("TeleportService")
 local Player = game.Players.LocalPlayer
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+local Rayfield = LoadExternal("https://sirius.menu/rayfield")
 local MainUi = Rayfield:CreateWindow({
 	Name = "MX6 Miners Haven Hub",
 	Icon = 0,
@@ -113,7 +133,7 @@ local MainUi = Rayfield:CreateWindow({
 
 	Discord = {
 		Enabled = false, 
-		Invite = "discord.gg/eCQnApxxgd", -- please join thanks
+		Invite = "discord.gg/eCQnApxxgd", 
 		RememberJoins = true
 	},
 
@@ -219,19 +239,21 @@ local function FindRayfieldRoots()
 			end
 		end
 	end
-	pcall(function() scan(game:GetService("CoreGui")) end)
 	pcall(function()
 		local lp = game:GetService("Players").LocalPlayer
 		if lp then scan(lp:FindFirstChild("PlayerGui")) end
 	end)
 	pcall(function() if gethui then scan(gethui()) end end)
-	pcall(function()
-		local cg = game:GetService("CoreGui")
-		add(cg:FindFirstChild("Rayfield"))
-	end)
 	return roots
 end
 
+local function FindUiByName(name)
+	local playerGui = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
+	if playerGui and playerGui:FindFirstChild(name) then return playerGui:FindFirstChild(name) end
+	local ok, hui = pcall(function() return gethui and gethui() end)
+	if ok and hui then return hui:FindFirstChild(name) end
+	return nil
+end
 local function StyleInstanceOldMH(inst)
 	if not inst or not inst.Parent then return end
 
@@ -383,8 +405,13 @@ if not Player:FindFirstChild("BaseDataLoaded") then
 		Image = 4483362458,
 	})
 end
-local Net = require(game.ReplicatedStorage.Modules.Networking.Net)
-local Layouts = require(game.ReplicatedStorage.Modules.Networking.Remotes).Layouts
+local Networking = game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Networking")
+local Jolt = require(Networking:WaitForChild("Jolt"))
+local Net = {}
+for _, remoteName in ipairs({"BuyItem", "CraftsmanEvents", "DestroyAll", "ItemObtained", "MysteryBox", "PlaceItem", "PlaySolo", "Rebirth", "RemoteDrop"}) do
+	Net[remoteName] = Jolt.Client(remoteName)
+end
+local Layouts = game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("Placement"):WaitForChild("Layouts")
 local Tycoon = Player.PlayerTycoon.Value
 local ActiveTycoon = Player.ActiveTycoon
 local AdjustSpeed = Tycoon.AdjustSpeed
@@ -596,7 +623,7 @@ local Data = {
 	}
 }
 
-local ELayout = loadstring(game:HttpGet('https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/BasicFirstLife.lua'))()
+local ELayout = LoadExternal("https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/BasicFirstLife.lua")
 
 for i,v in game.ReplicatedStorage.Items:GetChildren() do
 	if not v:FindFirstChild("Tier") then continue end 
@@ -1487,10 +1514,6 @@ BoostPage:CreateToggle({
 	end,
 })
 
-BoostPage:CreateParagraph({
-	Title = "<b>Money Loopables / Stars</b>",
-	Content = "<i>OFF: stars work like normal upgraders in the ore-boost path (one pass each). ON: special star farming — rotates duplicates + cooldowns so ores don't shred. If you're farming stars this way, use a mine like Symmetrium!</i>"
-})
 
 BoostPage:CreateToggle({
 	Name = "Farm RP(Disables oreboost and auto rebirth)",
@@ -1962,8 +1985,8 @@ OtherOptionsPage:CreateButton({
 	Name = "Layout Stealer(Keybind N)",
 	Callback = function()
 		if Set.TestingMode then print("Loading External Script: Layout Stealer") end
-		if game.CoreGui:FindFirstChild("LayoutsStealer") then return end
-		loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/LayoutLoaderRaw.lua"))()
+		if FindUiByName("LayoutsStealer") then return end
+		LoadExternal("https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/LayoutLoaderRaw.lua")
 	end,
 })
 
@@ -1971,8 +1994,8 @@ OtherOptionsPage:CreateButton({
 	Name = "Item Tracker(Keybnd T)",
 	Callback = function()
 		if Set.TestingMode then print("Loading External Script: Item Tracker") end
-		if game.CoreGui:FindFirstChild("ItemTracker") then return end
-		loadstring(game:HttpGet("https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/MinersHavenItemTracker.lua"))()
+		if FindUiByName("ItemTracker") then return end
+		LoadExternal("https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/MinersHavenItemTracker.lua")
 	end,
 })
 
