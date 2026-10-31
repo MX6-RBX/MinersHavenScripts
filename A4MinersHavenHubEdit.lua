@@ -1816,6 +1816,9 @@ VendorsPage:CreateButton({Name = "Open True Book Of Knowledge", Callback = funct
 VendorsPage:CreateButton({Name = "Open Phantasm", Callback = function() ChangeUi("Phantasm") end})
 VendorsPage:CreateButton({Name = "Open Fleabag", Callback = function() ChangeUi("Fleabag") end})
 VendorsPage:CreateButton({Name = "Open Event", Callback = function() ChangeUi("Event") end})
+VendorsPage:CreateButton({Name = "Open Index",Callback = function()ChangeUi("Index")end,})
+VendorsPage:CreateButton({Name = "Open Challenges",Callback = function()ChangeUi("Challenges")end,})
+VendorsPage:CreateButton({Name = "Open Updates",Callback = function()ChangeUi("Updates")end,})
 
 local PlayerList = {}
 for i,v in game.Players:GetChildren() do table.insert(PlayerList,v.Name) end
