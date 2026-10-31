@@ -1,5 +1,5 @@
 --[[ This was made by MX6, and contributed by A4.
-     Happy Halloween! 2026/10/31 (2026, OCT. 31ST)
+     HAPPY HALLOWEEN 2K26
 ]]
 
 local ENV = (getgenv and getgenv()) or _G
@@ -117,6 +117,7 @@ end
 
 local Chat = game:GetService("TextChatService")
 local TeleportService = game:GetService("TeleportService")
+local SoundService = game:GetService("SoundService")
 local Player = game.Players.LocalPlayer
 local Rayfield = LoadExternal("https://sirius.menu/rayfield")
 local MainUi = Rayfield:CreateWindow({
@@ -492,6 +493,10 @@ local Set = {
 	BlueprintsCost = 0,
 	SelectedPlayer = game.Players.LocalPlayer.Name,
 	SelectedIsland = "Default",
+	SelectedMusicTarget = "ClientBaseRadio",
+	SelectedMusicPreset = "Halloween Day",
+	SelectedRadioTrack = "Mesmerize",
+	CustomMusicId = "",
 	AntiLeaveBase = false,
 	OreSize = 0,
 	AutoResizeUpgraders = false,
@@ -663,14 +668,17 @@ end
 
 function ConvertBaseToString(PT)
 	local FullLayout = {}
-	for i,v in pairs(PT:GetChildren()) do 
-		if v:FindFirstChild("ItemId") then
-			table.insert(FullLayout,{v:GetAttribute("ItemId"),tostring(v.Hitbox.CFrame-PT.Base.Position)})
+	for _, v in ipairs(PT:GetChildren()) do
+		local itemIdValue = v:FindFirstChild("ItemId")
+		local itemId = v:GetAttribute("ItemId") or (itemIdValue and itemIdValue.Value)
+		local hitbox = v:FindFirstChild("Hitbox")
+		if itemId and hitbox and hitbox:IsA("BasePart") then
+			table.insert(FullLayout, {itemId, tostring(hitbox.CFrame - PT.Base.Position)})
 		end
 	end
 	local String = game.HttpService:JSONEncode(FullLayout)
 	Set.externalLayoutString = tostring(String)
-	setclipboard(String)
+	if type(setclipboard) == "function" then pcall(setclipboard, String) end
 end
 
 local function GetPlayerTycoon()
@@ -756,61 +764,130 @@ local function IsLayoutFullyLoaded(tolerance)
 	return have >= math.max(1, math.floor(expected * tolerance))
 end
 
-local function LoadExternlLayout(Layout)
-	if Layout then 
-		local expected = TableEntryCount(Layout)
-		for _, v in ipairs(Layout) do
-			if not HubAlive() then break end
-			local Item = game.ReplicatedStorage.Items:FindFirstChild(v["Name"])
-			if Item then
-				local P = string.split(v["Pos"], ",")
-				local Pos = CFrame.new(tonumber(P[1]), tonumber(P[2]), tonumber(P[3]), tonumber(P[4]), tonumber(P[5]), tonumber(P[6]), tonumber(P[7]), tonumber(P[8]), tonumber(P[9]), tonumber(P[10]), tonumber(P[11]), tonumber(P[12]))
-				local base = GetPlayerTycoon()
-				if base and base:FindFirstChild("Base") then
-					if Item.ItemType.Value >= 1 and Item.ItemType.Value < 5 then
-						if Player.PlayerGui.GUI.Money.Value >= Item.Cost.Value then buyItem:Invoke(Item:GetAttribute("ItemId"), 1) end
-					end
-					PlaceItem:Invoke(Item:GetAttribute("ItemId"), Pos + base.Base.Position, {base.Base})
-				end
-			end
-			task.wait(0.03)
-		end
-		WaitForLayoutSettle(15, math.max(1, math.floor(expected * 0.5)))
-		return expected
+local function GetLayoutItemId(item)
+	if not item then return nil end
+	local itemId = tonumber(item:GetAttribute("ItemId"))
+	if itemId then return itemId end
+	local value = item:FindFirstChild("ItemId")
+	return value and tonumber(value.Value) or nil
+end
+
+local function ResolveLayoutItem(identifier)
+	local items = game:GetService("ReplicatedStorage"):FindFirstChild("Items")
+	if not items or identifier == nil then return nil end
+	local direct = items:FindFirstChild(tostring(identifier))
+	if direct then return direct end
+	local wantedId = tonumber(identifier)
+	if not wantedId then return nil end
+	for _, item in ipairs(items:GetChildren()) do
+		if GetLayoutItemId(item) == wantedId then return item end
 	end
 	return nil
 end
 
+local function DecodeLayoutCFrame(raw)
+	if typeof(raw) == "CFrame" then return raw end
+	local values = {}
+	if type(raw) == "table" then
+		for index = 1, math.min(#raw, 12) do
+			local value = tonumber(raw[index])
+			if not value then return nil end
+			table.insert(values, value)
+		end
+	elseif type(raw) == "string" then
+		for token in string.gmatch(raw, "[^,]+") do
+			local clean = token:match("^%s*(.-)%s*$"):gsub("^%(", ""):gsub("%)$", "")
+			local value = tonumber(clean)
+			if not value then return nil end
+			table.insert(values, value)
+			if #values == 12 then break end
+		end
+	else
+		return nil
+	end
+	if #values >= 12 then
+		return CFrame.new(values[1], values[2], values[3], values[4], values[5], values[6], values[7], values[8], values[9], values[10], values[11], values[12])
+	end
+	if #values == 3 then return CFrame.new(values[1], values[2], values[3]) end
+	return nil
+end
+
+local function PlaceLayoutEntry(identifier, rawPosition)
+	local item = ResolveLayoutItem(identifier)
+	if not item then return false, "item not found: " .. tostring(identifier) end
+	local itemId = GetLayoutItemId(item)
+	local position = DecodeLayoutCFrame(rawPosition)
+	local tycoon = GetPlayerTycoon()
+	local base = tycoon and tycoon:FindFirstChild("Base")
+	if not itemId or not position or not base then return false, "invalid item, position, or base" end
+
+	local itemType = item:FindFirstChild("ItemType")
+	local cost = item:FindFirstChild("Cost")
+	if itemType and cost and itemType.Value >= 1 and itemType.Value < 5 then
+		local money = Player.PlayerGui.GUI:FindFirstChild("Money")
+		if money and money.Value < cost.Value then return false, "not enough money: " .. item.Name end
+		local bought = pcall(function() buyItem:Invoke(itemId, 1) end)
+		if not bought then return false, "buy failed: " .. item.Name end
+	end
+
+	local ok, placed, code = pcall(function()
+		return PlaceItem:Invoke(itemId, position + base.Position, {base})
+	end)
+	if not ok or placed == false then return false, tostring(code or placed) end
+	return true
+end
+
+local function ImportLayout(entries, getEntry)
+	local queue = {}
+	if #entries > 0 then
+		for _, entry in ipairs(entries) do table.insert(queue, entry) end
+	else
+		for _, entry in pairs(entries) do table.insert(queue, entry) end
+	end
+	local expected = #queue
+	if expected == 0 then return 0 end
+
+	local nextIndex, placed, firstIssue = 1, 0, nil
+	local workers = math.min(6, expected)
+	local finished = 0
+	for _ = 1, workers do
+		task.spawn(function()
+			while HubAlive() do
+				local index = nextIndex
+				nextIndex += 1
+				if index > expected then break end
+				local identifier, position = getEntry(queue[index])
+				local ok, issue = PlaceLayoutEntry(identifier, position)
+				if ok then placed += 1 elseif not firstIssue then firstIssue = issue end
+				task.wait()
+			end
+			finished += 1
+		end)
+	end
+	while finished < workers and HubAlive() do task.wait() end
+	local settled = placed > 0 and WaitForLayoutSettle(12, math.max(1, math.floor(placed * 0.5))) or 0
+	if firstIssue then Rayfield:Notify({Title = "Layout import", Content = "Placed " .. placed .. "/" .. expected .. ". " .. firstIssue, Duration = 8}) end
+	return math.max(placed, settled)
+end
+
+local function LoadExternlLayout(Layout)
+	if type(Layout) ~= "table" then return 0 end
+	return ImportLayout(Layout, function(entry)
+		return entry.Name or entry.ItemId or entry[1], entry.Pos or entry.CFrame or entry[2]
+	end)
+end
 
 local function LoadStringLayout(String)
 	if typeof(String) ~= "string" then return 0 end
-	local Layout = ParseLayoutString(String)
-	if not Layout then
-		Rayfield:Notify({Title = "Layout string Loading erorr", Content = "Layout String Can't load. ", Duration = 10})
+	local layout = ParseLayoutString(String)
+	if not layout then
+		Rayfield:Notify({Title = "Layout string loading error", Content = "The layout string could not be parsed.", Duration = 8})
 		return 0
 	end
-	local expected = TableEntryCount(Layout)
-	local base = GetPlayerTycoon()
-	if not base or not base:FindFirstChild("Base") then return 0 end
-	for _, v in ipairs(Layout) do
-		if not HubAlive() then break end
-		local Item = game.ReplicatedStorage.Items:FindFirstChild(v[1])
-		if Item then
-			local P = string.split(v[2], ",")
-			local Pos = CFrame.new(tonumber(P[1]), tonumber(P[2]), tonumber(P[3]), tonumber(P[4]), tonumber(P[5]), tonumber(P[6]), tonumber(P[7]), tonumber(P[8]), tonumber(P[9]), tonumber(P[10]), tonumber(P[11]), tonumber(P[12]))
-			local tycoon = GetPlayerTycoon()
-			if tycoon and tycoon:FindFirstChild("Base") then
-				if Item.ItemType.Value >= 1 and Item.ItemType.Value < 5 then
-					if Player.PlayerGui.GUI.Money.Value >= Item.Cost.Value then buyItem:Invoke(Item:GetAttribute("ItemId"), 1) end
-				end
-				PlaceItem:Invoke(Item:GetAttribute("ItemId"), Pos + tycoon.Base.Position, {tycoon.Base})
-			end
-		end
-		task.wait(0.03)
-	end
-	local settled = WaitForLayoutSettle(18, math.max(1, math.floor(expected * 0.5)))
-	if Set.TestingMode then print("LoadStringLayout settled:", settled, "/", expected) end
-	return expected
+	local entries = type(layout.Items) == "table" and layout.Items or layout
+	return ImportLayout(entries, function(entry)
+		return entry[1] or entry.Name or entry.ItemId, entry[2] or entry.Pos or entry.CFrame
+	end)
 end
 
 local function LoadOneLayout(layoutName)
@@ -1816,9 +1893,6 @@ VendorsPage:CreateButton({Name = "Open True Book Of Knowledge", Callback = funct
 VendorsPage:CreateButton({Name = "Open Phantasm", Callback = function() ChangeUi("Phantasm") end})
 VendorsPage:CreateButton({Name = "Open Fleabag", Callback = function() ChangeUi("Fleabag") end})
 VendorsPage:CreateButton({Name = "Open Event", Callback = function() ChangeUi("Event") end})
-VendorsPage:CreateButton({Name = "Open Index",Callback = function()ChangeUi("Index")end,})
-VendorsPage:CreateButton({Name = "Open Challenges",Callback = function()ChangeUi("Challenges")end,})
-VendorsPage:CreateButton({Name = "Open Updates",Callback = function()ChangeUi("Updates")end,})
 
 local PlayerList = {}
 for i,v in game.Players:GetChildren() do table.insert(PlayerList,v.Name) end
@@ -1930,6 +2004,145 @@ end)
 
 local EventPage = MainUi:CreateTab("Event ")
 EventPage:CreateSection("No active event")
+
+local MusicPage = MainUi:CreateTab("Music", 6026568198)
+
+local MusicTargets = {"Day ambience", "Night ambience", "ClientBackgroundMusic", "ClientBaseRadio"}
+local MusicPresets = {
+	["Halloween Day"] = {
+		["ClientBackgroundMusic"] = 5707767063,
+		["Day ambience"] = 9733943062,
+	},
+	["Halloween Night"] = {
+		["ClientBackgroundMusic"] = 5707766686,
+		["Night ambience"] = 9733940528,
+	},
+	["Normal Night"] = {
+		["ClientBackgroundMusic"] = 6454368847,
+		["Night ambience"] = 9733940528,
+	},
+}
+local RadioTracks = {
+	Mesmerize = 404060129,
+	Roots = 474419296,
+	["Cloud 9"] = 385287232,
+	["Track 404064184"] = 404064184,
+	Magic = 385290279,
+	["Track 428553983"] = 428553983,
+	Dreams = 385285034,
+	["Tobu - Candyland"] = 335695249,
+}
+
+local function GetClientSound(name)
+	local sound = SoundService:FindFirstChild(name, true)
+	if sound and sound:IsA("Sound") then return sound end
+	return nil
+end
+
+local function ToSoundId(value)
+	local id = tostring(value or ""):match("(%d+)")
+	if not id then return nil end
+	return "rbxassetid://" .. id
+end
+
+local function ReplaceClientSound(name, value, shouldPlay)
+	local sound = GetClientSound(name)
+	local soundId = ToSoundId(value)
+	if not soundId then
+		Rayfield:Notify({Title = "Music", Content = "Enter a valid Roblox audio asset ID.", Duration = 5})
+		return false
+	end
+	if not sound then
+		Rayfield:Notify({Title = "Music", Content = "Could not find SoundService sound: " .. name, Duration = 6})
+		return false
+	end
+
+	sound.SoundId = soundId
+	if shouldPlay then
+		pcall(function()
+			sound.TimePosition = 0
+			sound:Play()
+		end)
+	end
+	return true
+end
+
+MusicPage:CreateSection("Seasonal music")
+MusicPage:CreateDropdown({
+	Name = "Music preset",
+	Options = {"Halloween Day", "Halloween Night", "Normal Night"},
+	CurrentOption = {Set.SelectedMusicPreset},
+	MultipleOptions = false,
+	Flag = "SelectedMusicPreset",
+	Callback = function(options)
+		Set.SelectedMusicPreset = options[1] or "Halloween Day"
+	end,
+})
+MusicPage:CreateButton({
+	Name = "Apply selected preset",
+	Callback = function()
+		local preset = MusicPresets[Set.SelectedMusicPreset]
+		if not preset then return end
+		local applied = 0
+		for target, soundId in pairs(preset) do
+			if ReplaceClientSound(target, soundId, true) then applied += 1 end
+		end
+		Rayfield:Notify({Title = "Music", Content = "Updated " .. applied .. " sound(s).", Duration = 4})
+	end,
+})
+
+MusicPage:CreateSection("Base radio")
+local radioOptions = {}
+for name in pairs(RadioTracks) do table.insert(radioOptions, name) end
+table.sort(radioOptions)
+MusicPage:CreateDropdown({
+	Name = "Radio song",
+	Options = radioOptions,
+	CurrentOption = {Set.SelectedRadioTrack},
+	MultipleOptions = false,
+	Flag = "SelectedRadioTrack",
+	Callback = function(options)
+		Set.SelectedRadioTrack = options[1] or "Mesmerize"
+	end,
+})
+MusicPage:CreateButton({
+	Name = "Set and play base radio",
+	Callback = function()
+		if ReplaceClientSound("ClientBaseRadio", RadioTracks[Set.SelectedRadioTrack], true) then
+			Rayfield:Notify({Title = "Base radio", Content = Set.SelectedRadioTrack .. " is playing locally.", Duration = 4})
+		end
+	end,
+})
+
+MusicPage:CreateSection("Manual SoundService replacement")
+MusicPage:CreateDropdown({
+	Name = "Sound to replace",
+	Options = MusicTargets,
+	CurrentOption = {Set.SelectedMusicTarget},
+	MultipleOptions = false,
+	Flag = "SelectedMusicTarget",
+	Callback = function(options)
+		Set.SelectedMusicTarget = options[1] or "ClientBaseRadio"
+	end,
+})
+MusicPage:CreateInput({
+	Name = "Replacement audio ID",
+	CurrentValue = Set.CustomMusicId,
+	PlaceholderText = "e.g. 404060129 or rbxassetid://404060129",
+	RemoveTextAfterFocusLost = false,
+	Flag = "CustomMusicId",
+	Callback = function(text)
+		Set.CustomMusicId = text or ""
+	end,
+})
+MusicPage:CreateButton({
+	Name = "Replace and play selected sound",
+	Callback = function()
+		if ReplaceClientSound(Set.SelectedMusicTarget, Set.CustomMusicId, true) then
+			Rayfield:Notify({Title = "Music", Content = Set.SelectedMusicTarget .. " updated locally.", Duration = 4})
+		end
+	end,
+})
 
 -- ===================== BOX FARMING TAB =====================
 local BoxFarmPage = MainUi:CreateTab("Box Farming", 6031280882)
