@@ -673,7 +673,7 @@ function ConvertBaseToString(PT)
 		local itemId = v:GetAttribute("ItemId") or (itemIdValue and itemIdValue.Value)
 		local hitbox = v:FindFirstChild("Hitbox")
 		if itemId and hitbox and hitbox:IsA("BasePart") then
-			table.insert(FullLayout, {itemId, tostring(hitbox.CFrame - PT.Base.Position)})
+			table.insert(FullLayout, {v.Name, tostring(hitbox.CFrame - PT.Base.Position)})
 		end
 	end
 	local String = game.HttpService:JSONEncode(FullLayout)
