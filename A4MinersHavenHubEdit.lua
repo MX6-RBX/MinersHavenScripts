@@ -652,7 +652,8 @@ local Data = {
 		["The Temple"] = 5621679766,
 		["Shiny Void"] = 5621680266,
 		["Data Restore V3"] = 16433781330,
-	}
+	},
+	ItemInfo = require(game.ReplicatedStorage.Modules.Data.Database).Items
 }
 
 local ELayout = LoadExternal("https://raw.githubusercontent.com/MX6-RBX/MinersHavenScripts/refs/heads/main/BasicFirstLife.lua")
@@ -822,7 +823,9 @@ local function PlaceLayoutEntry(identifier, rawPosition)
 	if not itemId or not position or not base then return false, "invalid item, position, or base" end
 
 	local itemType = item:FindFirstChild("ItemType")
-	local cost = item:FindFirstChild("Cost")
+	local Id = item:GetAttribute("ItemId") or item:FindFirstChild("ItemId").Value
+	local cost = Data.ItemInfo[Id].Obtainability.Price
+	if not cost then warn("Cost missing") end
 	if itemType and cost and itemType.Value >= 1 and itemType.Value < 5 then
 		local money = Player.PlayerGui.GUI:FindFirstChild("Money")
 		if money and money.Value < cost.Value then return false, "not enough money: " .. item.Name end
