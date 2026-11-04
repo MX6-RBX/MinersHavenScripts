@@ -369,11 +369,11 @@ Close.TextWrapped = true
 
 UICorner_16.Parent = Close
 
-
-local HasItem = game.ReplicatedStorage.HasItem
-local Withdraw = game.ReplicatedStorage.DestroyAll
-local PlaceItem = game.ReplicatedStorage.PlaceItem 
-local buyItem = game.ReplicatedStorage.BuyItem 
+local Net = game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Networking").Net
+local HasItem = Net.HasItem
+local PlaceItem = Net.PlaceItem 
+local buyItem = Net.BuyItem 
+local Withdraw = Net.DestroyAll 
 local UIS = game:GetService("UserInputService")
 
 local RealAmount = Instance.new("IntValue")
@@ -488,7 +488,7 @@ function FindMissing(Layout)
 		spawn(function()
 			local RealItem = findItem(Item.ItemId)
 			if not RealItem then return end 
-			if HasItem:InvokeServer(RealItem.ItemId.Value) <=0 then
+			if HasItem:Invoke(RealItem.ItemId.Value) <=0 then
 				if MissingItems.Items:FindFirstChild(RealItem.Name) then
 					local Item = MissingItems.Items:FindFirstChild(RealItem.Name)
 					Item.RealAmount.Value =Item.RealAmount.Value +1
@@ -518,7 +518,7 @@ function FindBaseMissing(Base)
 	for i,v in Base:GetChildren() do
 		if not v:FindFirstChild("ItemId") then continue end
 		spawn(function()
-			if HasItem:InvokeServer(v.ItemId.Value) <=0 then
+			if HasItem:Invoke(v.ItemId.Value) <=0 then
 				if MissingItems.Items:FindFirstChild(v.Name) then
 					local Item = MissingItems.Items:FindFirstChild(v.Name)
 					Item.RealAmount.Value =Item.RealAmount.Value +1
@@ -620,7 +620,7 @@ function ConvertBaseToString(Tycoon)--Converts The players current base to a lay
 end
 
 function SaveLayout(Layout)
-	Withdraw:InvokeServer()
+	Withdraw:Invoke()
 	print(Player.ActiveTycoon.Value.Base.CFrame)
 	for i,Item in pairs(Layout) do
 		spawn(function()
@@ -642,15 +642,15 @@ function SaveLayout(Layout)
 
 			if RealItem.ItemType.Value >=1 and RealItem.ItemType.Value <5  then
 				if Player.PlayerGui.GUI.Money.Value >= RealItem.Cost.Value then
-					buyItem:InvokeServer(RealItem.Name,1)
-					PlaceItem:InvokeServer(RealItem.Name,  CoordinateFrame, {Player.ActiveTycoon.Value.Base}) 
+					buyItem:Invoke(RealItem.Name,1)
+					PlaceItem:Invoke(RealItem.Name,  CoordinateFrame, {Player.ActiveTycoon.Value.Base}) 
 				else
 					print("Cant buy item :(")
 				end
 
 			else
-				if HasItem:InvokeServer(RealItem.ItemId.Value) >0 then
-					PlaceItem:InvokeServer(RealItem.Name,  CoordinateFrame, {Player.ActiveTycoon.Value.Base}) 
+				if HasItem:Invoke(RealItem.ItemId.Value) >0 then
+					PlaceItem:Invoke(RealItem.Name,  CoordinateFrame, {Player.ActiveTycoon.Value.Base}) 
 				else
 					print("You Dont have "..RealItem.Name)
 				end
@@ -662,7 +662,7 @@ function SaveLayout(Layout)
 end
 
 function SaveBase(Base)
-	Withdraw:InvokeServer()
+	Withdraw:Invoke()
 	for i,v in pairs(Base:GetChildren()) do
 		spawn(function()
 			if v:FindFirstChild("ItemId") then
@@ -670,15 +670,15 @@ function SaveBase(Base)
 				local PlacePos = Pos + Player.ActiveTycoon.Value.Base.Position
 				if v.ItemType.Value >=1 and v.ItemType.Value <5  then
 					if Player.PlayerGui.GUI.Money.Value >= v.Cost.Value then
-						buyItem:InvokeServer(v.Name,1)
-						PlaceItem:InvokeServer(v.Name,  PlacePos, {Player.ActiveTycoon.Value.Base}) 
+						buyItem:Invoke(v.Name,1)
+						PlaceItem:Invoke(v.Name,  PlacePos, {Player.ActiveTycoon.Value.Base}) 
 					else
 						print("Cant buy item :(")
 					end
 
 				else
-					if HasItem:InvokeServer(v.ItemId.Value) >0 then
-						PlaceItem:InvokeServer(v.Name,  PlacePos, {Player.ActiveTycoon.Value.Base}) 
+					if HasItem:Invoke(v.ItemId.Value) >0 then
+						PlaceItem:Invoke(v.Name,  PlacePos, {Player.ActiveTycoon.Value.Base}) 
 					else
 						print("You Dont have "..v.Name)
 					end
