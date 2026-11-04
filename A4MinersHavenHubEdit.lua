@@ -1,6 +1,6 @@
 --[[ This was made by MX6, and contributed by A4.
-     HAPPY HALLOWEEN 2K26
->>>>> UPDATES BY MX6 <<<<<<<
+     HAPPY NOVEMBER 2K26
+>>>>> UPDATES BY MX6 <<<<<<<  / THANKS! \
 	658
 	828-831
 ]]
@@ -826,12 +826,12 @@ local function PlaceLayoutEntry(identifier, rawPosition)
 	if not itemId or not position or not base then return false, "invalid item, position, or base" end
 
 	local itemType = item:FindFirstChild("ItemType")
-	local Id = item:GetAttribute("ItemId") or item:FindFirstChild("ItemId").Value
-	local cost = Data.ItemInfo[Id].Obtainability.Price
-	if not cost then warn("Cost missing") end
+	local itemInfo = Data.ItemInfo and Data.ItemInfo[itemId]
+	local cost = itemInfo and itemInfo.Obtainability and itemInfo.Obtainability.Price
+	if type(cost) ~= "number" then cost = nil end
 	if itemType and cost and itemType.Value >= 1 and itemType.Value < 5 then
 		local money = Player.PlayerGui.GUI:FindFirstChild("Money")
-		if money and money.Value < cost.Value then return false, "not enough money: " .. item.Name end
+		if money and money.Value < cost then return false, "not enough money: " .. item.Name end
 		local bought = pcall(function() buyItem:Invoke(itemId, 1) end)
 		if not bought then return false, "buy failed: " .. item.Name end
 	end
@@ -1023,8 +1023,11 @@ local function ConfirmCandyCollection()
 	if not Set.AutoCandyConfirm or os.clock() - lastCandyConfirm < 0.4 then return end
 	local gui = Player:FindFirstChild("PlayerGui")
 	local gameGui = gui and gui:FindFirstChild("GUI")
-	local promptGui = gameGui and gameGui:FindFirstChild("InputPrompt")
+	local prompts = (gui and gui:FindFirstChild("Prompts"))
+		or (gameGui and gameGui:FindFirstChild("Prompts"))
+	local promptGui = prompts and prompts:FindFirstChild("InputPrompt")
 	local prompt = promptGui and promptGui:FindFirstChild("InputPrompt")
+		or (gameGui and gameGui:FindFirstChild("InputPrompt") and gameGui.InputPrompt:FindFirstChild("InputPrompt"))
 	local title = prompt and prompt:FindFirstChild("Title")
 	local yes = prompt and prompt:FindFirstChild("Yes")
 	if not (prompt and title and yes and prompt.Visible and yes.Visible) then return end
