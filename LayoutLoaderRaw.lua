@@ -375,6 +375,7 @@ local PlaceItem = Net.PlaceItem
 local buyItem = Net.BuyItem 
 local Withdraw = Net.DestroyAll 
 local UIS = game:GetService("UserInputService")
+local ItemsInfo = require(game.ReplicatedStorage.Modules.Data.Database).Items
 
 local RealAmount = Instance.new("IntValue")
 RealAmount.Name = "RealAmount"
@@ -437,7 +438,8 @@ end
 
 function findItem(Id) 
 	for i,v in game.ReplicatedStorage.Items:GetChildren() do
-		if v:FindFirstChild("ItemId") and v.ItemId.Value == tonumber(Id) then
+		local Id = v:GetAttribute("ItemId") or v:FindFirstChild("ItemId").Value
+		if tonumber(Id) then
 			return v
 		end 
 	end
@@ -726,8 +728,9 @@ function LoadPlayersLayouts(SelectedPlayer)
 			if Item then
 				--("Yes")
 				local RealItem = findItem(Item.ItemId)
-
+				local Id = RealItem:GetAttribute("ItemId") or RealItem:FindFirstChild("ItemId").Value
 				if RealItem then
+					local ItemInfo = ItemsInfo[Id]
 					--print("Found")
 					if Frame.Items:FindFirstChild(RealItem.Name) then
 						--print("Already in")
@@ -738,8 +741,8 @@ function LoadPlayersLayouts(SelectedPlayer)
 					else
 						--print("Adding")
 						local Clone = ItemTemplate:Clone()
-						Clone.Name = RealItem.Name
-						Clone.Image = "rbxassetid://"..RealItem.ThumbnailId.Value
+						Clone.Name = ItemInfo.Name
+						Clone.Image = ItemInfo.Icons["256x256"]
 						Clone.Parent = Frame.Items
 						Clone.RealAmount.Value = 1
 						Clone.Visible = true
@@ -785,7 +788,9 @@ function LoadPlayersLayouts(SelectedPlayer)
 		local ItemCountValue = 0
 		local Base = SelectedPlayer.PlayerTycoon.Value
 		for a,BaseItem in pairs(Base:GetChildren()) do 
-			if BaseItem:FindFirstChild("ItemId") then
+			if BaseItem:FindFirstChild("ItemId") or BaseItem:GetAttribute("ItemId") then
+				local Id = BaseItem:GetAttribute("ItemId") or BaseItem:FindFirstChild("ItemId").Value
+				local ItemInfo = ItemsInfo[Id]
 				if Frame.Items:FindFirstChild(BaseItem.Name) then
 					--print("Already in")
 					local Item = Frame.Items:FindFirstChild(BaseItem.Name)
@@ -795,8 +800,8 @@ function LoadPlayersLayouts(SelectedPlayer)
 				else
 					--print("Adding")
 					local Clone = ItemTemplate:Clone()
-					Clone.Name = BaseItem.Name
-					Clone.Image = "rbxassetid://"..BaseItem.ThumbnailId.Value
+					Clone.Name = ItemInfo.Name
+					Clone.Image = ItemInfo.Icons["256x256"]
 					Clone.Parent = Frame.Items
 					Clone.RealAmount.Value = 1
 					Clone.Visible = true
