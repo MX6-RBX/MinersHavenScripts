@@ -368,7 +368,7 @@ Close.TextSize = 14.000
 Close.TextWrapped = true
 
 UICorner_16.Parent = Close
-
+print("GUI Creation finnished")
 local Net = game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Networking").Net
 local HasItem = Net.HasItem
 local PlaceItem = Net.PlaceItem 
@@ -410,6 +410,7 @@ local Suffixes = { "k", "M", "B", "T", "qd", "Qn", "sx", "Sp", "O", "N", "de", "
 	"SPNONGNTL", "OTNONGNTL", "NONONGNTL", "CENT", "UNCENT","inf"
 }
 
+print("variables made")
 local function shorten(Input)
 	local Negative = Input < 0
 	Input = math.abs(Input)
@@ -434,17 +435,6 @@ local function shorten(Input)
 	end
 	return Input
 end
-
-
-function findItem(Id) 
-	for i,v in game.ReplicatedStorage.Items:GetChildren() do
-		local Id = v:GetAttribute("ItemId") or v:FindFirstChild("ItemId").Value
-		if tonumber(Id) then
-			return v
-		end 
-	end
-end
-
 function GetPlayerImage(Object)
 	local thumbType = Enum.ThumbnailType.HeadShot
 	local thumbSize = Enum.ThumbnailSize.Size420x420
@@ -469,7 +459,16 @@ function Message(Text,Color)
 	LoaddingMessage.Visible = false
 	LoaddingMessage.Text = SafeText
 end
+print("Helper Functions made")
 
+function findItem(Id) 
+	for i,v in game.ReplicatedStorage.Items:GetChildren() do
+		local Id = v:GetAttribute("ItemId") or v:FindFirstChild("ItemId").Value
+		if tonumber(Id) then
+			return v
+		end 
+	end
+end
 function clearMissing()
 	for i,v in pairs(MissingItems.Items:GetChildren()) do
 		spawn(function()
@@ -481,6 +480,7 @@ function clearMissing()
 	end
 end
 function FindMissing(Layout)
+	print("Finding Missing Items From Players Layout")
 	clearMissing()
 	wait(0.01)
 	local ItemCountValue = Count2
@@ -512,6 +512,7 @@ function FindMissing(Layout)
 end
 
 function FindBaseMissing(Base)
+	print("Finding Missing Items From Base Layout")
 	clearMissing()
 	wait(0.01)
 	local ItemCountValue = Count2
@@ -541,6 +542,7 @@ function FindBaseMissing(Base)
 end
 
 function ConvertLayoutToString(Layout)
+	print("Crating String From Player Layout")
 	local Cost = 0
 	local FullLayout = HTTP:JSONDecode(Layout.Value)
 	local ConvertedLayout = {}
@@ -593,6 +595,7 @@ end
 
 
 function ConvertBaseToString(Tycoon)--Converts The players current base to a layout string to be shared
+	print("Creating String From Base Layout")
 	local Cost = 0
 	local FullLayout = {}
 	for i,v in pairs(Tycoon:GetChildren()) do 
@@ -622,6 +625,7 @@ function ConvertBaseToString(Tycoon)--Converts The players current base to a lay
 end
 
 function SaveLayout(Layout)
+	print("Saving Layout")
 	Withdraw:Invoke()
 	print(Player.ActiveTycoon.Value.Base.CFrame)
 	for i,Item in pairs(Layout) do
@@ -664,6 +668,7 @@ function SaveLayout(Layout)
 end
 
 function SaveBase(Base)
+	print("Saving Base")
 	Withdraw:Invoke()
 	for i,v in pairs(Base:GetChildren()) do
 		spawn(function()
@@ -710,6 +715,7 @@ function ClearPlayers()
 end
 
 function LoadPlayersLayouts(SelectedPlayer)
+	print("Loading",SelectedPlayer.Name.."'s Layouts")
 	LoaddingMessage.Visible = true
 	ClearLayoutsFrame()
 	local PlayerLayouts = SelectedPlayer.Layouts
@@ -777,6 +783,7 @@ function LoadPlayersLayouts(SelectedPlayer)
 		end)
 
 	end
+	print("Loading",SelectedPlayer.Name,"'s base")
 	pcall(function()
 		local Frame = LayoutTemplate:Clone()
 		Frame.LayoutName.Text = "Current Base Layout" 
@@ -840,6 +847,7 @@ function LoadPlayersLayouts(SelectedPlayer)
 end
 
 function GetPlayers()
+	print("Getting Players")
 	ClearPlayers()
 	for i,v in pairs(game.Players:GetChildren()) do
 		local PlayerClone = PlayerTemplate:Clone()
@@ -855,7 +863,6 @@ function GetPlayers()
 				LoadPlayersLayouts(v)
 			else
 				Message("Players is not loaded in please select another player",Color3.fromRGB(255, 90, 90))
-
 			end
 		end)
 	end
