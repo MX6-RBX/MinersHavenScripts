@@ -369,7 +369,7 @@ Close.TextWrapped = true
 
 UICorner_16.Parent = Close
 print("GUI Creation finnished")
-local Net = game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Networking").Net
+local Net = require(game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Networking").Net)
 local HasItem = Net.HasItem
 local PlaceItem = Net.PlaceItem 
 local buyItem = Net.BuyItem 
