@@ -648,15 +648,15 @@ function SaveLayout(Layout)
 
 			if RealItem.ItemType.Value >=1 and RealItem.ItemType.Value <5  then
 				if Player.PlayerGui.GUI.Money.Value >= RealItem.Cost.Value then
-					buyItem:Invoke(RealItem.Name,1)
-					PlaceItem:Invoke(RealItem.Name,  CoordinateFrame, {Player.ActiveTycoon.Value.Base}) 
+					buyItem:Invoke(Item.ItemId,1)
+					PlaceItem:Invoke(Item.ItemId,  CoordinateFrame, {Player.ActiveTycoon.Value.Base}) 
 				else
 					print("Cant buy item :(")
 				end
 
 			else
-				if HasItem:Invoke(RealItem.ItemId.Value) >0 then
-					PlaceItem:Invoke(RealItem.Name,  CoordinateFrame, {Player.ActiveTycoon.Value.Base}) 
+				if HasItem:Invoke(Item.ItemId) >0 then
+					PlaceItem:Invoke(Item.ItemId,  CoordinateFrame, {Player.ActiveTycoon.Value.Base}) 
 				else
 					print("You Dont have "..RealItem.Name)
 				end
@@ -672,20 +672,21 @@ function SaveBase(Base)
 	Withdraw:Invoke()
 	for i,v in pairs(Base:GetChildren()) do
 		spawn(function()
-			if v:FindFirstChild("ItemId") then
+			local Id = v:GetAttribute("IetmId") or v:FindFirstChild("ItemId").Value
+			if Id  then
 				local Pos = v.Hitbox.CFrame - Base.Base.Position
 				local PlacePos = Pos + Player.ActiveTycoon.Value.Base.Position
 				if v.ItemType.Value >=1 and v.ItemType.Value <5  then
 					if Player.PlayerGui.GUI.Money.Value >= v.Cost.Value then
-						buyItem:Invoke(v.Name,1)
-						PlaceItem:Invoke(v.Name,  PlacePos, {Player.ActiveTycoon.Value.Base}) 
+						buyItem:Invoke(Id,1)
+						PlaceItem:Invoke(Id,  PlacePos, {Player.ActiveTycoon.Value.Base}) 
 					else
 						print("Cant buy item :(")
 					end
 
 				else
-					if HasItem:Invoke(v.ItemId.Value) >0 then
-						PlaceItem:Invoke(v.Name,  PlacePos, {Player.ActiveTycoon.Value.Base}) 
+					if HasItem:Invoke(Id) >0 then
+						PlaceItem:Invoke(Id,  PlacePos, {Player.ActiveTycoon.Value.Base}) 
 					else
 						print("You Dont have "..v.Name)
 					end
