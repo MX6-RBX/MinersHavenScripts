@@ -631,6 +631,14 @@ function SaveLayout(Layout)
 	for i,Item in pairs(Layout) do
 		spawn(function()
 			local RealItem = findItem(Item.ItemId)
+			if RealItem:FindFirstChild("RequiredEvo") then 
+				print("Is Shiny Evo")
+				RealItem = findItem(RealItem.RequiredEvo.Value)
+			end
+			if RealItem:FindFirstChild("NonShinyId") then
+				print("Is Shiny Reborn")
+				RealItem = findItem(RealItem.NonShinyId.Value)
+			end
 			local Tycoon = Player.ActiveTycoon.Value
 			local TycoonBase = Tycoon.Base
 			local TycoonTopLeft = TycoonBase.CFrame * CFrame.new(Vector3.new(TycoonBase.Size.x/2, 0, TycoonBase.Size.z/2))		
@@ -672,21 +680,30 @@ function SaveBase(Base)
 	Withdraw:Invoke()
 	for i,v in pairs(Base:GetChildren()) do
 		spawn(function()
-			local Id = v:GetAttribute("IetmId") or v:FindFirstChild("ItemId").Value
+			local Id = v:GetAttribute("ItemId") or v:FindFirstChild("ItemId").Value
 			if Id  then
+				local RealItem = findItem(Id)
+				if RealItem:FindFirstChild("RequiredEvo") then 
+					print("Is Shiny Evo")
+					RealItem = findItem(RealItem.RequiredEvo.Value)
+				end
+				if RealItem:FindFirstChild("NonShinyId") then
+					print("Is Shiny Reborn")
+					RealItem = findItem(RealItem.NonShinyId.Value)
+				end
 				local Pos = v.Hitbox.CFrame - Base.Base.Position
 				local PlacePos = Pos + Player.ActiveTycoon.Value.Base.Position
 				if v.ItemType.Value >=1 and v.ItemType.Value <5  then
 					if Player.PlayerGui.GUI.Money.Value >= v.Cost.Value then
-						buyItem:Invoke(Id,1)
-						PlaceItem:Invoke(Id,  PlacePos, {Player.ActiveTycoon.Value.Base}) 
+						buyItem:Invoke(RealItem,1)
+						PlaceItem:Invoke(RealItem,  PlacePos, {Player.ActiveTycoon.Value.Base}) 
 					else
 						print("Cant buy item :(")
 					end
 
 				else
-					if HasItem:Invoke(Id) >0 then
-						PlaceItem:Invoke(Id,  PlacePos, {Player.ActiveTycoon.Value.Base}) 
+					if HasItem:Invoke(RealItem) >0 then
+						PlaceItem:Invoke(RealItem,  PlacePos, {Player.ActiveTycoon.Value.Base}) 
 					else
 						print("You Dont have "..v.Name)
 					end
